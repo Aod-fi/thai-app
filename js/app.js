@@ -7,7 +7,7 @@ import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "0.6";
+const VERSION = "0.7";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -211,3 +211,8 @@ for (const button of $("rating-buttons").querySelectorAll("button")) {
 }
 
 start();
+
+// Service Worker anmelden (Offline-Betrieb und immer frische Dateien, siehe sw.js)
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
