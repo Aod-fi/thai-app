@@ -2,7 +2,8 @@
 // Vorgelesen wird immer das Feld "thai" einer Karte.
 
 export const RATE_NORMAL = 1;
-export const RATE_SLOW = 0.6;
+// Safari auf dem iPhone verlangsamt erst bei kleinen Werten hörbar, deshalb 0.4.
+export const RATE_SLOW = 0.4;
 
 let thaiVoice = null;
 
