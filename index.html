@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thai Stimmtest</title>
+  <style>
+    /* Farben an einer Stelle, damit man sie leicht ändern kann */
+    :root {
+      --bg: #f6f4ef;
+      --card: #ffffff;
+      --text: #222222;
+      --muted: #666666;
+      --accent: #2f6f5e;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #161816;
+        --card: #232623;
+        --text: #eeeeee;
+        --muted: #aaaaaa;
+        --accent: #6fbfa6;
+      }
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, system-ui, sans-serif;
+    }
+    main { max-width: 560px; margin: 0 auto; }
+    h1 { font-size: 1.4rem; }
+    #voice-info { color: var(--muted); font-size: 0.9rem; }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin: 12px 0;
+    }
+    .umschrift { font-size: 1.4rem; font-weight: 600; }
+    .deutsch { color: var(--muted); margin: 4px 0 10px; }
+    button {
+      font-size: 1rem;
+      padding: 12px 18px;
+      margin-right: 8px;
+      border: none;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Thai Stimmtest</h1>
+    <p id="voice-info">Suche Thai-Stimme …</p>
+    <div id="cards"></div>
+  </main>
+
+  <script>
+    // Die 10 Testkarten. "thai" geht nur an die Stimme und wird nie angezeigt.
+    const cards = [
+      { umschrift: "sà-wàt-dii khráp", deutsch: "Hallo", thai: "สวัสดีครับ" },
+      { umschrift: "khɔ̀ɔp-khun khráp", deutsch: "Danke", thai: "ขอบคุณครับ" },
+      { umschrift: "mâi pen rai", deutsch: "Kein Problem", thai: "ไม่เป็นไร" },
+      { umschrift: "sà-baai-dii mǎi khráp?", deutsch: "Wie geht's?", thai: "สบายดีไหมครับ" },
+      { umschrift: "an níi tâo-rài khráp?", deutsch: "Was kostet das hier?", thai: "อันนี้เท่าไหร่ครับ" },
+      { umschrift: "phɛɛng", deutsch: "teuer", thai: "แพง" },
+      { umschrift: "thùuk", deutsch: "billig", thai: "ถูก" },
+      { umschrift: "sìp", deutsch: "10", thai: "สิบ" },
+      { umschrift: "yîi-sìp", deutsch: "20", thai: "ยี่สิบ" },
+      { umschrift: "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat", deutsch: "250 Baht", thai: "สองร้อยห้าสิบบาท" },
+    ];
+
+    let thaiVoice = null;
+
+    // Sucht die beste Thai-Stimme: zuerst "Kanya", sonst irgendeine th-TH-Stimme.
+    function findThaiVoice() {
+      const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith("th"));
+      thaiVoice = voices.find(v => v.name.includes("Kanya")) || voices[0] || null;
+      const info = document.getElementById("voice-info");
+      if (thaiVoice) {
+        info.textContent = "Stimme: " + thaiVoice.name + " (" + thaiVoice.lang + ")";
+      } else {
+        info.textContent = "Keine Thai-Stimme gefunden. Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai.";
+      }
+    }
+
+    // Liest einen Thai-Text vor; rate 1 = normal, 0.6 = langsam.
+    function speak(text, rate) {
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "th-TH";
+      utterance.rate = rate;
+      if (thaiVoice) utterance.voice = thaiVoice;
+      speechSynthesis.speak(utterance);
+    }
+
+    // Baut für jede Karte einen Kasten mit zwei Tasten.
+    function showCards() {
+      const container = document.getElementById("cards");
+      for (const card of cards) {
+        const box = document.createElement("div");
+        box.className = "card";
+        box.innerHTML =
+          '<div class="umschrift"></div><div class="deutsch"></div>' +
+          '<button data-rate="1">▶ Normal</button><button data-rate="0.6">🐢 Langsam</button>';
+        box.querySelector(".umschrift").textContent = card.umschrift;
+        box.querySelector(".deutsch").textContent = card.deutsch;
+        for (const button of box.querySelectorAll("button")) {
+          button.addEventListener("click", () => speak(card.thai, Number(button.dataset.rate)));
+        }
+        container.appendChild(box);
+      }
+    }
+
+    showCards();
+    findThaiVoice();
+    // Manche Browser laden die Stimmen erst etwas später.
+    speechSynthesis.addEventListener("voiceschanged", findThaiVoice);
+  </script>
+</body>
+</html>
