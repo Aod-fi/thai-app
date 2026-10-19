@@ -5,6 +5,10 @@ import { buildRound, rateCard, countByBox, streak, toDateString } from "./leitne
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
+// Versionsnummer, wird unten auf der Startseite angezeigt.
+// Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
+const VERSION = "0.6";
+
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
 
@@ -25,6 +29,7 @@ async function start() {
   const response = await fetch("inhalte/vokabeln.json", { cache: "no-cache" });
   cards = await response.json();
   states = await loadStates();
+  $("version").textContent = VERSION;
   showHome();
 
   const hasVoice = await initSpeech();

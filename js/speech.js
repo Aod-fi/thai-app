@@ -27,11 +27,29 @@ export function initSpeech() {
   });
 }
 
-export function speak(text, rate = RATE_NORMAL) {
-  speechSynthesis.cancel();
+// Zerlegt Thai-Text in einzelne Wörter, z. B. "สองร้อยห้าสิบบาท" → สอง | ร้อย | ห้า | สิบ | บาท
+// (Thai schreibt ohne Leerzeichen, der Browser kennt aber die Wortgrenzen.)
+function splitWords(text) {
+  const segmenter = new Intl.Segmenter("th", { granularity: "word" });
+  return [...segmenter.segment(text)].filter(s => s.isWordLike).map(s => s.segment);
+}
+
+function say(text, rate) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = "th-TH";
   utterance.rate = rate;
   if (thaiVoice) utterance.voice = thaiVoice;
   speechSynthesis.speak(utterance);
+}
+
+// Liest vor. Bei "langsam" wird jedes Wort einzeln gesprochen, mit kleiner Pause
+// dazwischen. Das ist auf dem iPhone deutlich hörbar, auch wenn Safari das
+// Tempo (rate) kaum verändert.
+export function speak(text, rate = RATE_NORMAL) {
+  speechSynthesis.cancel();
+  if (rate === RATE_NORMAL || !("Segmenter" in Intl)) {
+    say(text, rate);
+    return;
+  }
+  for (const word of splitWords(text)) say(word, rate);
 }

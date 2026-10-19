@@ -115,3 +115,5 @@ button:disabled { opacity: 0.5; cursor: default; }
 .row .text { flex: 1; }
 .row .umschrift-small { font-weight: 600; }
 .row button { padding: 10px 12px; }
+
+.version { text-align: center; font-size: 0.8rem; }
