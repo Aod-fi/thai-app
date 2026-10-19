@@ -47,5 +47,6 @@
   { "id": "preis-40", "einheit": "2", "thema": "Preise", "umschrift": "sìi-sìp bàat", "thai": "สี่สิบบาท", "deutsch": "40 Baht", "merkhilfe": "sìi lang, sìp kurz", "aufpassen": true },
   { "id": "preis-50", "einheit": "2", "thema": "Preise", "umschrift": "hâa-sìp bàat", "thai": "ห้าสิบบาท", "deutsch": "50 Baht", "merkhilfe": "High Five mal 10, dann bàat" },
   { "id": "preis-80", "einheit": "3b", "thema": "Preise", "umschrift": "pɛ̀ɛt-sìp bàat", "thai": "แปดสิบบาท", "deutsch": "80 Baht", "merkhilfe": "Um 8 ins Bett, mal 10" },
-  { "id": "preis-250", "einheit": "3c", "thema": "Preise", "umschrift": "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat", "thai": "สองร้อยห้าสิบบาท", "deutsch": "250 Baht", "merkhilfe": "Hunderter, dann Zehner, dann bàat", "aufpassen": true }
+  { "id": "preis-250", "einheit": "3c", "thema": "Preise", "umschrift": "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat", "thai": "สองร้อยห้าสิบบาท", "deutsch": "250 Baht", "merkhilfe": "Hunderter, dann Zehner, dann bàat", "aufpassen": true },
+    { "id": "wort-khrap", "einheit": "1", "thema": "Begrüßung", "umschrift": "khráp", "thai": "ครับ", "deutsch": "Höflichkeitswort am Satzende (Mann)", "merkhilfe": "Ich bin ein Mann: immer khráp ans Ende" }
 ]
