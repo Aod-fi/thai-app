@@ -48,5 +48,14 @@
   { "id": "preis-50", "einheit": "2", "thema": "Preise", "umschrift": "hâa-sìp bàat", "thai": "ห้าสิบบาท", "deutsch": "50 Baht", "merkhilfe": "High Five mal 10, dann bàat" },
   { "id": "preis-80", "einheit": "3b", "thema": "Preise", "umschrift": "pɛ̀ɛt-sìp bàat", "thai": "แปดสิบบาท", "deutsch": "80 Baht", "merkhilfe": "Um 8 ins Bett, mal 10" },
   { "id": "preis-250", "einheit": "3c", "thema": "Preise", "umschrift": "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat", "thai": "สองร้อยห้าสิบบาท", "deutsch": "250 Baht", "merkhilfe": "Hunderter, dann Zehner, dann bàat", "aufpassen": true },
-    { "id": "wort-khrap", "einheit": "1", "thema": "Begrüßung", "umschrift": "khráp", "thai": "ครับ", "deutsch": "Höflichkeitswort am Satzende (Mann)", "merkhilfe": "Ich bin ein Mann: immer khráp ans Ende" }
+    { "id": "wort-khrap", "einheit": "1", "thema": "Begrüßung", "umschrift": "khráp", "thai": "ครับ", "deutsch": "Höflichkeitswort am Satzende (Mann)", "merkhilfe": "Ich bin ein Mann: immer khráp ans Ende" },
+  { "id": "taxi-pai", "einheit": "4", "thema": "Taxi", "umschrift": "pai", "thai": "ไป", "deutsch": "fahren, gehen (pai + Ziel)", "merkhilfe": "kennst du aus phɛɛng pai" },
+  { "id": "taxi-pai-ziel", "einheit": "4", "thema": "Taxi", "umschrift": "pai Central khráp", "thai": "ไปเซ็นทรัลครับ", "deutsch": "Zum Central, bitte", "merkhilfe": "pai + Ziel + khráp" },
+  { "id": "taxi-pai-nai", "einheit": "4", "thema": "Taxi", "umschrift": "pai nǎi khá?", "thai": "ไปไหนคะ", "deutsch": "Wohin? (Fahrerin fragt)", "merkhilfe": "nǎi steigend wie eine Frage" },
+  { "id": "taxi-poet", "einheit": "4", "thema": "Taxi", "umschrift": "pə̀ət", "thai": "เปิด", "deutsch": "anmachen, öffnen", "merkhilfe": "\"pööt\": Knopf drücken, nicht \"peet\"", "aufpassen": true },
+  { "id": "taxi-meter", "einheit": "4", "thema": "Taxi", "umschrift": "mí-tə̂ə", "thai": "มิเตอร์", "deutsch": "Taxameter", "merkhilfe": "vom englischen \"meter\"" },
+  { "id": "taxi-meter-frage", "einheit": "4", "thema": "Taxi", "umschrift": "pə̀ət mí-tə̂ə dâi mǎi khráp?", "thai": "เปิดมิเตอร์ได้ไหมครับ", "deutsch": "Machen Sie das Taxameter an?", "merkhilfe": "dâi mǎi? = Geht das?" },
+  { "id": "taxi-jot", "einheit": "4", "thema": "Taxi", "umschrift": "jɔ̀ɔt thîi-nîi khráp", "thai": "จอดที่นี่ครับ", "deutsch": "Halten Sie hier, bitte", "merkhilfe": "Jo-Jo stoppt hier; Verb jɔ̀ɔt nicht vergessen", "aufpassen": true },
+  { "id": "ort-thii-nii", "einheit": "4", "thema": "Taxi", "umschrift": "thîi-nîi", "thai": "ที่นี่", "deutsch": "hier", "merkhilfe": "th mit Hauch, nîi wie in an níi" },
+  { "id": "ort-thii-nan", "einheit": "4", "thema": "Taxi", "umschrift": "thîi-nân", "thai": "ที่นั่น", "deutsch": "dort", "merkhilfe": "nîi = hier, nân = dort" }
 ]
