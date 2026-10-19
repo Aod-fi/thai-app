@@ -1,4 +1,4 @@
-# Thai lernen
+# MyThai
 
 Eine kleine Web-App zum Wiederholen von Thai-Vokabeln mit Sprachausgabe.
 Läuft auf iPhone, iPad und Mac, auch offline.

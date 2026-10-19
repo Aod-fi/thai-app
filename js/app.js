@@ -7,7 +7,7 @@ import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "0.8";
+const VERSION = "0.9";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
