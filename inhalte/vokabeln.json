@@ -57,5 +57,13 @@
   { "id": "taxi-meter-frage", "einheit": "4", "thema": "Taxi", "umschrift": "pə̀ət mí-tə̂ə dâi mǎi khráp?", "thai": "เปิดมิเตอร์ได้ไหมครับ", "deutsch": "Machen Sie das Taxameter an?", "merkhilfe": "dâi mǎi? = Geht das?" },
   { "id": "taxi-jot", "einheit": "4", "thema": "Taxi", "umschrift": "jɔ̀ɔt thîi-nîi khráp", "thai": "จอดที่นี่ครับ", "deutsch": "Halten Sie hier, bitte", "merkhilfe": "Jo-Jo stoppt hier; Verb jɔ̀ɔt nicht vergessen", "aufpassen": true },
   { "id": "ort-thii-nii", "einheit": "4", "thema": "Taxi", "umschrift": "thîi-nîi", "thai": "ที่นี่", "deutsch": "hier", "merkhilfe": "th mit Hauch, nîi wie in an níi" },
-  { "id": "ort-thii-nan", "einheit": "4", "thema": "Taxi", "umschrift": "thîi-nân", "thai": "ที่นั่น", "deutsch": "dort", "merkhilfe": "nîi = hier, nân = dort" }
+  { "id": "ort-thii-nan", "einheit": "4", "thema": "Taxi", "umschrift": "thîi-nân", "thai": "ที่นั่น", "deutsch": "dort", "merkhilfe": "nîi = hier, nân = dort" },
+  { "id": "taxi-liao", "einheit": "5", "thema": "Taxi", "umschrift": "líao", "thai": "เลี้ยว", "deutsch": "abbiegen", "merkhilfe": "wie Tarzan an der Liane um die Kurve schwingen" },
+  { "id": "taxi-saai", "einheit": "5", "thema": "Taxi", "umschrift": "líao sáai khráp", "thai": "เลี้ยวซ้ายครับ", "deutsch": "links abbiegen, bitte", "merkhilfe": "sáai: Sinister ist lateinisch für links", "aufpassen": true },
+  { "id": "taxi-khwaa", "einheit": "5", "thema": "Taxi", "umschrift": "líao khwǎa khráp", "thai": "เลี้ยวขวาครับ", "deutsch": "rechts abbiegen, bitte", "merkhilfe": "khwǎa: rechts quakt der Frosch", "aufpassen": true },
+  { "id": "taxi-trong-pai", "einheit": "5", "thema": "Taxi", "umschrift": "trong pai khráp", "thai": "ตรงไปครับ", "deutsch": "geradeaus, bitte", "merkhilfe": "trong wie \"Strom\": fließt geradeaus; ohne líao", "aufpassen": true },
+  { "id": "taxi-mai-liao", "einheit": "5", "thema": "Taxi", "umschrift": "mâi líao sáai khráp, trong pai khráp", "thai": "ไม่เลี้ยวซ้ายครับ ตรงไปครับ", "deutsch": "Nicht links abbiegen, geradeaus", "merkhilfe": "Nein = mâi + Verb der Frage" },
+  { "id": "taxi-jot-thii-nan", "einheit": "5", "thema": "Taxi", "umschrift": "jɔ̀ɔt thîi-nân khráp", "thai": "จอดที่นั่นครับ", "deutsch": "Halten Sie dort, bitte", "merkhilfe": "jɔ̀ɔt + Ort + khráp; jɔ̀ɔt nicht vergessen", "aufpassen": true },
+  { "id": "taxi-poet-ae", "einheit": "5", "thema": "Taxi", "umschrift": "pə̀ət ɛɛ dâi mǎi khráp?", "thai": "เปิดแอร์ได้ไหมครับ", "deutsch": "Können Sie die Klimaanlage anmachen?", "merkhilfe": "ɛɛ vom englischen \"air\"" },
+  { "id": "ort-hong-naam", "einheit": "5", "thema": "Unterwegs", "umschrift": "hɔ̂ng náam yùu thîi nǎi khráp?", "thai": "ห้องน้ำอยู่ที่ไหนครับ", "deutsch": "Wo ist die Toilette?", "merkhilfe": "hɔ̂ng = Zimmer, náam = Wasser: \"Wasserzimmer\"" }
 ]
