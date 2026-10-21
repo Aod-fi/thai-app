@@ -102,6 +102,19 @@ export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MA
   return [...due, ...fresh];
 }
 
+// Freies Üben: bis zu 20 Karten des Themas (oder aller Themen) in zufälliger
+// Reihenfolge, egal ob fällig, gelernt oder neu. Ändert keinen Lernstand.
+//   random: Zufallsfunktion, in Tests ersetzbar
+export function practiceRound(cards, focus = "", random = Math.random) {
+  const pool = focus ? cards.filter(card => card.thema === focus) : [...cards];
+  // Mischen (Fisher-Yates): jede Reihenfolge ist gleich wahrscheinlich
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, MAX_CARDS_PER_ROUND);
+}
+
 // Noch nie gelernte Karten, in der Reihenfolge, in der sie drankommen:
 // mit Fokus-Thema nur dieses Thema, sonst reihum aus allen Themen
 export function unseenCards(cards, states, focus = "") {

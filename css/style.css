@@ -97,6 +97,8 @@ button:disabled { opacity: 0.5; cursor: default; }
   color: inherit;
 }
 
+.hint { font-size: 0.85rem; margin: -10px 0 16px; text-align: center; }
+
 /* Fächer-Anzeige: sechs Spalten (neu, Fach 1 bis 5) */
 .boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; text-align: center; }
 .boxes .count { font-size: 1.3rem; font-weight: 700; }

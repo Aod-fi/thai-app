@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, rateCard, buildRound, countByBox, unseenCards, streak } from "../js/leitner.js";
+import { addDays, rateCard, buildRound, countByBox, unseenCards, practiceRound, streak } from "../js/leitner.js";
 
 const today = "2026-10-19";
 
@@ -84,6 +84,17 @@ test("Fokus-Thema: Wiederholungen kommen trotzdem aus allen Themen", () => {
   const states = { Zahlen1: { box: 1, due: today } };
   const round = buildRound(cards, states, today, 0, 5, "Taxi");
   assert.deepEqual(round.map(c => c.id), ["Zahlen1", "Taxi1", "Taxi2"]);
+});
+
+test("Frei üben: nur Karten des Themas, gelernte und neue", () => {
+  const cards = [...themed("Zahlen", 3), ...themed("Taxi", 4)];
+  const round = practiceRound(cards, "Taxi");
+  assert.equal(round.length, 4);
+  assert.ok(round.every(card => card.thema === "Taxi"));
+});
+
+test("Frei üben: höchstens 20 Karten", () => {
+  assert.equal(practiceRound(makeCards(30)).length, 20);
 });
 
 test("unseenCards zählt nur ungelernte Karten des Fokus-Themas", () => {

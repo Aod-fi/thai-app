@@ -1,13 +1,13 @@
 // Hauptdatei der App: verbindet Anzeige (index.html), Logik (leitner.js),
 // Speicher (storage.js) und Sprachausgabe (speech.js).
 
-import { buildRound, rateCard, countByBox, unseenCards, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
+import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.2";
+const VERSION = "1.3";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -20,6 +20,7 @@ let roundSize = 0;    // Anzahl Karten zu Beginn der Runde
 let current = null;   // Karte, die gerade angezeigt wird
 let direction = "";   // "hoeren" (Hören → Deutsch) oder "sprechen" (Deutsch → Thai)
 let focus = "";       // Fokus-Thema für neue Karten, "" = alle Themen
+let practice = false; // true = freies Üben, Bewertungen ändern keinen Lernstand
 
 const today = () => toDateString(new Date());
 
@@ -91,6 +92,7 @@ async function showHome() {
     $("focus-select").appendChild(option);
   }
   $("focus-select").value = focus;
+  $("practice-button").textContent = `Frei üben: ${focus || "alle Themen"}`;
 
   const counts = countByBox(cards, states);
   const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
@@ -105,7 +107,17 @@ async function showHome() {
 // ---------- Lernrunde ----------
 
 async function startRound() {
+  practice = false;
   queue = await todaysRound();
+  roundSize = queue.length;
+  showView("round");
+  showNextCard();
+}
+
+// Freies Üben: Karten des gewählten Themas, ohne Einfluss auf die Fächer
+function startPractice() {
+  practice = true;
+  queue = practiceRound(cards, focus);
   roundSize = queue.length;
   showView("round");
   showNextCard();
@@ -124,6 +136,7 @@ function showNextCard() {
 
   $("round-counter").textContent = `noch ${queue.length + 1} von ${roundSize}`;
   const badges = [];
+  if (practice) badges.push("Freies Üben");
   if (isNew) badges.push("Neu");
   if (current.aufpassen) badges.push("⚠ Aufpassen");
   $("card-badges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
@@ -166,6 +179,13 @@ function showBack() {
 }
 
 async function rate(rating) {
+  // Freies Üben: nichts speichern, "Nochmal" kommt in der Runde wieder
+  if (practice) {
+    if (rating === "nochmal") queue.push(current);
+    showNextCard();
+    return;
+  }
+
   const isNew = !states[current.id];
   const newState = rateCard(states[current.id], rating, Boolean(current.aufpassen), today());
   const ratedCard = current;
@@ -249,6 +269,7 @@ function showOverview() {
 $("start-button").addEventListener("click", startRound);
 $("more-button").addEventListener("click", learnMore);
 $("focus-select").addEventListener("change", changeFocus);
+$("practice-button").addEventListener("click", startPractice);
 $("overview-button").addEventListener("click", showOverview);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", showHome);
