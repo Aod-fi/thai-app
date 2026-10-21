@@ -1,13 +1,13 @@
 // Hauptdatei der App: verbindet Anzeige (index.html), Logik (leitner.js),
 // Speicher (storage.js) und Sprachausgabe (speech.js).
 
-import { buildRound, rateCard, countByBox, streak, toDateString } from "./leitner.js";
+import { buildRound, rateCard, countByBox, countUnseen, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.0";
+const VERSION = "1.1";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -42,6 +42,18 @@ async function newSeenToday() {
   return record.date === today() ? record.count : 0;
 }
 
+// Wie viele neue Karten heute insgesamt erlaubt sind:
+// 5 plus alles, was über "5 weitere neue Karten" dazugekommen ist
+async function newLimitToday() {
+  const record = await loadMeta("extraNew", { date: "", count: 0 });
+  return MAX_NEW_PER_DAY + (record.date === today() ? record.count : 0);
+}
+
+// Heutige Runde zusammenstellen
+async function todaysRound() {
+  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday());
+}
+
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
@@ -54,10 +66,14 @@ function showView(name) {
 // ---------- Startseite ----------
 
 async function showHome() {
-  const round = buildRound(cards, states, today(), await newSeenToday());
+  const round = await todaysRound();
   $("due-count").textContent = round.length;
   $("start-button").disabled = round.length === 0;
   $("start-button").textContent = round.length === 0 ? "Heute alles erledigt 🎉" : "Lernrunde starten";
+
+  // Ist heute alles erledigt und gibt es noch ungelernte Karten,
+  // kann man freiwillig weitere neue Karten lernen.
+  $("more-button").hidden = round.length > 0 || countUnseen(cards, states) === 0;
 
   const counts = countByBox(cards, states);
   const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
@@ -72,7 +88,7 @@ async function showHome() {
 // ---------- Lernrunde ----------
 
 async function startRound() {
-  queue = buildRound(cards, states, today(), await newSeenToday());
+  queue = await todaysRound();
   roundSize = queue.length;
   showView("round");
   showNextCard();
@@ -162,6 +178,14 @@ async function rate(rating) {
   if (roundOver) showHome();
 }
 
+// "5 weitere neue Karten": erlaubt für heute 5 neue Karten mehr und startet die Runde
+async function learnMore() {
+  const record = await loadMeta("extraNew", { date: "", count: 0 });
+  const extra = record.date === today() ? record.count : 0;
+  await saveMeta("extraNew", { date: today(), count: extra + EXTRA_NEW_STEP });
+  startRound();
+}
+
 // ---------- Übersicht ----------
 
 function showOverview() {
@@ -199,6 +223,7 @@ function showOverview() {
 // ---------- Tasten verbinden ----------
 
 $("start-button").addEventListener("click", startRound);
+$("more-button").addEventListener("click", learnMore);
 $("overview-button").addEventListener("click", showOverview);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", showHome);

@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, rateCard, buildRound, countByBox, streak } from "../js/leitner.js";
+import { addDays, rateCard, buildRound, countByBox, countUnseen, streak } from "../js/leitner.js";
 
 const today = "2026-10-19";
 
@@ -55,6 +55,16 @@ test("Runde: höchstens 5 neue Karten pro Tag", () => {
 test("Runde: neue Karten zählen über den Tag zusammen", () => {
   const round = buildRound(makeCards(30), {}, today, 3);
   assert.equal(round.length, 2);
+});
+
+test("Runde: nach \"5 weitere neue Karten\" kommen 5 neue dazu", () => {
+  const round = buildRound(makeCards(30), {}, today, 5, 10);
+  assert.equal(round.length, 5);
+});
+
+test("countUnseen zählt Karten, die noch nie dran waren", () => {
+  const states = { k1: { box: 1, due: today } };
+  assert.equal(countUnseen(makeCards(3), states), 2);
 });
 
 test("Runde: höchstens 20 Karten, fällige zuerst", () => {

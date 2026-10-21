@@ -9,6 +9,8 @@ export const MAX_BOX = INTERVALS.length;
 // Grenzen für eine Lernrunde
 export const MAX_CARDS_PER_ROUND = 20;
 export const MAX_NEW_PER_DAY = 5;
+// So viele neue Karten kommen dazu, wenn man "5 weitere neue Karten" tippt
+export const EXTRA_NEW_STEP = 5;
 
 // Datum als Text "JJJJ-MM-TT" in Ortszeit, z. B. "2026-10-19".
 // Texte in diesem Format lassen sich einfach mit < und > vergleichen.
@@ -61,15 +63,17 @@ export function rateCard(state, rating, careful, today) {
 //   states:       Lernstand pro Karte, z. B. { "zahl-20": { box: 2, due: "2026-10-20" } }
 //   today:        heutiges Datum "JJJJ-MM-TT"
 //   newSeenToday: wie viele neue Karten heute schon dran waren
+//   newLimit:     wie viele neue Karten heute insgesamt erlaubt sind
+//                 (normal 5, mehr nach "5 weitere neue Karten")
 // Gibt eine Liste von Karten zurück: zuerst die fälligen, dann neue.
-export function buildRound(cards, states, today, newSeenToday = 0) {
+export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MAX_NEW_PER_DAY) {
   const due = cards
     .filter(card => states[card.id] && states[card.id].due <= today)
     .sort((a, b) => states[a.id].due.localeCompare(states[b.id].due))
     .slice(0, MAX_CARDS_PER_ROUND);
 
   const freeSlots = Math.min(
-    MAX_NEW_PER_DAY - newSeenToday,
+    newLimit - newSeenToday,
     MAX_CARDS_PER_ROUND - due.length
   );
   const fresh = cards
@@ -77,6 +81,11 @@ export function buildRound(cards, states, today, newSeenToday = 0) {
     .slice(0, Math.max(freeSlots, 0));
 
   return [...due, ...fresh];
+}
+
+// Wie viele Karten wurden noch nie gelernt?
+export function countUnseen(cards, states) {
+  return cards.filter(card => !states[card.id]).length;
 }
 
 // Zählt für die Fortschrittsanzeige, wie viele Karten in welchem Fach liegen.
