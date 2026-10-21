@@ -1,13 +1,13 @@
 // Hauptdatei der App: verbindet Anzeige (index.html), Logik (leitner.js),
 // Speicher (storage.js) und Sprachausgabe (speech.js).
 
-import { buildRound, rateCard, countByBox, countUnseen, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
+import { buildRound, rateCard, countByBox, unseenCards, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.1";
+const VERSION = "1.2";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -19,6 +19,7 @@ let queue = [];       // Karten der laufenden Runde, die noch dran kommen
 let roundSize = 0;    // Anzahl Karten zu Beginn der Runde
 let current = null;   // Karte, die gerade angezeigt wird
 let direction = "";   // "hoeren" (Hören → Deutsch) oder "sprechen" (Deutsch → Thai)
+let focus = "";       // Fokus-Thema für neue Karten, "" = alle Themen
 
 const today = () => toDateString(new Date());
 
@@ -29,6 +30,8 @@ async function start() {
   const response = await fetch("inhalte/vokabeln.json", { cache: "no-cache" });
   cards = await response.json();
   states = await loadStates();
+  focus = await loadMeta("focus", "");
+  if (!themes(cards).includes(focus)) focus = "";
   $("version").textContent = VERSION;
   showHome();
 
@@ -51,7 +54,7 @@ async function newLimitToday() {
 
 // Heutige Runde zusammenstellen
 async function todaysRound() {
-  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday());
+  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday(), focus);
 }
 
 // ---------- Ansichten wechseln ----------
@@ -73,7 +76,21 @@ async function showHome() {
 
   // Ist heute alles erledigt und gibt es noch ungelernte Karten,
   // kann man freiwillig weitere neue Karten lernen.
-  $("more-button").hidden = round.length > 0 || countUnseen(cards, states) === 0;
+  $("more-button").hidden = round.length > 0 || unseenCards(cards, states, focus).length === 0;
+
+  // Auswahl Fokus-Thema, mit Anzahl noch neuer Karten pro Thema
+  const options = [["", `Alle Themen gemischt (${unseenCards(cards, states).length} neu)`]];
+  for (const theme of themes(cards)) {
+    options.push([theme, `${theme} (${unseenCards(cards, states, theme).length} neu)`]);
+  }
+  $("focus-select").innerHTML = "";
+  for (const [value, label] of options) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    $("focus-select").appendChild(option);
+  }
+  $("focus-select").value = focus;
 
   const counts = countByBox(cards, states);
   const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
@@ -186,6 +203,13 @@ async function learnMore() {
   startRound();
 }
 
+// Fokus-Thema gewählt: merken und Startseite neu berechnen
+async function changeFocus() {
+  focus = $("focus-select").value;
+  await saveMeta("focus", focus);
+  showHome();
+}
+
 // ---------- Übersicht ----------
 
 function showOverview() {
@@ -224,6 +248,7 @@ function showOverview() {
 
 $("start-button").addEventListener("click", startRound);
 $("more-button").addEventListener("click", learnMore);
+$("focus-select").addEventListener("change", changeFocus);
 $("overview-button").addEventListener("click", showOverview);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", showHome);

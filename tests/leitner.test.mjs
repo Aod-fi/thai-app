@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, rateCard, buildRound, countByBox, countUnseen, streak } from "../js/leitner.js";
+import { addDays, rateCard, buildRound, countByBox, unseenCards, streak } from "../js/leitner.js";
 
 const today = "2026-10-19";
 
@@ -62,9 +62,35 @@ test("Runde: nach \"5 weitere neue Karten\" kommen 5 neue dazu", () => {
   assert.equal(round.length, 5);
 });
 
-test("countUnseen zählt Karten, die noch nie dran waren", () => {
-  const states = { k1: { box: 1, due: today } };
-  assert.equal(countUnseen(makeCards(3), states), 2);
+// Karten mit Thema, z. B. themed("Zahlen", 3) = z1, z2, z3
+function themed(thema, n) {
+  return Array.from({ length: n }, (_, i) => ({ id: `${thema}${i + 1}`, thema }));
+}
+
+test("Neue Karten kommen reihum aus den Themen", () => {
+  const cards = [...themed("Markt", 2), ...themed("Zahlen", 4), ...themed("Taxi", 1)];
+  const round = buildRound(cards, {}, today);
+  assert.deepEqual(round.map(c => c.id), ["Markt1", "Zahlen1", "Taxi1", "Markt2", "Zahlen2"]);
+});
+
+test("Fokus-Thema: neue Karten nur aus diesem Thema", () => {
+  const cards = [...themed("Zahlen", 6), ...themed("Taxi", 3)];
+  const round = buildRound(cards, {}, today, 0, 5, "Taxi");
+  assert.deepEqual(round.map(c => c.id), ["Taxi1", "Taxi2", "Taxi3"]);
+});
+
+test("Fokus-Thema: Wiederholungen kommen trotzdem aus allen Themen", () => {
+  const cards = [...themed("Zahlen", 2), ...themed("Taxi", 2)];
+  const states = { Zahlen1: { box: 1, due: today } };
+  const round = buildRound(cards, states, today, 0, 5, "Taxi");
+  assert.deepEqual(round.map(c => c.id), ["Zahlen1", "Taxi1", "Taxi2"]);
+});
+
+test("unseenCards zählt nur ungelernte Karten des Fokus-Themas", () => {
+  const cards = [...themed("Zahlen", 2), ...themed("Taxi", 2)];
+  const states = { Taxi1: { box: 1, due: today } };
+  assert.equal(unseenCards(cards, states, "Taxi").length, 1);
+  assert.equal(unseenCards(cards, states).length, 3);
 });
 
 test("Runde: höchstens 20 Karten, fällige zuerst", () => {

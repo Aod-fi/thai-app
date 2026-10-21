@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.1">
+  <link rel="stylesheet" href="css/style.css?v=1.2">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -28,6 +28,11 @@
       <div class="big-number" id="due-count">–</div>
       <div class="muted">Karten heute fällig</div>
     </section>
+
+    <label class="focus">
+      <span class="muted">Neue Karten aus:</span>
+      <select id="focus-select"></select>
+    </label>
 
     <button id="start-button" class="primary big">Lernrunde starten</button>
     <button id="more-button" class="secondary big" hidden>5 weitere neue Karten lernen</button>
@@ -91,6 +96,6 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.1"></script>
+  <script type="module" src="js/app.js?v=1.2"></script>
 </body>
 </html>

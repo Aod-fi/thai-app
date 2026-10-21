@@ -83,6 +83,20 @@ button:disabled { opacity: 0.5; cursor: default; }
 .secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 .link { background: none; color: var(--accent); padding: 8px 0; }
 
+/* Auswahl Fokus-Thema */
+.focus { display: block; margin-bottom: 16px; }
+.focus select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font: inherit;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: var(--panel);
+  color: inherit;
+}
+
 /* Fächer-Anzeige: sechs Spalten (neu, Fach 1 bis 5) */
 .boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; text-align: center; }
 .boxes .count { font-size: 1.3rem; font-weight: 700; }

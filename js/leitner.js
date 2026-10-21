@@ -58,6 +58,25 @@ export function rateCard(state, rating, careful, today) {
   return { box, due: addDays(today, intervalFor(box, careful)) };
 }
 
+// Alle Themen in der Reihenfolge, in der sie in vokabeln.json zuerst vorkommen
+export function themes(cards) {
+  return [...new Set(cards.map(card => card.thema))];
+}
+
+// Sortiert neue Karten reihum nach Thema: erste Karte jedes Themas,
+// dann zweite Karte jedes Themas usw. Innerhalb eines Themas bleibt
+// die Reihenfolge aus vokabeln.json (also die des Unterrichts).
+export function mixByTheme(cards) {
+  const groups = themes(cards).map(theme => cards.filter(card => card.thema === theme));
+  const mixed = [];
+  for (let i = 0; mixed.length < cards.length; i++) {
+    for (const group of groups) {
+      if (i < group.length) mixed.push(group[i]);
+    }
+  }
+  return mixed;
+}
+
 // Stellt die Lernrunde für heute zusammen.
 //   cards:        alle Karten aus vokabeln.json
 //   states:       Lernstand pro Karte, z. B. { "zahl-20": { box: 2, due: "2026-10-20" } }
@@ -65,8 +84,10 @@ export function rateCard(state, rating, careful, today) {
 //   newSeenToday: wie viele neue Karten heute schon dran waren
 //   newLimit:     wie viele neue Karten heute insgesamt erlaubt sind
 //                 (normal 5, mehr nach "5 weitere neue Karten")
+//   focus:        Fokus-Thema für neue Karten, z. B. "Taxi"; "" = alle Themen gemischt
 // Gibt eine Liste von Karten zurück: zuerst die fälligen, dann neue.
-export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MAX_NEW_PER_DAY) {
+// Das Fokus-Thema wirkt nur auf die neuen Karten, Wiederholungen kommen aus allen Themen.
+export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MAX_NEW_PER_DAY, focus = "") {
   const due = cards
     .filter(card => states[card.id] && states[card.id].due <= today)
     .sort((a, b) => states[a.id].due.localeCompare(states[b.id].due))
@@ -76,16 +97,16 @@ export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MA
     newLimit - newSeenToday,
     MAX_CARDS_PER_ROUND - due.length
   );
-  const fresh = cards
-    .filter(card => !states[card.id])
-    .slice(0, Math.max(freeSlots, 0));
+  const fresh = unseenCards(cards, states, focus).slice(0, Math.max(freeSlots, 0));
 
   return [...due, ...fresh];
 }
 
-// Wie viele Karten wurden noch nie gelernt?
-export function countUnseen(cards, states) {
-  return cards.filter(card => !states[card.id]).length;
+// Noch nie gelernte Karten, in der Reihenfolge, in der sie drankommen:
+// mit Fokus-Thema nur dieses Thema, sonst reihum aus allen Themen
+export function unseenCards(cards, states, focus = "") {
+  const unseen = cards.filter(card => !states[card.id]);
+  return focus ? unseen.filter(card => card.thema === focus) : mixByTheme(unseen);
 }
 
 // Zählt für die Fortschrittsanzeige, wie viele Karten in welchem Fach liegen.
