@@ -5,12 +5,12 @@ import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, s
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
-import { canRecord, isRecording, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
+import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
 import { checkSpoken } from "./voice-check.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.6";
+const VERSION = "1.7";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -193,23 +193,34 @@ function showBack() {
 }
 
 // ---------- Eigene Aussprache ----------
-// "Aufnehmen": selbst sprechen, dann mit "▶ Normal" (Kanya) und "▶ Ich" vergleichen.
-// "Prüfen": die Spracherkennung des Geräts versucht, das Gesagte zu verstehen.
-// Das ist nur ein grober Test, Töne bewertet er nicht zuverlässig.
+// Eine Taste "Halten und sprechen": solange sie gedrückt ist, nimmt die App auf
+// und die Spracherkennung des Geräts hört mit. Beim Loslassen:
+//   - "▶ Ich" spielt die eigene Aufnahme ab (zum Vergleich mit "▶ Normal")
+//   - die Erkennung sagt, ob sie das Wort verstanden hat.
+// Das ist nur ein grober Test, Töne bewertet die Erkennung nicht zuverlässig.
 
 const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const MIN_HOLD_MS = 400;      // kürzer gilt als versehentliches Antippen
+const MAX_HOLD_MS = 8000;     // danach endet die Aufnahme von selbst
+
 let recognition = null;
+let heardTexts = [];          // was die Erkennung bisher gehört hat
+let recognitionError = "";
+let holding = false;
+let holdStart = 0;
+let holdTimer = null;
+let voiceCard = null;         // Karte, zu der gerade gesprochen wird
 
 function resetVoice() {
+  holding = false;
+  clearTimeout(holdTimer);
   clearRecording();
   if (recognition) recognition.abort();
-  $("record-button").hidden = !canRecord();
-  $("record-button").textContent = "🎤 Aufnehmen";
-  $("record-button").classList.remove("active");
+  recognition = null;
+  $("voice-row").hidden = !canRecord() && !Recognition;
+  $("hold-button").textContent = "🎙 Halten und sprechen";
+  $("hold-button").classList.remove("active");
   $("play-own").hidden = true;
-  $("check-button").hidden = !Recognition;
-  $("check-button").textContent = "🗣 Prüfen";
-  $("check-button").classList.remove("active");
   $("voice-result").hidden = true;
 }
 
@@ -219,67 +230,125 @@ function showVoiceResult(text, kind = "") {
   $("voice-result").hidden = false;
 }
 
-async function toggleRecording() {
-  if (isRecording()) {
-    stopRecording();
-    return;
-  }
+async function holdStartHandler(event) {
+  event.preventDefault();
+  if (holding) return;
+  holding = true;
+  holdStart = Date.now();
+  voiceCard = current;
   speechSynthesis.cancel();
+  $("hold-button").textContent = "🔴 Ich höre zu … (loslassen = fertig)";
+  $("hold-button").classList.add("active");
+  $("play-own").hidden = true;
+  $("voice-result").hidden = true;
+  holdTimer = setTimeout(holdEndHandler, MAX_HOLD_MS);
+
+  // Zuerst das Mikrofon für die Aufnahme, dann die Erkennung starten
+  if (canRecord()) {
+    try {
+      await startRecording();
+    } catch {
+      holding = false;
+      clearTimeout(holdTimer);
+      $("hold-button").textContent = "🎙 Halten und sprechen";
+      $("hold-button").classList.remove("active");
+      showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
+      return;
+    }
+  }
+  if (holding) startRecognition();
+}
+
+function startRecognition() {
+  if (!Recognition) return;
+  heardTexts = [];
+  recognitionError = "";
+  recognition = new Recognition();
+  recognition.lang = "th-TH";
+  recognition.continuous = true;      // nicht bei der ersten kleinen Pause aufhören
+  recognition.interimResults = true;  // auch Zwischenstände merken, falls am Ende nichts mehr kommt
+  recognition.maxAlternatives = 5;
+  recognition.onresult = event => {
+    // Alles Gehörte zusammensetzen, plus die Vorschläge für das letzte Stück
+    const results = [...event.results];
+    const full = results.map(result => (result[0] && result[0].transcript) || "").join("");
+    const last = results[results.length - 1];
+    heardTexts = [full, ...[...last].map(alternative => alternative.transcript)]
+      .filter(text => typeof text === "string" && text.trim() !== "");
+  };
+  recognition.onerror = event => {
+    recognitionError = event.error;
+  };
   try {
-    await startRecording(() => {
-      $("record-button").textContent = "🎤 Nochmal";
-      $("record-button").classList.remove("active");
-      $("play-own").hidden = false;
-      showVoiceResult("Jetzt vergleichen: ▶ Normal (Kanya) und ▶ Ich");
-    });
-    $("record-button").textContent = "⏹ Stopp";
-    $("record-button").classList.add("active");
-    $("voice-result").hidden = true;
+    recognition.start();
   } catch {
-    showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
+    recognition = null;
   }
 }
 
-function checkPronunciation() {
-  if (recognition) {
-    recognition.abort();
+async function holdEndHandler() {
+  if (!holding) return;
+  holding = false;
+  clearTimeout(holdTimer);
+  $("hold-button").textContent = "🎙 Nochmal sprechen";
+  $("hold-button").classList.remove("active");
+
+  if (Date.now() - holdStart < MIN_HOLD_MS) {
+    if (recognition) recognition.abort();
+    recognition = null;
+    await stopRecording();
+    showVoiceResult("Taste gedrückt halten, solange du sprichst, dann loslassen.");
     return;
   }
-  speechSynthesis.cancel();
-  const card = current;
-  recognition = new Recognition();
-  recognition.lang = "th-TH";
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 5;
 
-  let answered = false;
-  recognition.onresult = event => {
-    answered = true;
-    const transcripts = [...event.results[0]].map(alternative => alternative.transcript);
-    const { ok, heard } = checkSpoken(card, transcripts, cards);
-    if (ok) showVoiceResult("✓ Verstanden!", "ok");
-    else if (heard) showVoiceResult(`✗ Klang eher nach: ${heard.umschrift}`, "no");
-    else showVoiceResult("✗ Nicht verstanden. Hör nochmal zu und versuch es erneut.", "no");
-  };
-  recognition.onerror = event => {
-    answered = true;
-    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
-      showVoiceResult("Spracherkennung nicht erlaubt. Bitte Mikrofon und Diktierfunktion erlauben.", "no");
-    } else if (event.error !== "aborted") {
-      showVoiceResult("Nichts gehört. Tippe auf Prüfen und sprich direkt los.", "no");
-    }
-  };
-  recognition.onend = () => {
-    recognition = null;
-    $("check-button").textContent = "🗣 Prüfen";
-    $("check-button").classList.remove("active");
-    if (!answered) showVoiceResult("Nichts gehört. Tippe auf Prüfen und sprich direkt los.", "no");
-  };
+  showVoiceResult("Einen Moment …");
+  try {
+    const [hasRecording, texts] = await Promise.all([stopRecording(), finishRecognition()]);
+    if (voiceCard !== current) return;   // inzwischen weitergeblättert
+    $("play-own").hidden = !hasRecording;
+    showSpokenResult(hasRecording, texts);
+  } catch {
+    showVoiceResult("Da ist etwas schiefgelaufen. Bitte nochmal halten und sprechen.", "no");
+  }
+}
 
-  $("check-button").textContent = "👂 Ich höre …";
-  $("check-button").classList.add("active");
-  $("voice-result").hidden = true;
-  recognition.start();
+// Rückmeldung nach dem Loslassen
+function showSpokenResult(hasRecording, texts) {
+  if (!Recognition) {
+    showVoiceResult(hasRecording ? "Jetzt vergleichen: ▶ Normal und ▶ Ich" : "Keine Aufnahme. Bitte nochmal.", "");
+    return;
+  }
+  if (recognitionError === "not-allowed" || recognitionError === "service-not-allowed") {
+    showVoiceResult("Prüfen nicht erlaubt: bitte Mikrofon und Spracherkennung für Safari erlauben. Vergleichen geht trotzdem mit ▶ Ich.", "no");
+    return;
+  }
+  if (texts.length === 0) {
+    showVoiceResult("Nichts verstanden. Nochmal halten, deutlich sprechen und erst danach loslassen.", "no");
+    return;
+  }
+  const { ok, heard } = checkSpoken(current, texts, cards);
+  if (ok) showVoiceResult("✓ Verstanden! Zum Feinschliff: ▶ Normal und ▶ Ich vergleichen.", "ok");
+  else if (heard) showVoiceResult(`✗ Klang eher nach: ${heard.umschrift}`, "no");
+  else showVoiceResult("✗ Nicht verstanden. Hör nochmal zu und versuch es erneut.", "no");
+}
+
+// Beendet die Erkennung und wartet auf das letzte Ergebnis (höchstens 3 Sekunden)
+function finishRecognition() {
+  if (!recognition) return Promise.resolve([]);
+  const current = recognition;
+  return new Promise(resolve => {
+    const done = () => {
+      clearTimeout(timer);
+      if (recognition === current) recognition = null;
+      resolve(heardTexts);
+    };
+    const timer = setTimeout(() => {
+      current.abort();
+      done();
+    }, 3000);
+    current.onend = done;
+    current.stop();
+  });
 }
 
 async function rate(rating) {
@@ -483,9 +552,13 @@ $("listen-next").addEventListener("click", nextQuestion);
 $("listen-speak").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_NORMAL));
 $("listen-speak-slow").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_SLOW));
 $("stats-button").addEventListener("click", showStats);
-$("record-button").addEventListener("click", toggleRecording);
+// Halten und sprechen: Pointer-Ereignisse gelten für Finger und Maus
+$("hold-button").addEventListener("pointerdown", holdStartHandler);
+for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
+  $("hold-button").addEventListener(type, holdEndHandler);
+}
+$("hold-button").addEventListener("contextmenu", event => event.preventDefault());
 $("play-own").addEventListener("click", playRecording);
-$("check-button").addEventListener("click", checkPronunciation);
 $("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", () => {

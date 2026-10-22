@@ -1,46 +1,50 @@
 // Aufnahme über das Mikrofon, um die eigene Aussprache mit der Thai-Stimme zu vergleichen.
 // Die Aufnahme bleibt nur im Speicher, bis die nächste Karte kommt. Nichts wird hochgeladen.
 
-const MAX_SECONDS = 6;
-
 let recorder = null;
+let stream = null;
 let chunks = [];
 let lastAudio = null;
-let stopTimer = null;
+let stopRequested = false;
 
 export function canRecord() {
   return Boolean(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
 }
 
-export function isRecording() {
-  return Boolean(recorder && recorder.state === "recording");
-}
-
-// Startet die Aufnahme. onDone wird nach dem Stopp aufgerufen (auch nach 6 Sekunden automatisch).
-export async function startRecording(onDone) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+// Startet die Aufnahme. Wartet auf das Mikrofon (beim ersten Mal fragt das iPhone nach).
+// Wurde die Taste schon losgelassen, bevor das Mikrofon bereit war, wird gleich wieder gestoppt.
+export async function startRecording() {
+  stopRequested = false;
   chunks = [];
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   recorder = new MediaRecorder(stream);
-  recorder.ondataavailable = event => chunks.push(event.data);
-  recorder.onstop = () => {
-    clearTimeout(stopTimer);
-    // Mikrofon wieder freigeben (sonst bleibt der rote Punkt im iPhone sichtbar)
-    stream.getTracks().forEach(track => track.stop());
-    const blob = new Blob(chunks, { type: recorder.mimeType });
-    if (lastAudio) URL.revokeObjectURL(lastAudio.src);
-    lastAudio = new Audio(URL.createObjectURL(blob));
-    onDone();
+  recorder.ondataavailable = event => {
+    if (event.data && event.data.size > 0) chunks.push(event.data);
   };
   recorder.start();
-  stopTimer = setTimeout(stopRecording, MAX_SECONDS * 1000);
+  if (stopRequested) await stopRecording();
 }
 
+// Stoppt die Aufnahme und gibt das Mikrofon frei.
+// Gibt true zurück, wenn eine Aufnahme da ist.
 export function stopRecording() {
-  if (isRecording()) recorder.stop();
-}
-
-export function hasRecording() {
-  return Boolean(lastAudio);
+  stopRequested = true;
+  if (!recorder || recorder.state !== "recording") return Promise.resolve(false);
+  const current = recorder;
+  return new Promise(resolve => {
+    current.onstop = () => {
+      // Mikrofon freigeben: sonst bleibt der Punkt oben im iPhone an,
+      // und die Thai-Stimme klingt danach leise über den Hörer
+      stream.getTracks().forEach(track => track.stop());
+      recorder = null;
+      if (chunks.length === 0) return resolve(false);
+      const blob = new Blob(chunks, { type: current.mimeType || "audio/mp4" });
+      if (lastAudio) URL.revokeObjectURL(lastAudio.src);
+      lastAudio = new Audio(URL.createObjectURL(blob));
+      resolve(true);
+    };
+    current.stop();
+  });
 }
 
 export function playRecording() {
@@ -51,7 +55,7 @@ export function playRecording() {
   }
 }
 
-// Neue Karte: alte Aufnahme vergessen
+// Neue Karte: laufende Aufnahme abbrechen und alte Aufnahme vergessen
 export function clearRecording() {
   stopRecording();
   if (lastAudio) URL.revokeObjectURL(lastAudio.src);
