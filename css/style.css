@@ -164,7 +164,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .voice-row { margin-top: 10px; flex-wrap: wrap; }
 /* Halten-Taste: kein Markieren, kein Kontextmenü, kein Scrollen beim Gedrückthalten */
 .hold {
-  flex: 1 1 40%;
+  flex: 1 1 100%;
   padding: 16px;
   -webkit-user-select: none;
   user-select: none;
@@ -175,5 +175,3 @@ button:disabled { opacity: 0.5; cursor: default; }
 .voice-result { margin: 10px 0 0; font-size: 0.95rem; }
 .voice-result.ok { color: var(--good); font-weight: 600; }
 .voice-result.no { color: var(--again); font-weight: 600; }
-.voice-hint { font-size: 0.8rem; margin: 6px 0 0; }
-.voice-detail { font-size: 0.75rem; margin: 4px 0 0; }

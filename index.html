@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7.1">
+  <link rel="stylesheet" href="css/style.css?v=1.7">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -83,13 +83,10 @@
         </div>
         <!-- Eigene Aussprache: aufnehmen und vergleichen, Verstanden-Test -->
         <div id="voice-row" class="speak-row voice-row">
-          <button id="check-button" class="secondary hold">🗣 Prüfen</button>
-          <button id="record-button" class="secondary hold">🎤 Aufnehmen</button>
+          <button id="hold-button" class="secondary hold">🎙 Halten und sprechen</button>
           <button id="play-own" class="secondary" hidden>▶ Ich</button>
         </div>
-        <p class="muted voice-hint">Taste gedrückt halten, sprechen, loslassen</p>
         <p id="voice-result" class="voice-result" hidden></p>
-        <p id="voice-detail" class="muted voice-detail" hidden></p>
       </div>
     </section>
 
@@ -169,6 +166,6 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7.1"></script>
+  <script type="module" src="js/app.js?v=1.7"></script>
 </body>
 </html>
