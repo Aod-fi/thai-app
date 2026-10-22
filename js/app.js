@@ -13,7 +13,7 @@ import { numberRound, checkNumberAnswer } from "./numbers.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.1 · Testfassung Ton-Kurve";
+const VERSION = "1.7.2";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
