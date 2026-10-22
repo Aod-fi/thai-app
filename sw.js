@@ -18,17 +18,32 @@ const FILES = [
   "js/recorder.js",
   "js/voice-check.js",
   "js/numbers.js",
+  "js/pitch.js",
+  "js/tones.js",
+  "js/tone-curve.js",
   "inhalte/vokabeln.json",
+  "inhalte/toene.json",
   "manifest.json",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/apple-touch-icon.png",
 ];
 
+// Kanyas Tondateien für die Ton-Kurve (audio/<id>.m4a, zusammen etwa 0,6 MB).
+// Welche es gibt, steht in vokabeln.json. Fehlt eine Datei, ist das kein Fehler.
+async function cacheAudio(cache) {
+  const response = await fetch("inhalte/vokabeln.json", { cache: "reload" });
+  const cards = await response.json();
+  await Promise.all(cards.map(card => cache.add(`audio/${card.id}.m4a`).catch(() => {})));
+}
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(FILES.map(file => new Request(file, { cache: "reload" }))))
+      .then(async cache => {
+        await cache.addAll(FILES.map(file => new Request(file, { cache: "reload" })));
+        await cacheAudio(cache).catch(() => {});
+      })
       .then(() => self.skipWaiting())
   );
 });

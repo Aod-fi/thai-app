@@ -15,7 +15,13 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `js/leitner.js` | Die Regeln, wann eine Karte wiederkommt (5 Fächer) |
 | `js/storage.js` | Speichert den Lernstand auf dem Gerät |
 | `js/speech.js` | Die Sprachausgabe mit der Thai-Stimme |
+| `js/pitch.js` | Ton-Kurve: berechnet die Tonhöhe einer Aufnahme |
+| `js/tone-curve.js` | Ton-Kurve: lädt die Tondateien und zeichnet die Linien |
+| `js/tones.js` | Töne an der Umschrift erkennen, Übung „Töne hören“ |
 | `inhalte/vokabeln.json` | **Alle Vokabeln** |
+| `inhalte/toene.json` | Wörter für „Töne hören“ (gleiche Silbe, anderer Ton) |
+| `audio/` | Kanyas Aussprache jeder Karte als Tondatei (für die Ton-Kurve) |
+| `scripts/make-audio.sh` | Erzeugt die Tondateien in `audio/` |
 | `sw.js` | Service Worker: Offline-Betrieb und frische Dateien |
 | `manifest.json`, `icons/` | Name und Symbol für den Home-Bildschirm |
 | `scripts/check-content.mjs` | Prüft die Vokabeldatei auf Fehler |
@@ -51,7 +57,10 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `aufpassen` | nein | `true` bei Schwachstellen |
 
 4. Im Terminal prüfen: `npm run check`
-5. Speichern und hochladen (siehe unten).
+5. Tondatei für die Ton-Kurve erzeugen (nur auf dem Mac): `zsh scripts/make-audio.sh`
+   Das Skript lässt Kanya jede neue Karte sprechen und speichert sie in `audio/`.
+   Vorhandene Dateien bleiben, es dauert nur bei neuen Karten kurz.
+6. Speichern und hochladen (siehe unten).
 
 ## Eine Farbe ändern
 
@@ -84,6 +93,14 @@ git push
 Nach 1 bis 2 Minuten ist die Änderung online. Auf dem Gerät die App einmal schließen und neu öffnen.
 
 Alternativ in VS Code: links das Symbol **Quellcodeverwaltung** (drei Punkte mit Linien), Nachricht eintippen, **Commit**, dann **Änderungen synchronisieren**.
+
+## Ton-Kurve
+
+Nach „Halten und sprechen“ zeigt die Karte zwei Linien: deine Tonhöhe (farbig) und
+Kanyas (grau). Beide sind auf deine bzw. Kanyas eigene mittlere Stimmlage umgerechnet,
+deshalb passt eine tiefe Männerstimme genauso gut wie eine hohe Frauenstimme.
+Langsam oder schnell gesprochen ist egal, beide Linien werden gleich lang gezogen.
+Bei einsilbigen Karten steht darunter ein vorsichtiger Hinweis zum Ton.
 
 ## Prüfen und Testen
 

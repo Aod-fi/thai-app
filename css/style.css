@@ -196,3 +196,25 @@ button:disabled { opacity: 0.5; cursor: default; }
 .number-feedback.wrong { color: var(--again); }
 #numbers-question { min-height: 220px; }
 #numbers-result { text-align: center; }
+
+/* Ton-Kurve */
+.tone-curve { margin-top: 14px; }
+.tone-curve svg { display: block; width: 100%; height: auto; }
+.tone-curve .curve-mid { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.5; }
+.tone-curve path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.tone-curve .curve-kanya { stroke: var(--muted); stroke-width: 5; opacity: 0.55; }
+.tone-curve .curve-own { stroke: var(--accent); stroke-width: 3.5; }
+.curve-legend { display: flex; gap: 14px; justify-content: center; font-size: 0.85rem; margin-top: 4px; }
+.curve-legend .own { color: var(--accent); font-weight: 600; }
+.curve-legend .kanya { color: var(--muted); font-weight: 600; }
+
+/* Töne hören */
+.tone-options button { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.tone-options .syllable { font-size: 1.5rem; font-weight: 700; }
+.tone-options .meaning { font-size: 0.95rem; }
+.tone-solution { margin-top: 16px; font-size: 1.15rem; font-weight: 700; }
+.tone-solution.right { color: var(--good); }
+.tone-solution.wrong { color: var(--again); }
+#tones-question { min-height: 180px; }
+#tones-result { text-align: center; }
+.tone-options button:disabled { opacity: 0.85; }

@@ -5,13 +5,15 @@ import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, s
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
-import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
-import { checkSpoken } from "./voice-check.js";
+import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
+import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
+import { endMovement } from "./pitch.js";
+import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.1";
+const VERSION = "1.7.1 · Testfassung Ton-Kurve";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -32,6 +34,10 @@ let numberLevel = 1;  // Stufe der Übung "Zahlen und Preise"
 let numberTasks = []; // Aufgaben der laufenden Runde
 let numberIndex = 0;
 let numberScore = 0;
+let toneGroups = [];  // Inhalt von inhalte/toene.json
+let toneQuiz = [];    // Fragen der Übung "Töne hören"
+let toneIndex = 0;
+let toneScore = 0;
 
 const today = () => toDateString(new Date());
 
@@ -72,7 +78,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "stats", "overview"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -198,19 +204,16 @@ function showBack() {
 }
 
 // ---------- Eigene Aussprache ----------
-// Eine Taste "Halten und sprechen": solange sie gedrückt ist, nimmt die App auf
-// und die Spracherkennung des Geräts hört mit. Beim Loslassen:
+// Eine Taste "Halten und sprechen": solange sie gedrückt ist, nimmt die App auf.
+// Beim Loslassen:
 //   - "▶ Ich" spielt die eigene Aufnahme ab (zum Vergleich mit "▶ Normal")
-//   - die Erkennung sagt, ob sie das Wort verstanden hat.
-// Das ist nur ein grober Test, Töne bewertet die Erkennung nicht zuverlässig.
+//   - die Ton-Kurve zeigt die eigene Tonhöhe neben der von Kanya.
+// Die Spracherkennung des Geräts ("verstanden ja/nein") ist in dieser Testfassung aus:
+// In Home-Bildschirm-Apps auf iOS 27 hört sie nach der ersten Karte nichts mehr.
 
-const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const MIN_HOLD_MS = 400;      // kürzer gilt als versehentliches Antippen
 const MAX_HOLD_MS = 8000;     // danach endet die Aufnahme von selbst
 
-let recognition = null;
-let heardTexts = [];          // was die Erkennung bisher gehört hat
-let recognitionError = "";
 let holding = false;
 let holdStart = 0;
 let holdTimer = null;
@@ -220,13 +223,12 @@ function resetVoice() {
   holding = false;
   clearTimeout(holdTimer);
   clearRecording();
-  if (recognition) recognition.abort();
-  recognition = null;
-  $("voice-row").hidden = !canRecord() && !Recognition;
+  $("voice-row").hidden = !canRecord();
   $("hold-button").textContent = "🎙 Halten und sprechen";
   $("hold-button").classList.remove("active");
   $("play-own").hidden = true;
   $("voice-result").hidden = true;
+  $("tone-curve").hidden = true;
 }
 
 function showVoiceResult(text, kind = "") {
@@ -246,48 +248,18 @@ async function holdStartHandler(event) {
   $("hold-button").classList.add("active");
   $("play-own").hidden = true;
   $("voice-result").hidden = true;
+  $("tone-curve").hidden = true;
   holdTimer = setTimeout(holdEndHandler, MAX_HOLD_MS);
+  kanyaCurve(current);   // Kanyas Kurve schon mal vorbereiten
 
-  // Zuerst das Mikrofon für die Aufnahme, dann die Erkennung starten
-  if (canRecord()) {
-    try {
-      await startRecording();
-    } catch {
-      holding = false;
-      clearTimeout(holdTimer);
-      $("hold-button").textContent = "🎙 Halten und sprechen";
-      $("hold-button").classList.remove("active");
-      showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
-      return;
-    }
-  }
-  if (holding) startRecognition();
-}
-
-function startRecognition() {
-  if (!Recognition) return;
-  heardTexts = [];
-  recognitionError = "";
-  recognition = new Recognition();
-  recognition.lang = "th-TH";
-  recognition.continuous = true;      // nicht bei der ersten kleinen Pause aufhören
-  recognition.interimResults = true;  // auch Zwischenstände merken, falls am Ende nichts mehr kommt
-  recognition.maxAlternatives = 5;
-  recognition.onresult = event => {
-    // Alles Gehörte zusammensetzen, plus die Vorschläge für das letzte Stück
-    const results = [...event.results];
-    const full = results.map(result => (result[0] && result[0].transcript) || "").join("");
-    const last = results[results.length - 1];
-    heardTexts = [full, ...[...last].map(alternative => alternative.transcript)]
-      .filter(text => typeof text === "string" && text.trim() !== "");
-  };
-  recognition.onerror = event => {
-    recognitionError = event.error;
-  };
   try {
-    recognition.start();
+    await startRecording();
   } catch {
-    recognition = null;
+    holding = false;
+    clearTimeout(holdTimer);
+    $("hold-button").textContent = "🎙 Halten und sprechen";
+    $("hold-button").classList.remove("active");
+    showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
   }
 }
 
@@ -299,8 +271,6 @@ async function holdEndHandler() {
   $("hold-button").classList.remove("active");
 
   if (Date.now() - holdStart < MIN_HOLD_MS) {
-    if (recognition) recognition.abort();
-    recognition = null;
     await stopRecording();
     showVoiceResult("Taste gedrückt halten, solange du sprichst, dann loslassen.");
     return;
@@ -308,52 +278,34 @@ async function holdEndHandler() {
 
   showVoiceResult("Einen Moment …");
   try {
-    const [hasRecording, texts] = await Promise.all([stopRecording(), finishRecognition()]);
+    const hasRecording = await stopRecording();
     if (voiceCard !== current) return;   // inzwischen weitergeblättert
     $("play-own").hidden = !hasRecording;
-    showSpokenResult(hasRecording, texts);
+    if (!hasRecording) {
+      showVoiceResult("Keine Aufnahme. Bitte nochmal halten und sprechen.", "no");
+      return;
+    }
+    await showToneCurve(voiceCard);
   } catch {
-    showVoiceResult("Da ist etwas schiefgelaufen. Bitte nochmal halten und sprechen.", "no");
+    showVoiceResult("Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.", "no");
   }
 }
 
-// Rückmeldung nach dem Loslassen
-function showSpokenResult(hasRecording, texts) {
-  if (!Recognition) {
-    showVoiceResult(hasRecording ? "Jetzt vergleichen: ▶ Normal und ▶ Ich" : "Keine Aufnahme. Bitte nochmal.", "");
+// Eigene Kurve und Kanyas Kurve zeigen, bei einsilbigen Karten mit Ton-Hinweis
+async function showToneCurve(card) {
+  const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob()), kanyaCurve(card)]);
+  if (card !== current) return;
+  if (own.length === 0) {
+    showVoiceResult("Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen.", "no");
     return;
   }
-  if (recognitionError === "not-allowed" || recognitionError === "service-not-allowed") {
-    showVoiceResult("Prüfen nicht erlaubt: bitte Mikrofon und Spracherkennung für Safari erlauben. Vergleichen geht trotzdem mit ▶ Ich.", "no");
-    return;
-  }
-  if (texts.length === 0) {
-    showVoiceResult("Nichts verstanden. Nochmal halten, deutlich sprechen und erst danach loslassen.", "no");
-    return;
-  }
-  const { ok, heard } = checkSpoken(current, texts, cards);
-  if (ok) showVoiceResult("✓ Verstanden! Zum Feinschliff: ▶ Normal und ▶ Ich vergleichen.", "ok");
-  else if (heard) showVoiceResult(`✗ Klang eher nach: ${heard.umschrift}`, "no");
-  else showVoiceResult("✗ Nicht verstanden. Hör nochmal zu und versuch es erneut.", "no");
-}
+  $("tone-curve-svg").innerHTML = curveSvg(own, kanya);
+  $("tone-curve-kanya").hidden = !kanya;
+  $("tone-curve").hidden = false;
 
-// Beendet die Erkennung und wartet auf das letzte Ergebnis (höchstens 3 Sekunden)
-function finishRecognition() {
-  if (!recognition) return Promise.resolve([]);
-  const current = recognition;
-  return new Promise(resolve => {
-    const done = () => {
-      clearTimeout(timer);
-      if (recognition === current) recognition = null;
-      resolve(heardTexts);
-    };
-    const timer = setTimeout(() => {
-      current.abort();
-      done();
-    }, 3000);
-    current.onend = done;
-    current.stop();
-  });
+  const hint = toneHint(card.umschrift, endMovement(own));
+  if (hint) showVoiceResult(hint.text, hint.kind);
+  else showVoiceResult("Vergleiche den Verlauf: geht deine Linie an denselben Stellen hoch und runter wie die graue?");
 }
 
 async function rate(rating) {
@@ -527,6 +479,83 @@ function nextNumber() {
   $("numbers-result").hidden = false;
 }
 
+// ---------- Töne hören ----------
+// Kanya sagt ein Wort, man wählt zwischen Umschriften, die sich nur im Ton
+// unterscheiden. Zählt nicht für die Fächer.
+
+async function startTones() {
+  if (toneGroups.length === 0) {
+    const response = await fetch("inhalte/toene.json", { cache: "no-cache" });
+    toneGroups = await response.json();
+  }
+  toneQuiz = toneRound(toneGroups);
+  toneIndex = 0;
+  toneScore = 0;
+  $("tones-result").hidden = true;
+  showView("tones");
+  showToneQuestion();
+}
+
+function showToneQuestion() {
+  const { word, options } = toneQuiz[toneIndex];
+  $("tones-counter").textContent = `Frage ${toneIndex + 1} von ${toneQuiz.length}`;
+  $("tones-question").hidden = false;
+  $("tones-solution").hidden = true;
+  $("tones-next").hidden = true;
+
+  const list = $("tones-options");
+  list.innerHTML = "";
+  for (const option of options) {
+    const button = document.createElement("button");
+    button.innerHTML = '<span class="syllable"></span><span class="meaning"></span>';
+    button.querySelector(".syllable").textContent = option.umschrift;
+    button.addEventListener("click", () => answerTone(button, option));
+    button.dataset.umschrift = option.umschrift;
+    list.appendChild(button);
+  }
+  speak(word.thai);
+}
+
+// Ton als kurzer Text, z. B. "fallend (â)"
+function toneLabel(umschrift) {
+  const tone = toneOf(umschrift);
+  return tone === "mittel" ? "mittel (keine Marke)" : `${tone} (${TONES[tone].mark})`;
+}
+
+function answerTone(chosen, option) {
+  const { word, options } = toneQuiz[toneIndex];
+  const correct = option === word;
+  if (correct) toneScore++;
+  // Nach der Antwort bei allen Tasten Bedeutung und Ton zeigen
+  for (const button of $("tones-options").querySelectorAll("button")) {
+    const shown = options.find(o => o.umschrift === button.dataset.umschrift);
+    button.querySelector(".meaning").textContent = `${shown.deutsch} · ${toneLabel(shown.umschrift)}`;
+    if (shown === word) button.classList.add("right");
+    button.disabled = true;
+  }
+  if (!correct) chosen.classList.add("wrong");
+  $("tones-solution").textContent = correct
+    ? `✓ Richtig: ${word.umschrift} = ${word.deutsch}`
+    : `✗ Es war ${word.umschrift} = ${word.deutsch}`;
+  $("tones-solution").className = `tone-solution ${correct ? "right" : "wrong"}`;
+  $("tones-solution").hidden = false;
+  $("tones-next").hidden = false;
+}
+
+function nextToneQuestion() {
+  toneIndex++;
+  if (toneIndex < toneQuiz.length) {
+    showToneQuestion();
+    return;
+  }
+  $("tones-question").hidden = true;
+  $("tones-options").innerHTML = "";
+  $("tones-next").hidden = true;
+  $("tones-counter").textContent = "";
+  $("tones-score").textContent = `${toneScore} von ${toneQuiz.length}`;
+  $("tones-result").hidden = false;
+}
+
 // ---------- Statistik ----------
 
 async function showStats() {
@@ -612,6 +641,13 @@ $("overview-button").addEventListener("click", showOverview);
 $("listen-button").addEventListener("click", () => showView("listen-menu"));
 $("listen-menu-close").addEventListener("click", showHome);
 $("listen-words").addEventListener("click", startListen);
+$("listen-tones").addEventListener("click", startTones);
+$("tones-close").addEventListener("click", showHome);
+$("tones-home").addEventListener("click", showHome);
+$("tones-again").addEventListener("click", startTones);
+$("tones-next").addEventListener("click", nextToneQuestion);
+$("tones-speak").addEventListener("click", () => speak(toneQuiz[toneIndex].word.thai, RATE_NORMAL));
+$("tones-speak-slow").addEventListener("click", () => speak(toneQuiz[toneIndex].word.thai, RATE_SLOW));
 for (const button of document.querySelectorAll("[data-number-level]")) {
   button.addEventListener("click", () => startNumbers(Number(button.dataset.numberLevel)));
 }
