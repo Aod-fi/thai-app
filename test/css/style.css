@@ -1,0 +1,252 @@
+/* Aussehen der App.
+   Alle Farben stehen oben als Variablen. Um eine Farbe zu ändern,
+   reicht es, den Wert hier zu ändern, z. B. --accent: #c0392b; */
+
+:root {
+  --bg: #f6f4ef;
+  --panel: #ffffff;
+  --text: #222222;
+  --muted: #6b6b6b;
+  --accent: #2f6f5e;
+  --again: #c0533a;
+  --hard: #c48a1a;
+  --good: #2f8a4f;
+  --warning-bg: #fff3d6;
+  --bubble-me: #dcefe7;
+}
+
+/* Dunkle Farben, wenn das Gerät auf Dunkelmodus steht */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #151715;
+    --panel: #222622;
+    --text: #ececec;
+    --muted: #a3a3a3;
+    --accent: #6fbfa6;
+    --again: #e07a62;
+    --hard: #e0b04a;
+    --good: #5cbf7c;
+    --warning-bg: #3a3220;
+    --bubble-me: #23453b;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+[hidden] { display: none !important; }
+
+h1 { font-size: 1.6rem; margin: 8px 0 16px; }
+h2 { font-size: 1.1rem; margin: 0 0 12px; }
+.muted { color: var(--muted); }
+
+.panel, .card {
+  background: var(--panel);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.warning {
+  background: var(--warning-bg);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.big-number { font-size: 3rem; font-weight: 700; color: var(--accent); }
+
+/* Tasten */
+button {
+  font: inherit;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+.big { width: 100%; padding: 18px; font-size: 1.15rem; font-weight: 600; margin-bottom: 16px; }
+.primary { background: var(--accent); color: #ffffff; }
+.secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
+.link { background: none; color: var(--accent); padding: 8px 0; }
+
+/* Auswahl Fokus-Thema */
+.focus { display: block; margin-bottom: 16px; }
+.focus select {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  font: inherit;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: var(--panel);
+  color: inherit;
+}
+
+.hint { font-size: 0.85rem; margin: -10px 0 16px; text-align: center; }
+
+/* Fächer-Anzeige: sechs Spalten (neu, Fach 1 bis 5) */
+.boxes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; text-align: center; }
+.boxes .count { font-size: 1.3rem; font-weight: 700; }
+.boxes .label { font-size: 0.75rem; color: var(--muted); }
+
+/* Lernrunde */
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.card { min-height: 300px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.badges { display: flex; gap: 6px; justify-content: center; min-height: 24px; }
+.badge { font-size: 0.8rem; padding: 2px 10px; border-radius: 99px; background: var(--bg); }
+.front-text { font-size: 2rem; font-weight: 600; margin: 16px 0 24px; }
+.umschrift { font-size: 2rem; font-weight: 700; margin-top: 8px; }
+.deutsch { font-size: 1.25rem; margin: 6px 0 14px; }
+.merkhilfe { color: var(--muted); }
+.beispiel { color: var(--muted); font-style: italic; margin-top: 6px; }
+.speak-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
+
+.rating { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.rating button { color: #ffffff; font-weight: 600; padding: 18px 4px; font-size: 1.05rem; }
+.again { background: var(--again); }
+.hard { background: var(--hard); }
+.good { background: var(--good); }
+
+/* Übersicht */
+.unit-title { margin: 20px 0 8px; font-size: 1.05rem; }
+.row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel); border-radius: 12px; padding: 10px 12px; margin-bottom: 6px;
+}
+.row .text { flex: 1; }
+.row .umschrift-small { font-weight: 600; }
+.row button { padding: 10px 12px; }
+
+.version { text-align: center; font-size: 0.8rem; }
+
+/* Startseite: zwei Tasten nebeneinander */
+.two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.two-buttons .big { font-size: 1rem; padding: 16px 8px; }
+
+/* Hörübung */
+.options { display: grid; gap: 10px; margin-bottom: 16px; }
+.options button { background: var(--panel); color: var(--text); border: 2px solid var(--muted); padding: 16px; font-size: 1.05rem; text-align: left; }
+.options button.right, .options button.wrong { opacity: 1; }
+.options button.right { background: var(--good); border-color: var(--good); color: #ffffff; }
+.options button.wrong { background: var(--again); border-color: var(--again); color: #ffffff; }
+#listen-question { min-height: 180px; }
+#listen-result { text-align: center; }
+
+/* Statistik */
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+.theme-row { margin-bottom: 12px; }
+.theme-row .theme-head { display: flex; justify-content: space-between; font-size: 0.95rem; }
+.bar { height: 10px; border-radius: 99px; background: var(--bg); overflow: hidden; display: flex; margin-top: 4px; }
+.bar .sure { background: var(--good); }
+.bar .learned { background: var(--hard); }
+.forecast { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; align-items: end; }
+.forecast .col { display: flex; flex-direction: column; justify-content: flex-end; height: 110px; }
+.forecast .pillar { background: var(--accent); border-radius: 6px 6px 0 0; min-height: 2px; }
+.forecast .num { font-size: 0.85rem; font-weight: 600; }
+.forecast .day { font-size: 0.75rem; color: var(--muted); }
+
+/* Eigene Aussprache */
+.voice-row { margin-top: 10px; flex-wrap: wrap; }
+/* Halten-Taste: kein Markieren, kein Kontextmenü, kein Scrollen beim Gedrückthalten */
+.hold {
+  flex: 1 1 100%;
+  padding: 16px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+.voice-row button.active { background: var(--again); border-color: var(--again); color: #ffffff; }
+.voice-result { margin: 10px 0 0; font-size: 0.95rem; }
+.voice-result.ok { color: var(--good); font-weight: 600; }
+.voice-result.no { color: var(--again); font-weight: 600; }
+
+/* Zahlen und Preise */
+#view-listen-menu h2 { margin-top: 24px; }
+.number-form { display: flex; gap: 10px; margin-top: 18px; }
+.number-form input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1.6rem;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: var(--panel);
+  color: inherit;
+}
+.number-feedback { margin-top: 14px; font-size: 1.2rem; font-weight: 700; }
+.number-feedback.right { color: var(--good); }
+.number-feedback.wrong { color: var(--again); }
+#numbers-question { min-height: 220px; }
+#numbers-result { text-align: center; }
+
+/* Ton-Kurve */
+.tone-curve { margin-top: 14px; }
+.tone-curve svg { display: block; width: 100%; height: auto; }
+.tone-curve .curve-mid { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.5; }
+.tone-curve path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.tone-curve .curve-kanya { stroke: var(--muted); stroke-width: 5; opacity: 0.55; }
+.tone-curve .curve-own { stroke: var(--accent); stroke-width: 3.5; }
+.curve-legend { display: flex; gap: 14px; justify-content: center; font-size: 0.85rem; margin-top: 4px; }
+.curve-legend .own { color: var(--accent); font-weight: 600; }
+.curve-legend .kanya { color: var(--muted); font-weight: 600; }
+
+/* Töne hören */
+.tone-options button { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.tone-options .syllable { font-size: 1.5rem; font-weight: 700; }
+.tone-options .meaning { font-size: 0.95rem; }
+.tone-solution { margin-top: 16px; font-size: 1.15rem; font-weight: 700; }
+.tone-solution.right { color: var(--good); }
+.tone-solution.wrong { color: var(--again); }
+#tones-question { min-height: 180px; }
+#tones-result { text-align: center; }
+.tone-options button:disabled { opacity: 0.85; }
+
+/* Dialoge */
+.dialog-item {
+  display: flex; justify-content: space-between; align-items: center; width: 100%;
+  background: var(--panel); color: var(--text); text-align: left; margin-bottom: 8px; padding: 14px;
+}
+.dialog-item b { display: block; }
+.dialog-item small { font-size: 0.85rem; }
+.dialog-item .done { color: var(--good); font-size: 0.9rem; white-space: nowrap; }
+.dialog-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.dialog-modes button { padding: 10px 2px; font-size: 0.9rem; background: var(--panel); color: var(--text); border: 2px solid var(--muted); }
+.dialog-modes button.on { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.dialog-roles { display: flex; gap: 8px; align-items: center; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+.dialog-roles button { padding: 8px 14px; }
+.dialog-hint { font-size: 0.85rem; margin: 0 0 12px; }
+.dialog-lines { display: flex; flex-direction: column; margin-bottom: 12px; }
+.bubble { max-width: 85%; border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; cursor: pointer; }
+.bubble.them { background: var(--panel); align-self: flex-start; border-bottom-left-radius: 4px; }
+.bubble.me { background: var(--bubble-me); align-self: flex-end; border-bottom-right-radius: 4px; }
+.bubble.now { outline: 3px solid var(--accent); }
+.bubble.ask { background: var(--panel); border: 2px dashed var(--accent); outline: none; cursor: default; }
+.bubble .who { font-size: 0.75rem; color: var(--muted); }
+.bubble .u { font-weight: 700; font-size: 1.15rem; }
+.bubble .d { color: var(--muted); font-size: 0.9rem; }
+.bubble .ask-text { font-size: 1.1rem; }
+.dialog-tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.dialog-tools button { padding: 8px 12px; font-size: 0.9rem; }
+.dialog-tools button.on { background: var(--accent); color: #ffffff; }
+.dialog-end { text-align: center; }
+.dialog-end-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
