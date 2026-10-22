@@ -53,3 +53,26 @@ export function speak(text, rate = RATE_NORMAL) {
   }
   for (const word of splitWords(text)) say(word, rate);
 }
+
+// Wie speak, wartet aber, bis fertig gesprochen ist (für die Dialoge).
+// Sicherheitsnetz: nach spätestens 15 Sekunden geht es weiter, falls das Gerät
+// das Ende nicht meldet.
+export function speakAndWait(text, rate = RATE_NORMAL) {
+  return new Promise(resolve => {
+    speechSynthesis.cancel();
+    const words = rate === RATE_NORMAL || !("Segmenter" in Intl) ? [text] : splitWords(text);
+    let last = null;
+    for (const word of words) {
+      last = new SpeechSynthesisUtterance(word);
+      last.lang = "th-TH";
+      last.rate = rate;
+      if (thaiVoice) last.voice = thaiVoice;
+      speechSynthesis.speak(last);
+    }
+    const timer = setTimeout(resolve, 15000);
+    const done = () => { clearTimeout(timer); resolve(); };
+    if (!last) return done();
+    last.onend = done;
+    last.onerror = done;
+  });
+}

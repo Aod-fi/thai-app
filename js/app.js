@@ -10,6 +10,7 @@ import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
 import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
+import { initDialogs } from "./dialog-view.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
@@ -78,7 +79,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -669,6 +670,7 @@ $("listen-next").addEventListener("click", nextQuestion);
 $("listen-speak").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_NORMAL));
 $("listen-speak-slow").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_SLOW));
 $("stats-button").addEventListener("click", showStats);
+initDialogs({ showView, showHome });
 // Halten und sprechen: Pointer-Ereignisse gelten für Finger und Maus
 $("hold-button").addEventListener("pointerdown", holdStartHandler);
 for (const type of ["pointerup", "pointercancel", "pointerleave"]) {

@@ -21,7 +21,10 @@ const FILES = [
   "js/pitch.js",
   "js/tones.js",
   "js/tone-curve.js",
+  "js/dialoge.js",
+  "js/dialog-view.js",
   "inhalte/vokabeln.json",
+  "inhalte/dialoge.json",
   "inhalte/toene.json",
   "manifest.json",
   "icons/icon-192.png",
@@ -37,12 +40,29 @@ async function cacheAudio(cache) {
   await Promise.all(cards.map(card => cache.add(`audio/${card.id}.m4a`).catch(() => {})));
 }
 
+// Tondateien der Dialoge: audio/dialoge/<dialog>-<satz>.m4a, für Sätze der anderen
+// Person zusätzlich -khrap.m4a (Rollenwechsel). Fehlt eine Datei, ist das kein Fehler.
+// (Gleiche Namensregel wie in js/dialoge.js; ein Service Worker kann sie nicht importieren.)
+async function cacheDialogAudio(cache) {
+  const response = await fetch("inhalte/dialoge.json", { cache: "reload" });
+  const files = [];
+  for (const dialog of await response.json()) {
+    dialog.saetze.forEach((line, index) => {
+      const id = `${dialog.id}-${index + 1}`;
+      files.push(`audio/dialoge/${id}.m4a`);
+      if (line.wer === "gegenueber") files.push(`audio/dialoge/${id}-khrap.m4a`);
+    });
+  }
+  await Promise.all(files.map(file => cache.add(file).catch(() => {})));
+}
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(async cache => {
         await cache.addAll(FILES.map(file => new Request(file, { cache: "reload" })));
         await cacheAudio(cache).catch(() => {});
+        await cacheDialogAudio(cache).catch(() => {});
       })
       .then(() => self.skipWaiting())
   );

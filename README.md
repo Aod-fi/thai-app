@@ -20,7 +20,11 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `js/tones.js` | Töne an der Umschrift erkennen, Übung „Töne hören“ |
 | `inhalte/vokabeln.json` | **Alle Vokabeln** |
 | `inhalte/toene.json` | Wörter für „Töne hören“ (gleiche Silbe, anderer Ton) |
+| `inhalte/dialoge.json` | **Alle Dialoge** (kurze Gespräche aus den Einheiten) |
+| `js/dialoge.js` | Dialoge: Rollenwechsel (khâ/khá → khráp), Namen der Tondateien |
+| `js/dialog-view.js` | Dialoge: Anhören, Mitsprechen, Deine Rolle |
 | `audio/` | Kanyas Aussprache jeder Karte als Tondatei (für die Ton-Kurve) |
+| `audio/dialoge/` | Kanyas Aussprache jedes Dialog-Satzes |
 | `scripts/make-audio.sh` | Erzeugt die Tondateien in `audio/` |
 | `sw.js` | Service Worker: Offline-Betrieb und frische Dateien |
 | `manifest.json`, `icons/` | Name und Symbol für den Home-Bildschirm |
@@ -61,6 +65,15 @@ Läuft auf iPhone, iPad und Mac, auch offline.
    Das Skript lässt Kanya jede neue Karte sprechen und speichert sie in `audio/`.
    Vorhandene Dateien bleiben, es dauert nur bei neuen Karten kurz.
 6. Speichern und hochladen (siehe unten).
+
+## Einen Dialog ergänzen
+
+1. `inhalte/dialoge.json` öffnen und einen vorhandenen Dialog kopieren (Komma zwischen zwei Dialogen).
+2. `id` (eindeutig, nie mehr ändern), `thema`, `titel`, `einheit` und die beiden `rollen` anpassen.
+3. Jeder Satz hat `wer` (`"ich"` = du, `"gegenueber"` = die andere Person), `umschrift`, `thai` und `deutsch`.
+   Die andere Person ist eine Frau und sagt khâ/khá. Beim Rollenwechsel macht die App daraus automatisch khráp.
+4. Prüfen: `npm run check`, dann Tondateien erzeugen: `zsh scripts/make-audio.sh`
+   (fehlt eine Tondatei, liest die Thai-Stimme des Geräts den Satz vor).
 
 ## Eine Farbe ändern
 

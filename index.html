@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#2D2A4A">
 </head>
 <body>
-  <!-- Die App hat fünf Ansichten. Immer nur eine ist sichtbar, die anderen haben "hidden". -->
+  <!-- Die App hat mehrere Ansichten. Immer nur eine ist sichtbar, die anderen haben "hidden". -->
 
   <!-- 1. Startseite mit Fortschritt -->
   <main id="view-home">
@@ -50,6 +50,7 @@
       <button id="stats-button" class="secondary big">📊 Statistik</button>
     </div>
 
+    <button id="dialogs-button" class="secondary big">💬 Dialoge</button>
     <button id="overview-button" class="secondary big">Alle Karten ansehen</button>
     <p class="muted version">Version <span id="version"></span></p>
   </main>
@@ -211,6 +212,67 @@
       <button id="tones-again" class="primary big">Nochmal üben</button>
       <button id="tones-home" class="secondary big">Zur Startseite</button>
     </section>
+  </main>
+
+  <!-- Dialoge: Auswahl -->
+  <main id="view-dialog-list" hidden>
+    <div class="topbar">
+      <button id="dialog-list-close" class="link">← Zurück</button>
+    </div>
+    <h1>Dialoge</h1>
+    <p class="muted">Kurze Gespräche aus deinen Einheiten. Zählen nicht für die Fächer.</p>
+    <div id="dialog-list"></div>
+  </main>
+
+  <!-- Dialoge: ein Gespräch anhören, mitsprechen oder selbst eine Rolle sprechen -->
+  <main id="view-dialog" hidden>
+    <div class="topbar">
+      <button id="dialog-close" class="link">← Dialoge</button>
+      <span id="dialog-counter" class="muted"></span>
+    </div>
+    <h2 id="dialog-title"></h2>
+    <div class="dialog-modes">
+      <button data-dialog-mode="hoeren">🎧 Anhören</button>
+      <button data-dialog-mode="mitsprechen">🗣 Mitsprechen</button>
+      <button data-dialog-mode="rolle">🎭 Deine Rolle</button>
+    </div>
+    <div id="dialog-roles" class="dialog-roles" hidden>
+      <span class="muted">Du bist:</span>
+      <button data-dialog-role="ich"></button>
+      <button data-dialog-role="gegenueber"></button>
+    </div>
+    <p id="dialog-mode-hint" class="muted dialog-hint"></p>
+
+    <div id="dialog-lines" class="dialog-lines"></div>
+
+    <!-- Deine Rolle: eigener Satz -->
+    <div id="dialog-own" hidden>
+      <div id="dialog-hold-row" class="speak-row voice-row">
+        <button id="dialog-hold" class="secondary hold">🎙 Halten und sprechen</button>
+      </div>
+      <p id="dialog-voice-note" class="voice-result" hidden></p>
+      <button id="dialog-reveal" class="primary big">Auflösen</button>
+      <div id="dialog-after" hidden>
+        <div class="speak-row">
+          <button id="dialog-again" class="secondary">▶ Nochmal</button>
+          <button id="dialog-play-own" class="secondary" hidden>▶ Ich</button>
+        </div>
+        <button id="dialog-next" class="primary big">Weiter</button>
+      </div>
+    </div>
+
+    <section id="dialog-end" class="panel dialog-end" hidden>
+      <div id="dialog-end-title" class="dialog-end-title"></div>
+      <button id="dialog-restart" class="primary big">Nochmal</button>
+      <button id="dialog-to-role" class="secondary big"></button>
+      <button id="dialog-back-list" class="secondary big">Andere Dialoge</button>
+    </section>
+
+    <div class="dialog-tools">
+      <button id="dialog-pause" class="secondary">⏸ Pause</button>
+      <button id="dialog-slow" class="secondary">🐢 Langsam</button>
+      <button id="dialog-german" class="secondary">Deutsch aus</button>
+    </div>
   </main>
 
   <!-- 4. Lernstatistik -->

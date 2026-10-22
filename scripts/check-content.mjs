@@ -1,9 +1,10 @@
-// Prüfskript für inhalte/vokabeln.json und inhalte/toene.json
+// Prüfskript für inhalte/vokabeln.json, inhalte/toene.json und inhalte/dialoge.json
 // Aufruf im Terminal (im Ordner thai-app):  node scripts/check-content.mjs
 // Es meldet jede Karte, bei der etwas fehlt oder falsch ist.
 
 import { readFileSync, existsSync } from "node:fs";
 import { toneOf, withoutTone } from "../js/tones.js";
+import { audioFiles } from "../js/dialoge.js";
 
 const file = new URL("../inhalte/vokabeln.json", import.meta.url);
 const cards = JSON.parse(readFileSync(file, "utf8"));
@@ -73,6 +74,43 @@ groups.forEach((group, index) => {
   if (new Set(tones).size !== tones.length) errors.push(`${name}: zwei Wörter haben denselben Ton`);
 });
 
+// Dialoge: Pflichtfelder, eindeutige ids, "wer" ist "ich" oder "gegenueber",
+// keine Thai-Schrift außer im Feld "thai"
+const dialogFile = new URL("../inhalte/dialoge.json", import.meta.url);
+const dialogs = JSON.parse(readFileSync(dialogFile, "utf8"));
+const dialogIds = new Set();
+let dialogLineCount = 0;
+dialogs.forEach((dialog, index) => {
+  const name = `dialoge.json, ${dialog.id || `Dialog Nr. ${index + 1}`}`;
+  for (const field of ["id", "thema", "titel", "einheit"]) {
+    if (typeof dialog[field] !== "string" || dialog[field].trim() === "") errors.push(`${name}: Feld "${field}" fehlt oder ist leer`);
+  }
+  if (dialog.id) {
+    if (dialogIds.has(dialog.id)) errors.push(`${name}: id kommt doppelt vor`);
+    dialogIds.add(dialog.id);
+  }
+  if (!dialog.rollen || !dialog.rollen.ich || !dialog.rollen.gegenueber) {
+    errors.push(`${name}: "rollen" braucht "ich" und "gegenueber"`);
+  }
+  const lines = Array.isArray(dialog.saetze) ? dialog.saetze : [];
+  if (lines.length < 2) errors.push(`${name}: braucht mindestens 2 Sätze`);
+  lines.forEach((line, i) => {
+    dialogLineCount++;
+    const where = `${name}, Satz ${i + 1}`;
+    if (line.wer !== "ich" && line.wer !== "gegenueber") errors.push(`${where}: "wer" muss "ich" oder "gegenueber" sein`);
+    for (const field of ["umschrift", "thai", "deutsch"]) {
+      if (typeof line[field] !== "string" || line[field].trim() === "") errors.push(`${where}: Feld "${field}" fehlt oder ist leer`);
+    }
+    if (line.thai && !thaiLetters.test(line.thai)) errors.push(`${where}: Feld "thai" enthält keine Thai-Schrift`);
+    for (const field of ["umschrift", "deutsch"]) {
+      if (line[field] && thaiLetters.test(line[field])) errors.push(`${where}: Feld "${field}" enthält Thai-Schrift`);
+    }
+  });
+  for (const field of ["titel", "thema"]) {
+    if (dialog[field] && thaiLetters.test(dialog[field])) errors.push(`${name}: Feld "${field}" enthält Thai-Schrift`);
+  }
+});
+
 // Tondateien für die Ton-Kurve: fehlende sind kein Fehler, nur ein Hinweis
 const missingAudio = cards.filter(card => card.id && !existsSync(new URL(`../audio/${card.id}.m4a`, import.meta.url)));
 
@@ -81,10 +119,16 @@ if (errors.length > 0) {
   for (const error of errors) console.log("  - " + error);
   process.exit(1);
 } else {
-  console.log(`✅ Alle ${cards.length} Karten und ${toneWords} Wörter für "Töne hören" sind in Ordnung.`);
+  console.log(`✅ Alle ${cards.length} Karten, ${toneWords} Wörter für "Töne hören" und ${dialogs.length} Dialoge (${dialogLineCount} Sätze) sind in Ordnung.`);
 }
 
 if (missingAudio.length > 0) {
   console.log(`ℹ️  ${missingAudio.length} Karten ohne Tondatei für die Ton-Kurve (${missingAudio.map(c => c.id).join(", ")}).`);
+  console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
+}
+
+const missingDialogAudio = audioFiles(dialogs).filter(({ file }) => !existsSync(new URL(`../${file}`, import.meta.url)));
+if (missingDialogAudio.length > 0) {
+  console.log(`ℹ️  ${missingDialogAudio.length} Dialog-Sätze ohne Tondatei (die App liest sie dann mit der Thai-Stimme des Geräts vor).`);
   console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
 }

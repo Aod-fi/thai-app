@@ -12,6 +12,7 @@
   --hard: #c48a1a;
   --good: #2f8a4f;
   --warning-bg: #fff3d6;
+  --bubble-me: #dcefe7;
 }
 
 /* Dunkle Farben, wenn das Gerät auf Dunkelmodus steht */
@@ -26,6 +27,7 @@
     --hard: #e0b04a;
     --good: #5cbf7c;
     --warning-bg: #3a3220;
+    --bubble-me: #23453b;
   }
 }
 
@@ -218,3 +220,33 @@ button:disabled { opacity: 0.5; cursor: default; }
 #tones-question { min-height: 180px; }
 #tones-result { text-align: center; }
 .tone-options button:disabled { opacity: 0.85; }
+
+/* Dialoge */
+.dialog-item {
+  display: flex; justify-content: space-between; align-items: center; width: 100%;
+  background: var(--panel); color: var(--text); text-align: left; margin-bottom: 8px; padding: 14px;
+}
+.dialog-item b { display: block; }
+.dialog-item small { font-size: 0.85rem; }
+.dialog-item .done { color: var(--good); font-size: 0.9rem; white-space: nowrap; }
+.dialog-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
+.dialog-modes button { padding: 10px 2px; font-size: 0.9rem; background: var(--panel); color: var(--text); border: 2px solid var(--muted); }
+.dialog-modes button.on { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.dialog-roles { display: flex; gap: 8px; align-items: center; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+.dialog-roles button { padding: 8px 14px; }
+.dialog-hint { font-size: 0.85rem; margin: 0 0 12px; }
+.dialog-lines { display: flex; flex-direction: column; margin-bottom: 12px; }
+.bubble { max-width: 85%; border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; cursor: pointer; }
+.bubble.them { background: var(--panel); align-self: flex-start; border-bottom-left-radius: 4px; }
+.bubble.me { background: var(--bubble-me); align-self: flex-end; border-bottom-right-radius: 4px; }
+.bubble.now { outline: 3px solid var(--accent); }
+.bubble.ask { background: var(--panel); border: 2px dashed var(--accent); outline: none; cursor: default; }
+.bubble .who { font-size: 0.75rem; color: var(--muted); }
+.bubble .u { font-weight: 700; font-size: 1.15rem; }
+.bubble .d { color: var(--muted); font-size: 0.9rem; }
+.bubble .ask-text { font-size: 1.1rem; }
+.dialog-tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.dialog-tools button { padding: 8px 12px; font-size: 0.9rem; }
+.dialog-tools button.on { background: var(--accent); color: #ffffff; }
+.dialog-end { text-align: center; }
+.dialog-end-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
