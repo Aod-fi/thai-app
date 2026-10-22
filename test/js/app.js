@@ -327,9 +327,13 @@ async function showToneCurve(card) {
   $("tone-curve-info").textContent = `Technik: ${lastInfo}`;
   $("tone-curve").hidden = false;
 
+  // Nur wenig Stimme gefunden (z. B. sehr kurze oder geflüsterte Silben)
+  const voicedShare = own.filter(Boolean).length / own.length;
+  const tip = voicedShare < 0.3 ? " Tipp: Nur wenig Stimme erkannt. Sprich die Vokale etwas länger und lauter." : "";
+
   const hint = toneHint(card.umschrift, endMovement(own));
-  if (hint) showVoiceResult(hint.text, hint.kind);
-  else showVoiceResult("Vergleiche den Verlauf: geht deine Linie an denselben Stellen hoch und runter wie die graue?");
+  if (hint) showVoiceResult(hint.text + tip, hint.kind);
+  else showVoiceResult("Vergleiche den Verlauf: geht deine Linie an denselben Stellen hoch und runter wie die graue?" + tip);
 }
 
 async function rate(rating) {
