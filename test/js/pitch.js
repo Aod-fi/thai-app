@@ -6,12 +6,15 @@
 // wird gesucht, nach wie vielen Messpunkten sich die Schwingung wiederholt.
 // Daraus ergibt sich die Tonhöhe in Hertz.
 
-const FRAME = 1024;        // Länge eines Stücks in Messpunkten (bei 22050 Hz etwa 46 ms)
-const HOP = 256;           // Abstand zwischen zwei Stücken (etwa 12 ms)
+// Kurze Stücke, weil sich die Tonhöhe bei Thai-Tönen schnell ändert. Mit längeren
+// Stücken (46 ms) fand die Messung in echten iPhone-Aufnahmen einer tiefen
+// Männerstimme kaum gleichmäßige Schwingungen.
+const FRAME = 512;         // Länge eines Stücks in Messpunkten (bei 22050 Hz etwa 23 ms)
+const HOP = 128;           // Abstand zwischen zwei Stücken (etwa 6 ms)
 const MIN_HZ = 70;         // tiefe Männerstimme
 const MAX_HZ = 500;        // hohe Frauenstimme
 const THRESHOLD = 0.2;     // YIN-Schwelle: darunter gilt ein Stück als klar gestimmt
-const FALLBACK = 0.35;     // kein Wert unter THRESHOLD: tiefstes Minimum nehmen, wenn darunter
+const FALLBACK = 0.45;     // kein Wert unter THRESHOLD: tiefstes Minimum nehmen, wenn darunter
 const QUIET_DB = -35;      // leiser als das (gegenüber dem lautesten Stück) = Stille
 
 // Tonhöhe einer Aufnahme.
@@ -101,14 +104,14 @@ function cleanTrack(track) {
   // Mehr als 9 Halbtöne vom Mittelwert weg ist fast immer ein Messfehler
   let cleaned = track.map(v => (v !== null && Math.abs(semitones(v, median)) > 9 ? null : v));
 
-  // Gestimmte Inseln kürzer als 4 Stücke (etwa 45 ms) weglassen
+  // Gestimmte Inseln kürzer als 6 Stücke (etwa 35 ms) weglassen
   cleaned = cleaned.slice();
   let i = 0;
   while (i < cleaned.length) {
     if (cleaned[i] === null) { i++; continue; }
     let end = i;
     while (end < cleaned.length && cleaned[end] !== null) end++;
-    if (end - i < 4) for (let k = i; k < end; k++) cleaned[k] = null;
+    if (end - i < 6) for (let k = i; k < end; k++) cleaned[k] = null;
     i = end;
   }
 
@@ -125,13 +128,13 @@ function cleanTrack(track) {
     return v;
   });
 
-  // Kleine Lücken (bis 6 Stücke, etwa 70 ms) geradlinig füllen, damit die Linie
+  // Kleine Lücken (bis 12 Stücke, etwa 70 ms) geradlinig füllen, damit die Linie
   // nicht bei jedem kurzen Aussetzer abreißt
   for (let start = 0; start < cleaned.length; start++) {
     if (cleaned[start] === null || cleaned[start + 1] !== null) continue;
     let end = start + 1;
     while (end < cleaned.length && cleaned[end] === null) end++;
-    if (end < cleaned.length && end - start - 1 <= 6) {
+    if (end < cleaned.length && end - start - 1 <= 12) {
       for (let k = start + 1; k < end; k++) {
         cleaned[k] = cleaned[start] + ((cleaned[end] - cleaned[start]) * (k - start)) / (end - start);
       }
@@ -139,10 +142,10 @@ function cleanTrack(track) {
     start = end - 1;
   }
 
-  // Glätten: Median aus 5 Nachbarn (nur gestimmte)
+  // Glätten: Median aus 7 Nachbarn (nur gestimmte)
   return cleaned.map((v, index) => {
     if (v === null) return null;
-    const near = cleaned.slice(Math.max(0, index - 2), index + 3).filter(n => n !== null).sort((a, b) => a - b);
+    const near = cleaned.slice(Math.max(0, index - 3), index + 4).filter(n => n !== null).sort((a, b) => a - b);
     return near[Math.floor(near.length / 2)];
   });
 }
