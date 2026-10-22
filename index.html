@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7.1">
+  <link rel="stylesheet" href="css/style.css?v=1.7.2">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -86,6 +86,15 @@
           <button id="hold-button" class="secondary hold">🎙 Halten und sprechen</button>
           <button id="play-own" class="secondary" hidden>▶ Ich</button>
         </div>
+        <!-- Ton-Kurve: eigene Tonhöhe (farbig) und Kanya (grau) -->
+        <div id="tone-curve" class="tone-curve" hidden>
+          <div id="tone-curve-svg"></div>
+          <div class="curve-legend">
+            <span class="own">━ du</span>
+            <span id="tone-curve-kanya" class="kanya">━ Kanya</span>
+            <span class="muted">hoch ↑ · tief ↓</span>
+          </div>
+        </div>
         <p id="voice-result" class="voice-result" hidden></p>
       </div>
     </section>
@@ -107,6 +116,8 @@
     </div>
     <h1>Hörübung</h1>
     <button id="listen-words" class="primary big">Wörter verstehen</button>
+    <button id="listen-tones" class="secondary big">Töne hören</button>
+    <p class="muted hint">Gleiche Silbe, anderer Ton: welches Wort war es?</p>
     <h2>Zahlen und Preise</h2>
     <p class="muted">Die App spricht eine Zahl, du tippst sie ein.</p>
     <button class="secondary big" data-number-level="1">Zahlen 1 bis 10</button>
@@ -174,6 +185,34 @@
     </section>
   </main>
 
+  <!-- Töne hören: ein Wort hören, die Umschrift mit dem richtigen Ton wählen -->
+  <main id="view-tones" hidden>
+    <div class="topbar">
+      <button id="tones-close" class="link">✕ Beenden</button>
+      <span id="tones-counter" class="muted"></span>
+    </div>
+
+    <section id="tones-question" class="card">
+      <p class="muted">Hör zu: Welcher Ton war es?</p>
+      <div class="speak-row">
+        <button id="tones-speak" class="secondary">▶ Nochmal</button>
+        <button id="tones-speak-slow" class="secondary">🐢 Langsam</button>
+      </div>
+      <div id="tones-solution" class="tone-solution" hidden></div>
+    </section>
+
+    <div id="tones-options" class="options tone-options"></div>
+    <button id="tones-next" class="primary big" hidden>Weiter</button>
+
+    <section id="tones-result" class="panel" hidden>
+      <div class="big-number" id="tones-score"></div>
+      <div class="muted">richtig</div>
+      <p class="muted">Die Übung zählt nicht für die Fächer.</p>
+      <button id="tones-again" class="primary big">Nochmal üben</button>
+      <button id="tones-home" class="secondary big">Zur Startseite</button>
+    </section>
+  </main>
+
   <!-- 4. Lernstatistik -->
   <main id="view-stats" hidden>
     <div class="topbar">
@@ -212,6 +251,6 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7.1"></script>
+  <script type="module" src="js/app.js?v=1.7.2"></script>
 </body>
 </html>
