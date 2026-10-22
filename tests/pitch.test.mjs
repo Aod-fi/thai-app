@@ -53,9 +53,22 @@ test("Stille wird ausgelassen, Zeit läuft von 0 bis 1 nur über den Ton", () =>
   const track = pitchTrack(glide(200, 200, 0.5, 0.3), RATE);
   assert.equal(track[0], null);
   assert.equal(track[track.length - 1], null);
-  const points = normalizeTrack(track);
-  assert.equal(points[0].x, 0);
-  assert.equal(points[points.length - 1].x, 1);
+  const voicedPoints = normalizeTrack(track).filter(Boolean);
+  assert.ok(voicedPoints[0].x < 0.05);
+  assert.ok(voicedPoints[voicedPoints.length - 1].x > 0.95);
+});
+
+test("Stimmloser Teil am Ende (wie s, p, t) behält seinen Platz in der Zeit", () => {
+  // 0,3 s Ton, dann 0,3 s Rauschen (wie "sìp" geflüstert)
+  const tone = glide(150, 150, 0.3);
+  let seed = 7;
+  const hiss = Float32Array.from({ length: Math.round(0.3 * RATE) }, () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 0.8);
+  const samples = new Float32Array(tone.length + hiss.length);
+  samples.set(tone);
+  samples.set(hiss, tone.length);
+  const voicedPoints = normalizeTrack(pitchTrack(samples, RATE)).filter(Boolean);
+  // Der Ton füllt nur etwa die erste Hälfte, nicht die ganze Breite
+  assert.ok(voicedPoints[voicedPoints.length - 1].x < 0.6, `endet bei ${voicedPoints[voicedPoints.length - 1].x}`);
 });
 
 test("Männer- und Frauenstimme ergeben dieselbe Kurve (Halbtöne um den eigenen Mittelwert)", () => {

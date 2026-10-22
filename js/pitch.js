@@ -15,6 +15,7 @@ const MIN_HZ = 70;         // tiefe Männerstimme
 const MAX_HZ = 500;        // hohe Frauenstimme
 const THRESHOLD = 0.2;     // YIN-Schwelle: darunter gilt ein Stück als klar gestimmt
 const FALLBACK = 0.45;     // kein Wert unter THRESHOLD: tiefstes Minimum nehmen, wenn darunter
+const SPEECH_DB = -30;     // ab hier zählt ein Stück als gesprochen (für den Zeitbereich)
 const QUIET_DB = -35;      // leiser als das (gegenüber dem lautesten Stück) = Stille
 
 // Tonhöhe einer Aufnahme.
@@ -92,7 +93,14 @@ export function pitchTrack(samples, sampleRate) {
     return sampleRate / tau;
   });
 
-  return cleanTrack(raw);
+  // Wo wird gesprochen? Erstes und letztes Stück, das nicht leise ist (auch
+  // stimmlose Laute wie s, p, t). Damit bleibt bei der Zeit-Streckung jede Silbe
+  // an ihrem Platz, auch wenn nur ein Teil davon gestimmt ist.
+  const track = cleanTrack(raw);
+  const speaking = loudest * 10 ** (SPEECH_DB / 20);
+  track.speechStart = energies.findIndex(e => e > 0 && e >= speaking);
+  track.speechEnd = energies.length - 1 - [...energies].reverse().findIndex(e => e > 0 && e >= speaking);
+  return track;
 }
 
 // Ausreißer entfernen: einzelne Sprünge um eine Oktave und kurze Inseln
@@ -101,8 +109,16 @@ function cleanTrack(track) {
   if (voiced.length === 0) return track;
   const median = voiced[Math.floor(voiced.length / 2)];
 
-  // Mehr als 9 Halbtöne vom Mittelwert weg ist fast immer ein Messfehler
-  let cleaned = track.map(v => (v !== null && Math.abs(semitones(v, median)) > 9 ? null : v));
+  // Mehr als 7 Halbtöne vom Mittelwert weg: oft die doppelte oder halbe Tonhöhe,
+  // dann um eine Oktave zurückholen. Mehr als 9 ist fast immer ein Messfehler.
+  let cleaned = track.map(v => {
+    if (v === null) return null;
+    if (Math.abs(semitones(v, median)) > 7) {
+      const folded = semitones(v, median) > 0 ? v / 2 : v * 2;
+      if (Math.abs(semitones(folded, median)) < Math.abs(semitones(v, median))) v = folded;
+    }
+    return Math.abs(semitones(v, median)) > 9 ? null : v;
+  });
 
   // Gestimmte Inseln kürzer als 6 Stücke (etwa 35 ms) weglassen
   cleaned = cleaned.slice();
@@ -161,11 +177,15 @@ function semitones(hz, reference) {
 //   - Zeit von 0 bis 1, vom ersten bis zum letzten gestimmten Stück
 //     (langsames und schnelles Sprechen werden gleich lang)
 // Gibt eine Liste von Punkten { x, y } zurück; null = Lücke (stimmloser Laut).
+// Der Zeitbereich reicht vom ersten bis zum letzten gesprochenen Stück (siehe
+// pitchTrack), auch wenn Anfang oder Ende stimmlos sind.
 export function normalizeTrack(track) {
-  const first = track.findIndex(v => v !== null);
+  let first = track.findIndex(v => v !== null);
   if (first < 0) return [];
   let last = track.length - 1;
   while (track[last] === null) last--;
+  if (track.speechStart >= 0 && track.speechStart < first) first = track.speechStart;
+  if (track.speechEnd > last) last = track.speechEnd;
   if (last === first) return [];
 
   const part = track.slice(first, last + 1);
