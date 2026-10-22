@@ -175,3 +175,24 @@ button:disabled { opacity: 0.5; cursor: default; }
 .voice-result { margin: 10px 0 0; font-size: 0.95rem; }
 .voice-result.ok { color: var(--good); font-weight: 600; }
 .voice-result.no { color: var(--again); font-weight: 600; }
+
+/* Zahlen und Preise */
+#view-listen-menu h2 { margin-top: 24px; }
+.number-form { display: flex; gap: 10px; margin-top: 18px; }
+.number-form input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1.6rem;
+  text-align: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: var(--panel);
+  color: inherit;
+}
+.number-feedback { margin-top: 14px; font-size: 1.2rem; font-weight: 700; }
+.number-feedback.right { color: var(--good); }
+.number-feedback.wrong { color: var(--again); }
+#numbers-question { min-height: 220px; }
+#numbers-result { text-align: center; }

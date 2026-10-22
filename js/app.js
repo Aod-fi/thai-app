@@ -7,10 +7,11 @@ import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
 import { checkSpoken } from "./voice-check.js";
+import { numberRound, checkNumberAnswer } from "./numbers.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7";
+const VERSION = "1.8.0";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -27,6 +28,10 @@ let practice = false; // true = freies Üben, Bewertungen ändern keinen Lernsta
 let quiz = [];        // Fragen der Hörübung
 let quizIndex = 0;    // aktuelle Frage
 let quizScore = 0;    // richtige Antworten
+let numberLevel = 1;  // Stufe der Übung "Zahlen und Preise"
+let numberTasks = []; // Aufgaben der laufenden Runde
+let numberIndex = 0;
+let numberScore = 0;
 
 const today = () => toDateString(new Date());
 
@@ -67,7 +72,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen", "stats", "overview"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "stats", "overview"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -462,6 +467,66 @@ function nextQuestion() {
   $("listen-result").hidden = false;
 }
 
+// ---------- Zahlen und Preise ----------
+// Die App spricht eine Zahl oder einen Preis, man tippt die Zahl ein.
+// Zählt nicht für die Fächer.
+
+function startNumbers(level) {
+  numberLevel = level;
+  numberTasks = numberRound(level);
+  numberIndex = 0;
+  numberScore = 0;
+  $("numbers-result").hidden = true;
+  showView("numbers");
+  showNumberTask();
+}
+
+function showNumberTask() {
+  const task = numberTasks[numberIndex];
+  $("numbers-counter").textContent = `Aufgabe ${numberIndex + 1} von ${numberTasks.length}`;
+  $("numbers-question").hidden = false;
+  $("numbers-input").value = "";
+  $("numbers-input").disabled = false;
+  $("numbers-check").hidden = false;
+  $("numbers-feedback").hidden = true;
+  $("numbers-solution").hidden = true;
+  $("numbers-next").hidden = true;
+  $("numbers-input").focus();
+  speak(task.thai);
+}
+
+function checkNumber(event) {
+  event.preventDefault();
+  const task = numberTasks[numberIndex];
+  if ($("numbers-input").value.trim() === "") return;
+  const right = checkNumberAnswer(task, $("numbers-input").value);
+  if (right) numberScore++;
+
+  const label = numberLevel === 3 ? `${task.number} Baht` : `${task.number}`;
+  $("numbers-feedback").textContent = right ? `✓ Richtig: ${label}` : `✗ Richtig wäre: ${label}`;
+  $("numbers-feedback").className = `number-feedback ${right ? "right" : "wrong"}`;
+  $("numbers-feedback").hidden = false;
+  $("numbers-solution").textContent = task.umschrift;
+  $("numbers-solution").hidden = false;
+  $("numbers-input").disabled = true;
+  $("numbers-check").hidden = true;
+  $("numbers-next").hidden = false;
+  $("numbers-input").blur();
+}
+
+function nextNumber() {
+  numberIndex++;
+  if (numberIndex < numberTasks.length) {
+    showNumberTask();
+    return;
+  }
+  $("numbers-question").hidden = true;
+  $("numbers-next").hidden = true;
+  $("numbers-counter").textContent = "";
+  $("numbers-score").textContent = `${numberScore} von ${numberTasks.length}`;
+  $("numbers-result").hidden = false;
+}
+
 // ---------- Statistik ----------
 
 async function showStats() {
@@ -544,7 +609,19 @@ $("more-button").addEventListener("click", learnMore);
 $("focus-select").addEventListener("change", changeFocus);
 $("practice-button").addEventListener("click", startPractice);
 $("overview-button").addEventListener("click", showOverview);
-$("listen-button").addEventListener("click", startListen);
+$("listen-button").addEventListener("click", () => showView("listen-menu"));
+$("listen-menu-close").addEventListener("click", showHome);
+$("listen-words").addEventListener("click", startListen);
+for (const button of document.querySelectorAll("[data-number-level]")) {
+  button.addEventListener("click", () => startNumbers(Number(button.dataset.numberLevel)));
+}
+$("numbers-form").addEventListener("submit", checkNumber);
+$("numbers-next").addEventListener("click", nextNumber);
+$("numbers-close").addEventListener("click", showHome);
+$("numbers-home").addEventListener("click", showHome);
+$("numbers-again").addEventListener("click", () => startNumbers(numberLevel));
+$("numbers-speak").addEventListener("click", () => speak(numberTasks[numberIndex].thai, RATE_NORMAL));
+$("numbers-speak-slow").addEventListener("click", () => speak(numberTasks[numberIndex].thai, RATE_SLOW));
 $("listen-close").addEventListener("click", showHome);
 $("listen-home").addEventListener("click", showHome);
 $("listen-again").addEventListener("click", startListen);

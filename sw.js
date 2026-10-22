@@ -17,6 +17,7 @@ const FILES = [
   "js/extras.js",
   "js/recorder.js",
   "js/voice-check.js",
+  "js/numbers.js",
   "inhalte/vokabeln.json",
   "manifest.json",
   "icons/icon-192.png",

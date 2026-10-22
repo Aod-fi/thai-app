@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7">
+  <link rel="stylesheet" href="css/style.css?v=1.8.0">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -100,6 +100,52 @@
     </div>
   </main>
 
+  <!-- Hörübung: Auswahl der Übung -->
+  <main id="view-listen-menu" hidden>
+    <div class="topbar">
+      <button id="listen-menu-close" class="link">← Zurück</button>
+    </div>
+    <h1>Hörübung</h1>
+    <button id="listen-words" class="primary big">Wörter verstehen</button>
+    <h2>Zahlen und Preise</h2>
+    <p class="muted">Die App spricht eine Zahl, du tippst sie ein.</p>
+    <button class="secondary big" data-number-level="1">Zahlen 1 bis 10</button>
+    <button class="secondary big" data-number-level="2">Zahlen bis 100</button>
+    <button class="secondary big" data-number-level="3">Preise bis 1.000 Baht</button>
+  </main>
+
+  <!-- Zahlen und Preise: Thai hören, Zahl eintippen -->
+  <main id="view-numbers" hidden>
+    <div class="topbar">
+      <button id="numbers-close" class="link">✕ Beenden</button>
+      <span id="numbers-counter" class="muted"></span>
+    </div>
+
+    <section id="numbers-question" class="card">
+      <p class="muted">Hör zu und tippe die Zahl ein:</p>
+      <div class="speak-row">
+        <button id="numbers-speak" class="secondary">▶ Nochmal</button>
+        <button id="numbers-speak-slow" class="secondary">🐢 Langsam</button>
+      </div>
+      <form id="numbers-form" class="number-form">
+        <input id="numbers-input" type="text" inputmode="numeric" autocomplete="off" aria-label="Zahl">
+        <button id="numbers-check" class="primary" type="submit">Prüfen</button>
+      </form>
+      <div id="numbers-feedback" class="number-feedback" hidden></div>
+      <div id="numbers-solution" class="umschrift" hidden></div>
+    </section>
+
+    <button id="numbers-next" class="primary big" hidden>Weiter</button>
+
+    <section id="numbers-result" class="panel" hidden>
+      <div class="big-number" id="numbers-score"></div>
+      <div class="muted">richtig</div>
+      <p class="muted">Die Übung zählt nicht für die Fächer.</p>
+      <button id="numbers-again" class="primary big">Nochmal üben</button>
+      <button id="numbers-home" class="secondary big">Zur Startseite</button>
+    </section>
+  </main>
+
   <!-- 3. Hörübung: Thai hören, Bedeutung wählen -->
   <main id="view-listen" hidden>
     <div class="topbar">
@@ -166,6 +212,6 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7"></script>
+  <script type="module" src="js/app.js?v=1.8.0"></script>
 </body>
 </html>
