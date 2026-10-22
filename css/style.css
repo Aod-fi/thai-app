@@ -133,3 +133,29 @@ button:disabled { opacity: 0.5; cursor: default; }
 .row button { padding: 10px 12px; }
 
 .version { text-align: center; font-size: 0.8rem; }
+
+/* Startseite: zwei Tasten nebeneinander */
+.two-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.two-buttons .big { font-size: 1rem; padding: 16px 8px; }
+
+/* Hörübung */
+.options { display: grid; gap: 10px; margin-bottom: 16px; }
+.options button { background: var(--panel); color: var(--text); border: 2px solid var(--muted); padding: 16px; font-size: 1.05rem; text-align: left; }
+.options button.right, .options button.wrong { opacity: 1; }
+.options button.right { background: var(--good); border-color: var(--good); color: #ffffff; }
+.options button.wrong { background: var(--again); border-color: var(--again); color: #ffffff; }
+#listen-question { min-height: 180px; }
+#listen-result { text-align: center; }
+
+/* Statistik */
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; text-align: center; }
+.theme-row { margin-bottom: 12px; }
+.theme-row .theme-head { display: flex; justify-content: space-between; font-size: 0.95rem; }
+.bar { height: 10px; border-radius: 99px; background: var(--bg); overflow: hidden; display: flex; margin-top: 4px; }
+.bar .sure { background: var(--good); }
+.bar .learned { background: var(--hard); }
+.forecast { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; align-items: end; }
+.forecast .col { display: flex; flex-direction: column; justify-content: flex-end; height: 110px; }
+.forecast .pillar { background: var(--accent); border-radius: 6px 6px 0 0; min-height: 2px; }
+.forecast .num { font-size: 0.85rem; font-weight: 600; }
+.forecast .day { font-size: 0.75rem; color: var(--muted); }

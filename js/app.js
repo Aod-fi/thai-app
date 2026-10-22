@@ -4,10 +4,11 @@
 import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
+import { listenQuiz, themeStats, dueForecast } from "./extras.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.4";
+const VERSION = "1.5";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -21,6 +22,9 @@ let current = null;   // Karte, die gerade angezeigt wird
 let direction = "";   // "hoeren" (Hören → Deutsch) oder "sprechen" (Deutsch → Thai)
 let focus = "";       // Fokus-Thema für neue Karten, "" = alle Themen
 let practice = false; // true = freies Üben, Bewertungen ändern keinen Lernstand
+let quiz = [];        // Fragen der Hörübung
+let quizIndex = 0;    // aktuelle Frage
+let quizScore = 0;    // richtige Antworten
 
 const today = () => toDateString(new Date());
 
@@ -61,7 +65,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "overview"]) {
+  for (const view of ["home", "round", "listen", "stats", "overview"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -94,14 +98,19 @@ async function showHome() {
   $("focus-select").value = focus;
   $("practice-button").textContent = `Frei üben: ${focus || "alle Themen"}`;
 
-  const counts = countByBox(cards, states);
-  const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
-  $("boxes").innerHTML = counts
-    .map((count, i) => `<div><div class="count">${count}</div><div class="label">${labels[i]}</div></div>`)
-    .join("");
+  $("boxes").innerHTML = boxesHtml();
 
   $("streak").textContent = streak(await loadMeta("learnedDays", []), today());
   showView("home");
+}
+
+// Fächer-Anzeige (Startseite und Statistik)
+function boxesHtml() {
+  const counts = countByBox(cards, states);
+  const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
+  return counts
+    .map((count, i) => `<div><div class="count">${count}</div><div class="label">${labels[i]}</div></div>`)
+    .join("");
 }
 
 // ---------- Lernrunde ----------
@@ -230,6 +239,106 @@ async function changeFocus() {
   showHome();
 }
 
+// ---------- Hörübung ----------
+// Die App spricht, man wählt die Bedeutung. Zählt nicht für die Fächer.
+
+function startListen() {
+  quiz = listenQuiz(cards, states, focus);
+  quizIndex = 0;
+  quizScore = 0;
+  $("listen-result").hidden = true;
+  showView("listen");
+  showQuestion();
+}
+
+function showQuestion() {
+  const { card, options } = quiz[quizIndex];
+  $("listen-counter").textContent = `Frage ${quizIndex + 1} von ${quiz.length}`;
+  $("listen-question").hidden = false;
+  $("listen-solution").hidden = true;
+  $("listen-next").hidden = true;
+
+  const list = $("listen-options");
+  list.innerHTML = "";
+  for (const option of options) {
+    const button = document.createElement("button");
+    button.textContent = option;
+    button.addEventListener("click", () => answer(button, option === card.deutsch));
+    list.appendChild(button);
+  }
+  speak(card.thai);
+}
+
+function answer(chosen, correct) {
+  const { card } = quiz[quizIndex];
+  if (correct) quizScore++;
+  // Richtige Antwort grün, falsch gewählte rot; danach nichts mehr antippbar
+  for (const button of $("listen-options").querySelectorAll("button")) {
+    if (button.textContent === card.deutsch) button.classList.add("right");
+    button.disabled = true;
+  }
+  if (!correct) chosen.classList.add("wrong");
+  $("listen-solution").textContent = card.umschrift;
+  $("listen-solution").hidden = false;
+  $("listen-next").hidden = false;
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex < quiz.length) {
+    showQuestion();
+    return;
+  }
+  // Ergebnis zeigen
+  $("listen-question").hidden = true;
+  $("listen-options").innerHTML = "";
+  $("listen-next").hidden = true;
+  $("listen-counter").textContent = "";
+  $("listen-score").textContent = `${quizScore} von ${quiz.length}`;
+  $("listen-result").hidden = false;
+}
+
+// ---------- Statistik ----------
+
+async function showStats() {
+  const learnedDays = await loadMeta("learnedDays", []);
+  $("stats-streak").textContent = streak(learnedDays, today());
+  $("stats-days").textContent = learnedDays.length;
+  $("stats-boxes").innerHTML = boxesHtml();
+
+  // Pro Thema: Balken, grün = sicher (ab Fach 4), gelb = gelernt
+  const list = $("stats-themes");
+  list.innerHTML = "";
+  for (const { theme, total, learned, sure } of themeStats(cards, states)) {
+    const row = document.createElement("div");
+    row.className = "theme-row";
+    row.innerHTML =
+      '<div class="theme-head"><span class="name"></span><span class="muted numbers"></span></div>' +
+      '<div class="bar"><div class="sure"></div><div class="learned"></div></div>';
+    row.querySelector(".name").textContent = theme;
+    row.querySelector(".numbers").textContent = `${learned} von ${total} gelernt, ${sure} sicher`;
+    row.querySelector(".sure").style.width = `${(sure / total) * 100}%`;
+    row.querySelector(".learned").style.width = `${((learned - sure) / total) * 100}%`;
+    list.appendChild(row);
+  }
+
+  // Vorschau: wie viele Wiederholungen an den nächsten 7 Tagen anstehen
+  const forecast = dueForecast(cards, states, today());
+  const max = Math.max(1, ...forecast.map(f => f.count));
+  const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  $("stats-forecast").innerHTML = forecast
+    .map(({ day, count }, i) => {
+      const [y, m, d] = day.split("-").map(Number);
+      const label = i === 0 ? "heute" : weekdays[new Date(y, m - 1, d).getDay()];
+      return `<div class="col"><div class="num">${count}</div>` +
+        `<div class="pillar" style="height:${(count / max) * 70}px"></div>` +
+        `<div class="day">${label}</div></div>`;
+    })
+    .join("");
+
+  showView("stats");
+}
+
 // ---------- Übersicht ----------
 
 function showOverview() {
@@ -271,6 +380,15 @@ $("more-button").addEventListener("click", learnMore);
 $("focus-select").addEventListener("change", changeFocus);
 $("practice-button").addEventListener("click", startPractice);
 $("overview-button").addEventListener("click", showOverview);
+$("listen-button").addEventListener("click", startListen);
+$("listen-close").addEventListener("click", showHome);
+$("listen-home").addEventListener("click", showHome);
+$("listen-again").addEventListener("click", startListen);
+$("listen-next").addEventListener("click", nextQuestion);
+$("listen-speak").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_NORMAL));
+$("listen-speak-slow").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_SLOW));
+$("stats-button").addEventListener("click", showStats);
+$("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", showHome);
 $("flip-button").addEventListener("click", showBack);

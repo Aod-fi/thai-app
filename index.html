@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.4">
+  <link rel="stylesheet" href="css/style.css?v=1.5">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -14,7 +14,7 @@
   <meta name="theme-color" content="#2D2A4A">
 </head>
 <body>
-  <!-- Die App hat drei Ansichten. Immer nur eine ist sichtbar, die anderen haben "hidden". -->
+  <!-- Die App hat fünf Ansichten. Immer nur eine ist sichtbar, die anderen haben "hidden". -->
 
   <!-- 1. Startseite mit Fortschritt -->
   <main id="view-home">
@@ -44,6 +44,11 @@
       <div id="boxes" class="boxes"></div>
       <p class="muted"><span id="streak">0</span> Lerntage in Folge</p>
     </section>
+
+    <div class="two-buttons">
+      <button id="listen-button" class="secondary big">🎧 Hörübung</button>
+      <button id="stats-button" class="secondary big">📊 Statistik</button>
+    </div>
 
     <button id="overview-button" class="secondary big">Alle Karten ansehen</button>
     <p class="muted version">Version <span id="version"></span></p>
@@ -89,7 +94,64 @@
     </div>
   </main>
 
-  <!-- 3. Übersicht aller Karten -->
+  <!-- 3. Hörübung: Thai hören, Bedeutung wählen -->
+  <main id="view-listen" hidden>
+    <div class="topbar">
+      <button id="listen-close" class="link">✕ Beenden</button>
+      <span id="listen-counter" class="muted"></span>
+    </div>
+
+    <section id="listen-question" class="card">
+      <p class="muted">Hör zu: Was bedeutet das?</p>
+      <div class="speak-row">
+        <button id="listen-speak" class="secondary">▶ Nochmal</button>
+        <button id="listen-speak-slow" class="secondary">🐢 Langsam</button>
+      </div>
+      <div id="listen-solution" class="umschrift" hidden></div>
+    </section>
+
+    <div id="listen-options" class="options"></div>
+    <button id="listen-next" class="primary big" hidden>Weiter</button>
+
+    <section id="listen-result" class="panel" hidden>
+      <div class="big-number" id="listen-score"></div>
+      <div class="muted">richtig</div>
+      <p class="muted">Die Hörübung zählt nicht für die Fächer.</p>
+      <button id="listen-again" class="primary big">Nochmal üben</button>
+      <button id="listen-home" class="secondary big">Zur Startseite</button>
+    </section>
+  </main>
+
+  <!-- 4. Lernstatistik -->
+  <main id="view-stats" hidden>
+    <div class="topbar">
+      <button id="stats-close" class="link">← Zurück</button>
+    </div>
+    <h1>Statistik</h1>
+
+    <section class="panel stat-row">
+      <div><div class="big-number" id="stats-streak">0</div><div class="muted">Lerntage in Folge</div></div>
+      <div><div class="big-number" id="stats-days">0</div><div class="muted">Lerntage gesamt</div></div>
+    </section>
+
+    <section class="panel">
+      <h2>Karten pro Fach</h2>
+      <div id="stats-boxes" class="boxes"></div>
+      <p class="muted">Ab Fach 4 gilt eine Karte als sicher.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Pro Thema</h2>
+      <div id="stats-themes"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Wiederholungen der nächsten 7 Tage</h2>
+      <div id="stats-forecast" class="forecast"></div>
+    </section>
+  </main>
+
+  <!-- 5. Übersicht aller Karten -->
   <main id="view-overview" hidden>
     <div class="topbar">
       <button id="overview-close" class="link">← Zurück</button>
@@ -98,6 +160,6 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.4"></script>
+  <script type="module" src="js/app.js?v=1.5"></script>
 </body>
 </html>
