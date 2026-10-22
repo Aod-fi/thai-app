@@ -5,10 +5,12 @@ import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, s
 import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
+import { canRecord, isRecording, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
+import { checkSpoken } from "./voice-check.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.5";
+const VERSION = "1.6";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -133,6 +135,7 @@ function startPractice() {
 }
 
 function showNextCard() {
+  resetVoice();
   if (queue.length === 0) {
     showHome();
     return;
@@ -183,8 +186,100 @@ function showBack() {
   $("back-merkhilfe").textContent = current.merkhilfe ? "💡 " + current.merkhilfe : "";
   $("back-beispiel").textContent = current.beispiel ? "z. B. " + current.beispiel : "";
 
+  resetVoice();
+
   // Nach dem Umdrehen die richtige Aussprache vorspielen
   speak(current.thai);
+}
+
+// ---------- Eigene Aussprache ----------
+// "Aufnehmen": selbst sprechen, dann mit "▶ Normal" (Kanya) und "▶ Ich" vergleichen.
+// "Prüfen": die Spracherkennung des Geräts versucht, das Gesagte zu verstehen.
+// Das ist nur ein grober Test, Töne bewertet er nicht zuverlässig.
+
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+
+function resetVoice() {
+  clearRecording();
+  if (recognition) recognition.abort();
+  $("record-button").hidden = !canRecord();
+  $("record-button").textContent = "🎤 Aufnehmen";
+  $("record-button").classList.remove("active");
+  $("play-own").hidden = true;
+  $("check-button").hidden = !Recognition;
+  $("check-button").textContent = "🗣 Prüfen";
+  $("check-button").classList.remove("active");
+  $("voice-result").hidden = true;
+}
+
+function showVoiceResult(text, kind = "") {
+  $("voice-result").textContent = text;
+  $("voice-result").className = `voice-result ${kind}`;
+  $("voice-result").hidden = false;
+}
+
+async function toggleRecording() {
+  if (isRecording()) {
+    stopRecording();
+    return;
+  }
+  speechSynthesis.cancel();
+  try {
+    await startRecording(() => {
+      $("record-button").textContent = "🎤 Nochmal";
+      $("record-button").classList.remove("active");
+      $("play-own").hidden = false;
+      showVoiceResult("Jetzt vergleichen: ▶ Normal (Kanya) und ▶ Ich");
+    });
+    $("record-button").textContent = "⏹ Stopp";
+    $("record-button").classList.add("active");
+    $("voice-result").hidden = true;
+  } catch {
+    showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
+  }
+}
+
+function checkPronunciation() {
+  if (recognition) {
+    recognition.abort();
+    return;
+  }
+  speechSynthesis.cancel();
+  const card = current;
+  recognition = new Recognition();
+  recognition.lang = "th-TH";
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 5;
+
+  let answered = false;
+  recognition.onresult = event => {
+    answered = true;
+    const transcripts = [...event.results[0]].map(alternative => alternative.transcript);
+    const { ok, heard } = checkSpoken(card, transcripts, cards);
+    if (ok) showVoiceResult("✓ Verstanden!", "ok");
+    else if (heard) showVoiceResult(`✗ Klang eher nach: ${heard.umschrift}`, "no");
+    else showVoiceResult("✗ Nicht verstanden. Hör nochmal zu und versuch es erneut.", "no");
+  };
+  recognition.onerror = event => {
+    answered = true;
+    if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+      showVoiceResult("Spracherkennung nicht erlaubt. Bitte Mikrofon und Diktierfunktion erlauben.", "no");
+    } else if (event.error !== "aborted") {
+      showVoiceResult("Nichts gehört. Tippe auf Prüfen und sprich direkt los.", "no");
+    }
+  };
+  recognition.onend = () => {
+    recognition = null;
+    $("check-button").textContent = "🗣 Prüfen";
+    $("check-button").classList.remove("active");
+    if (!answered) showVoiceResult("Nichts gehört. Tippe auf Prüfen und sprich direkt los.", "no");
+  };
+
+  $("check-button").textContent = "👂 Ich höre …";
+  $("check-button").classList.add("active");
+  $("voice-result").hidden = true;
+  recognition.start();
 }
 
 async function rate(rating) {
@@ -388,9 +483,15 @@ $("listen-next").addEventListener("click", nextQuestion);
 $("listen-speak").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_NORMAL));
 $("listen-speak-slow").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_SLOW));
 $("stats-button").addEventListener("click", showStats);
+$("record-button").addEventListener("click", toggleRecording);
+$("play-own").addEventListener("click", playRecording);
+$("check-button").addEventListener("click", checkPronunciation);
 $("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
-$("round-close").addEventListener("click", showHome);
+$("round-close").addEventListener("click", () => {
+  resetVoice();
+  showHome();
+});
 $("flip-button").addEventListener("click", showBack);
 $("front-speak").addEventListener("click", () => speak(current.thai));
 $("back-speak").addEventListener("click", () => speak(current.thai, RATE_NORMAL));

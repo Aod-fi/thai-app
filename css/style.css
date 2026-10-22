@@ -159,3 +159,10 @@ button:disabled { opacity: 0.5; cursor: default; }
 .forecast .pillar { background: var(--accent); border-radius: 6px 6px 0 0; min-height: 2px; }
 .forecast .num { font-size: 0.85rem; font-weight: 600; }
 .forecast .day { font-size: 0.75rem; color: var(--muted); }
+
+/* Eigene Aussprache */
+.voice-row { margin-top: 10px; flex-wrap: wrap; }
+.voice-row button.active { background: var(--again); border-color: var(--again); color: #ffffff; }
+.voice-result { margin: 10px 0 0; font-size: 0.95rem; }
+.voice-result.ok { color: var(--good); font-weight: 600; }
+.voice-result.no { color: var(--again); font-weight: 600; }
