@@ -85,6 +85,8 @@
         <div id="voice-row" class="speak-row voice-row">
           <button id="hold-button" class="secondary hold">🎙 Halten und sprechen</button>
           <button id="play-own" class="secondary" hidden>▶ Ich</button>
+          <!-- Nur Testfassung: eigene Aufnahme an den Mac schicken, zur Fehlersuche -->
+          <button id="share-own" class="secondary" hidden>⤴ Teilen</button>
         </div>
         <!-- Ton-Kurve: eigene Tonhöhe (farbig) und Kanya (grau) -->
         <div id="tone-curve" class="tone-curve" hidden>
@@ -94,6 +96,7 @@
             <span id="tone-curve-kanya" class="kanya">━ Kanya</span>
             <span class="muted">hoch ↑ · tief ↓</span>
           </div>
+          <p id="tone-curve-info" class="muted curve-info"></p>
         </div>
         <p id="voice-result" class="voice-result" hidden></p>
       </div>
