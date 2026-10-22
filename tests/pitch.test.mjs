@@ -71,3 +71,13 @@ test("Nur Stille: keine Kurve", () => {
   assert.deepEqual(normalizeTrack(track), []);
   assert.equal(endMovement([]), null);
 });
+
+test("Handy-Aufnahme mit Rauschen: tiefe Stimme wird trotzdem erkannt", () => {
+  const samples = glide(110, 110, 0.6, 0.2);
+  let seed = 1;
+  const noise = () => ((seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5) * 0.3;
+  for (let i = 0; i < samples.length; i++) samples[i] += noise();
+  const track = voiced(pitchTrack(samples, RATE));
+  assert.ok(track.length > 20, `nur ${track.length} Stücke mit Stimme`);
+  for (const hz of track) assert.ok(Math.abs(hz - 110) < 5, `${hz} statt 110`);
+});
