@@ -6,7 +6,7 @@ import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
-import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
+import { curveFromAudio, kanyaCurve, curveSvg, lastInfo } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
 import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
@@ -286,17 +286,17 @@ async function holdEndHandler() {
       return;
     }
     await showToneCurve(voiceCard);
-  } catch {
-    showVoiceResult("Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.", "no");
+  } catch (error) {
+    showVoiceResult(`Ton-Kurve konnte nicht berechnet werden (Technik: ${error && error.message}). Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.`, "no");
   }
 }
 
 // Eigene Kurve und Kanyas Kurve zeigen, bei einsilbigen Karten mit Ton-Hinweis
 async function showToneCurve(card) {
-  const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob()), kanyaCurve(card)]);
+  const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob(), true), kanyaCurve(card)]);
   if (card !== current) return;
   if (own.length === 0) {
-    showVoiceResult("Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen.", "no");
+    showVoiceResult(`Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen. (Technik: ${lastInfo})`, "no");
     return;
   }
   $("tone-curve-svg").innerHTML = curveSvg(own, kanya);

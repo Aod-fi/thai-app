@@ -11,6 +11,7 @@ const HOP = 256;           // Abstand zwischen zwei Stücken (etwa 12 ms)
 const MIN_HZ = 70;         // tiefe Männerstimme
 const MAX_HZ = 500;        // hohe Frauenstimme
 const THRESHOLD = 0.2;     // YIN-Schwelle: darunter gilt ein Stück als klar gestimmt
+const FALLBACK = 0.35;     // kein Wert unter THRESHOLD: tiefstes Minimum nehmen, wenn darunter
 const QUIET_DB = -35;      // leiser als das (gegenüber dem lautesten Stück) = Stille
 
 // Tonhöhe einer Aufnahme.
@@ -65,7 +66,16 @@ export function pitchTrack(samples, sampleRate) {
         break;
       }
     }
-    if (best < 0) return null;
+    // Rauschige Handy-Aufnahmen: kein Wert unter der Schwelle, dann das tiefste Minimum
+    if (best < 0) {
+      for (let tau = minTau; tau <= maxTau; tau++) {
+        if (norm[tau] < bestValue) {
+          bestValue = norm[tau];
+          best = tau;
+        }
+      }
+      if (bestValue > FALLBACK) return null;
+    }
 
     // Feiner: Parabel durch die drei Punkte um das Minimum (Schritt 5)
     let tau = best;
