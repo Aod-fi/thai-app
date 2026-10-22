@@ -218,4 +218,3 @@ button:disabled { opacity: 0.5; cursor: default; }
 #tones-question { min-height: 180px; }
 #tones-result { text-align: center; }
 .tone-options button:disabled { opacity: 0.85; }
-.curve-info { font-size: 0.7rem; margin: 4px 0 0; }

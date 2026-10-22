@@ -6,7 +6,7 @@ import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
-import { curveFromAudio, kanyaCurve, curveSvg, lastInfo } from "./tone-curve.js";
+import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
 import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
@@ -208,7 +208,7 @@ function showBack() {
 // Beim Loslassen:
 //   - "▶ Ich" spielt die eigene Aufnahme ab (zum Vergleich mit "▶ Normal")
 //   - die Ton-Kurve zeigt die eigene Tonhöhe neben der von Kanya.
-// Die Spracherkennung des Geräts ("verstanden ja/nein") ist in dieser Testfassung aus:
+// Die Spracherkennung des Geräts ("verstanden ja/nein") ist seit Stufe 5 aus:
 // In Home-Bildschirm-Apps auf iOS 27 hört sie nach der ersten Karte nichts mehr.
 
 const MIN_HOLD_MS = 400;      // kürzer gilt als versehentliches Antippen
@@ -227,28 +227,8 @@ function resetVoice() {
   $("hold-button").textContent = "🎙 Halten und sprechen";
   $("hold-button").classList.remove("active");
   $("play-own").hidden = true;
-  $("share-own").hidden = true;
   $("voice-result").hidden = true;
   $("tone-curve").hidden = true;
-}
-
-// Nur Testfassung: eigene Aufnahme teilen (z. B. per AirDrop an den Mac), damit
-// die Ton-Kurve mit echten Aufnahmen verbessert werden kann
-function recordingFile() {
-  const blob = recordingBlob();
-  if (!blob) return null;
-  const ending = blob.type.includes("mp4") ? "m4a" : blob.type.includes("webm") ? "webm" : "audio";
-  return new File([blob], `aufnahme-${voiceCard ? voiceCard.id : "karte"}.${ending}`, { type: blob.type });
-}
-
-async function shareRecording() {
-  const file = recordingFile();
-  if (!file) return;
-  try {
-    await navigator.share({ files: [file], title: file.name });
-  } catch {
-    // Teilen abgebrochen: nichts zu tun
-  }
 }
 
 function showVoiceResult(text, kind = "") {
@@ -267,7 +247,6 @@ async function holdStartHandler(event) {
   $("hold-button").textContent = "🔴 Ich höre zu … (loslassen = fertig)";
   $("hold-button").classList.add("active");
   $("play-own").hidden = true;
-  $("share-own").hidden = true;
   $("voice-result").hidden = true;
   $("tone-curve").hidden = true;
   holdTimer = setTimeout(holdEndHandler, MAX_HOLD_MS);
@@ -302,29 +281,26 @@ async function holdEndHandler() {
     const hasRecording = await stopRecording();
     if (voiceCard !== current) return;   // inzwischen weitergeblättert
     $("play-own").hidden = !hasRecording;
-    const file = hasRecording ? recordingFile() : null;
-    $("share-own").hidden = !(file && navigator.canShare && navigator.canShare({ files: [file] }));
     if (!hasRecording) {
       showVoiceResult("Keine Aufnahme. Bitte nochmal halten und sprechen.", "no");
       return;
     }
     await showToneCurve(voiceCard);
-  } catch (error) {
-    showVoiceResult(`Ton-Kurve konnte nicht berechnet werden (Technik: ${error && error.message}). Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.`, "no");
+  } catch {
+    showVoiceResult(`Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.`, "no");
   }
 }
 
 // Eigene Kurve und Kanyas Kurve zeigen, bei einsilbigen Karten mit Ton-Hinweis
 async function showToneCurve(card) {
-  const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob(), true), kanyaCurve(card)]);
+  const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob()), kanyaCurve(card)]);
   if (card !== current) return;
   if (own.length === 0) {
-    showVoiceResult(`Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen. (Technik: ${lastInfo})`, "no");
+    showVoiceResult(`Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen.`, "no");
     return;
   }
   $("tone-curve-svg").innerHTML = curveSvg(own, kanya);
   $("tone-curve-kanya").hidden = !kanya;
-  $("tone-curve-info").textContent = `Technik: ${lastInfo}`;
   $("tone-curve").hidden = false;
 
   // Nur wenig Stimme gefunden (z. B. sehr kurze oder geflüsterte Silben)
@@ -700,7 +676,6 @@ for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
 }
 $("hold-button").addEventListener("contextmenu", event => event.preventDefault());
 $("play-own").addEventListener("click", playRecording);
-$("share-own").addEventListener("click", shareRecording);
 $("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", () => {

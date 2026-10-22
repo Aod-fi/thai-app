@@ -18,20 +18,9 @@ async function decode(data) {
   return audio.getChannelData(0);
 }
 
-// Technische Angaben zur letzten Aufnahme, zur Fehlersuche in der Testfassung
-export let lastInfo = "";
-
 // Kurve einer Aufnahme: Liste von Punkten { x, y } oder null (Lücke)
-export async function curveFromAudio(data, describe = false) {
-  const samples = await decode(data);
-  const track = pitchTrack(samples, SAMPLE_RATE);
-  if (describe) {
-    let peak = 0;
-    for (const value of samples) peak = Math.max(peak, Math.abs(value));
-    const size = data instanceof Blob ? `${Math.round(data.size / 1024)} KB ${data.type}` : "";
-    lastInfo = `${(samples.length / SAMPLE_RATE).toFixed(1)} s, lauteste Stelle ${peak.toFixed(3)}, ` +
-      `${track.filter(v => v !== null).length} von ${track.length} Stücken mit Stimme, ${size}`;
-  }
+export async function curveFromAudio(data) {
+  const track = pitchTrack(await decode(data), SAMPLE_RATE);
   return normalizeTrack(track);
 }
 
