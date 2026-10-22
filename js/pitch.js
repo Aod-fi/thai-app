@@ -112,6 +112,33 @@ function cleanTrack(track) {
     i = end;
   }
 
+  // Oktavsprünge gegenüber dem vorherigen Wert zurückfalten (Messfehler: doppelte
+  // oder halbe Tonhöhe). Eine echte Stimme springt nicht in 12 ms um 8 Halbtöne.
+  let previous = null;
+  cleaned = cleaned.map(v => {
+    if (v === null) return null;
+    if (previous !== null && Math.abs(semitones(v, previous)) > 8) {
+      const folded = [v * 2, v / 2].reduce((a, b) => (Math.abs(semitones(a, previous)) < Math.abs(semitones(b, previous)) ? a : b));
+      if (Math.abs(semitones(folded, previous)) < Math.abs(semitones(v, previous))) v = folded;
+    }
+    previous = v;
+    return v;
+  });
+
+  // Kleine Lücken (bis 6 Stücke, etwa 70 ms) geradlinig füllen, damit die Linie
+  // nicht bei jedem kurzen Aussetzer abreißt
+  for (let start = 0; start < cleaned.length; start++) {
+    if (cleaned[start] === null || cleaned[start + 1] !== null) continue;
+    let end = start + 1;
+    while (end < cleaned.length && cleaned[end] === null) end++;
+    if (end < cleaned.length && end - start - 1 <= 6) {
+      for (let k = start + 1; k < end; k++) {
+        cleaned[k] = cleaned[start] + ((cleaned[end] - cleaned[start]) * (k - start)) / (end - start);
+      }
+    }
+    start = end - 1;
+  }
+
   // Glätten: Median aus 5 Nachbarn (nur gestimmte)
   return cleaned.map((v, index) => {
     if (v === null) return null;

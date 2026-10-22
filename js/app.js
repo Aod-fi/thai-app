@@ -227,8 +227,28 @@ function resetVoice() {
   $("hold-button").textContent = "🎙 Halten und sprechen";
   $("hold-button").classList.remove("active");
   $("play-own").hidden = true;
+  $("share-own").hidden = true;
   $("voice-result").hidden = true;
   $("tone-curve").hidden = true;
+}
+
+// Nur Testfassung: eigene Aufnahme teilen (z. B. per AirDrop an den Mac), damit
+// die Ton-Kurve mit echten Aufnahmen verbessert werden kann
+function recordingFile() {
+  const blob = recordingBlob();
+  if (!blob) return null;
+  const ending = blob.type.includes("mp4") ? "m4a" : blob.type.includes("webm") ? "webm" : "audio";
+  return new File([blob], `aufnahme-${voiceCard ? voiceCard.id : "karte"}.${ending}`, { type: blob.type });
+}
+
+async function shareRecording() {
+  const file = recordingFile();
+  if (!file) return;
+  try {
+    await navigator.share({ files: [file], title: file.name });
+  } catch {
+    // Teilen abgebrochen: nichts zu tun
+  }
 }
 
 function showVoiceResult(text, kind = "") {
@@ -247,6 +267,7 @@ async function holdStartHandler(event) {
   $("hold-button").textContent = "🔴 Ich höre zu … (loslassen = fertig)";
   $("hold-button").classList.add("active");
   $("play-own").hidden = true;
+  $("share-own").hidden = true;
   $("voice-result").hidden = true;
   $("tone-curve").hidden = true;
   holdTimer = setTimeout(holdEndHandler, MAX_HOLD_MS);
@@ -281,6 +302,8 @@ async function holdEndHandler() {
     const hasRecording = await stopRecording();
     if (voiceCard !== current) return;   // inzwischen weitergeblättert
     $("play-own").hidden = !hasRecording;
+    const file = hasRecording ? recordingFile() : null;
+    $("share-own").hidden = !(file && navigator.canShare && navigator.canShare({ files: [file] }));
     if (!hasRecording) {
       showVoiceResult("Keine Aufnahme. Bitte nochmal halten und sprechen.", "no");
       return;
@@ -301,6 +324,7 @@ async function showToneCurve(card) {
   }
   $("tone-curve-svg").innerHTML = curveSvg(own, kanya);
   $("tone-curve-kanya").hidden = !kanya;
+  $("tone-curve-info").textContent = `Technik: ${lastInfo}`;
   $("tone-curve").hidden = false;
 
   const hint = toneHint(card.umschrift, endMovement(own));
@@ -672,6 +696,7 @@ for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
 }
 $("hold-button").addEventListener("contextmenu", event => event.preventDefault());
 $("play-own").addEventListener("click", playRecording);
+$("share-own").addEventListener("click", shareRecording);
 $("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
 $("round-close").addEventListener("click", () => {

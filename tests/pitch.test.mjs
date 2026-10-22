@@ -81,3 +81,17 @@ test("Handy-Aufnahme mit Rauschen: tiefe Stimme wird trotzdem erkannt", () => {
   assert.ok(track.length > 20, `nur ${track.length} Stücke mit Stimme`);
   for (const hz of track) assert.ok(Math.abs(hz - 110) < 5, `${hz} statt 110`);
 });
+
+test("Kurze Lücke wird gefüllt, die Linie reißt nicht ab", () => {
+  const a = glide(150, 150, 0.3);
+  const gap = new Float32Array(Math.round(0.03 * RATE)).map((_, i) => 0.4 * Math.sin(i * 1.7) * Math.cos(i * 0.31));
+  const b = glide(150, 150, 0.3);
+  const samples = new Float32Array(a.length + gap.length + b.length);
+  samples.set(a);
+  samples.set(gap, a.length);
+  samples.set(b, a.length + gap.length);
+  const track = pitchTrack(samples, RATE);
+  const first = track.findIndex(v => v !== null);
+  const last = track.length - 1 - [...track].reverse().findIndex(v => v !== null);
+  assert.ok(track.slice(first, last + 1).every(v => v !== null), "keine Lücke");
+});
