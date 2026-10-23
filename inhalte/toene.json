@@ -27,5 +27,14 @@
     { "umschrift": "paa", "thai": "ปา", "deutsch": "werfen" },
     { "umschrift": "pàa", "thai": "ป่า", "deutsch": "Wald" },
     { "umschrift": "pâa", "thai": "ป้า", "deutsch": "Tante" }
+  ] },
+  { "gruppe": "suai", "woerter": [
+    { "umschrift": "sǔai", "thai": "สวย", "deutsch": "schön" },
+    { "umschrift": "suai", "thai": "ซวย", "deutsch": "Pech haben" }
+  ] },
+  { "gruppe": "khaa", "woerter": [
+    { "umschrift": "khǎa", "thai": "ขา", "deutsch": "Bein" },
+    { "umschrift": "khâa", "thai": "ค่า", "deutsch": "Gebühr, Preis" },
+    { "umschrift": "khàa", "thai": "ข่า", "deutsch": "Galgant" }
   ] }
 ]

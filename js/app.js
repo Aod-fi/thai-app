@@ -14,7 +14,7 @@ import { initDialogs } from "./dialog-view.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.2";
+const VERSION = "1.7.3";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -605,15 +605,17 @@ async function showStats() {
 // ---------- Übersicht ----------
 
 function showOverview() {
-  // Karten nach Einheit gruppieren
-  const units = {};
+  // Karten nach Einheit gruppieren, in der Reihenfolge der Vokabeldatei
+  // (Map statt Objekt: bei einem Objekt kämen "4" bis "11" vor "3a")
+  const units = new Map();
   for (const card of cards) {
-    (units[card.einheit] ||= []).push(card);
+    if (!units.has(card.einheit)) units.set(card.einheit, []);
+    units.get(card.einheit).push(card);
   }
 
   const list = $("overview-list");
   list.innerHTML = "";
-  for (const [unit, unitCards] of Object.entries(units)) {
+  for (const [unit, unitCards] of units) {
     const title = document.createElement("h2");
     title.className = "unit-title";
     title.textContent = `Einheit ${unit}`;

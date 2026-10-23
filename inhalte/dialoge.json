@@ -59,5 +59,43 @@
       { "wer": "ich", "umschrift": "à-ròi mâak khráp. gèp tang khráp.", "thai": "อร่อยมากครับ เก็บตังค์ครับ", "deutsch": "Sehr lecker. Zahlen, bitte." },
       { "wer": "gegenueber", "umschrift": "sǎam-sìp hâa bàat khâ.", "thai": "สามสิบห้าบาทค่ะ", "deutsch": "35 Baht." }
     ]
+  },
+  {
+    "id": "small-kennenlernen", "thema": "Small Talk", "titel": "Sich vorstellen", "einheit": "9",
+    "rollen": { "ich": "Du", "gegenueber": "Nachbarin" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ. khun chʉ̂ʉ à-rai khá?", "thai": "สวัสดีค่ะ คุณชื่ออะไรคะ", "deutsch": "Hallo. Wie heißt du?" },
+      { "wer": "ich", "umschrift": "phǒm chʉ̂ʉ Aod khráp. yin-dii thîi dâi rúu-jàk khráp.", "thai": "ผมชื่ออ๊อดครับ ยินดีที่ได้รู้จักครับ", "deutsch": "Ich heiße Aod. Freut mich." },
+      { "wer": "gegenueber", "umschrift": "khun maa jàak nǎi khá?", "thai": "คุณมาจากไหนคะ", "deutsch": "Woher kommst du?" },
+      { "wer": "ich", "umschrift": "phǒm maa jàak yəə-rá-man khráp. phûut thai nít nɔ̀i khráp.", "thai": "ผมมาจากเยอรมันครับ พูดไทยนิดหน่อยครับ", "deutsch": "Aus Deutschland. Ich spreche ein bisschen Thai." },
+      { "wer": "gegenueber", "umschrift": "wan-níi rɔ́ɔn mâak ná khá.", "thai": "วันนี้ร้อนมากนะคะ", "deutsch": "Heute ist es sehr heiß, oder?" },
+      { "wer": "ich", "umschrift": "châi khráp. rɔ́ɔn mâak khráp.", "thai": "ใช่ครับ ร้อนมากครับ", "deutsch": "Ja, stimmt. Sehr heiß." }
+    ]
+  },
+  {
+    "id": "nachbarn-plaudern", "thema": "Nachbarn", "titel": "Plaudern mit der Nachbarin", "einheit": "10",
+    "rollen": { "ich": "Du", "gegenueber": "Nachbarin" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ. sà-baai-dii mǎi khá?", "thai": "สวัสดีค่ะ สบายดีไหมคะ", "deutsch": "Hallo. Wie geht's?" },
+      { "wer": "ich", "umschrift": "sà-baai-dii khráp. lɛ́ɛo khun lâ khráp?", "thai": "สบายดีครับ แล้วคุณล่ะครับ", "deutsch": "Gut. Und dir?" },
+      { "wer": "gegenueber", "umschrift": "sà-baai-dii khâ. bâan yùu thîi nǎi khá?", "thai": "สบายดีค่ะ บ้านอยู่ที่ไหนคะ", "deutsch": "Gut. Wo wohnst du?" },
+      { "wer": "ich", "umschrift": "phǒm yùu thîi-nîi khráp.", "thai": "ผมอยู่ที่นี่ครับ", "deutsch": "Ich wohne hier." },
+      { "wer": "gegenueber", "umschrift": "mii lûuk mǎi khá?", "thai": "มีลูกไหมคะ", "deutsch": "Hast du Kinder?" },
+      { "wer": "ich", "umschrift": "mâi mii khráp. phǒm mii mǎa khráp.", "thai": "ไม่มีครับ ผมมีหมาครับ", "deutsch": "Nein. Ich habe einen Hund." },
+      { "wer": "ich", "umschrift": "pai kɔ̀ɔn ná khráp. phóp kan mài phrûng-níi khráp.", "thai": "ไปก่อนนะครับ พบกันใหม่พรุ่งนี้ครับ", "deutsch": "Ich geh dann mal. Bis morgen." }
+    ]
+  },
+  {
+    "id": "dating-einladen", "thema": "Dating", "titel": "Zum Essen einladen", "einheit": "11",
+    "rollen": { "ich": "Du", "gegenueber": "Sie" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "khun sǔai mâak khráp.", "thai": "คุณสวยมากครับ", "deutsch": "Du bist sehr schön." },
+      { "wer": "gegenueber", "umschrift": "pàak wǎan ná khá!", "thai": "ปากหวานนะคะ", "deutsch": "Du Schmeichler!" },
+      { "wer": "ich", "umschrift": "mii fɛɛn rʉ̌ʉ yang khráp?", "thai": "มีแฟนหรือยังครับ", "deutsch": "Hast du schon einen Freund?" },
+      { "wer": "gegenueber", "umschrift": "yang mâi mii khâ.", "thai": "ยังไม่มีค่ะ", "deutsch": "Noch nicht." },
+      { "wer": "ich", "umschrift": "pai kin khâao dûai kan mǎi khráp?", "thai": "ไปกินข้าวด้วยกันไหมครับ", "deutsch": "Gehen wir zusammen essen?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ. khɔ̌ɔ LINE nɔ̀i khâ.", "thai": "ได้ค่ะ ขอไลน์หน่อยค่ะ", "deutsch": "Gern. Gib mir deine LINE." },
+      { "wer": "ich", "umschrift": "oo-khee khráp. khɔ̀ɔp-khun khráp.", "thai": "โอเคครับ ขอบคุณครับ", "deutsch": "Okay. Danke." }
+    ]
   }
 ]
