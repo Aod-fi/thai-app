@@ -26,6 +26,7 @@ const FILES = [
   "inhalte/vokabeln.json",
   "inhalte/dialoge.json",
   "inhalte/toene.json",
+  "inhalte/bereiche.json",
   "manifest.json",
   "icons/icon-192.png",
   "icons/icon-512.png",

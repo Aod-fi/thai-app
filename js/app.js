@@ -14,7 +14,7 @@ import { initDialogs } from "./dialog-view.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.3";
+const VERSION = "1.7.4";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -26,7 +26,9 @@ let queue = [];       // Karten der laufenden Runde, die noch dran kommen
 let roundSize = 0;    // Anzahl Karten zu Beginn der Runde
 let current = null;   // Karte, die gerade angezeigt wird
 let direction = "";   // "hoeren" (Hören → Deutsch) oder "sprechen" (Deutsch → Thai)
-let focus = "";       // Fokus-Thema für neue Karten, "" = alle Themen
+let focus = "";       // Fokus für neue Karten: "" = alle Themen, ein Thema oder "bereich:<id>"
+let areas = [];       // Bereiche aus inhalte/bereiche.json
+let openArea = "";    // aufgeklappter Bereich auf der Themen-Seite
 let practice = false; // true = freies Üben, Bewertungen ändern keinen Lernstand
 let quiz = [];        // Fragen der Hörübung
 let quizIndex = 0;    // aktuelle Frage
@@ -49,8 +51,9 @@ async function start() {
   const response = await fetch("inhalte/vokabeln.json", { cache: "no-cache" });
   cards = await response.json();
   states = await loadStates();
+  areas = await (await fetch("inhalte/bereiche.json", { cache: "no-cache" })).json();
   focus = await loadMeta("focus", "");
-  if (!themes(cards).includes(focus)) focus = "";
+  if (!validFocus(focus)) focus = "";
   $("version").textContent = VERSION;
   showHome();
 
@@ -73,13 +76,13 @@ async function newLimitToday() {
 
 // Heutige Runde zusammenstellen
 async function todaysRound() {
-  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday(), focus);
+  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday(), focusThemes());
 }
 
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog", "topics"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -95,22 +98,14 @@ async function showHome() {
 
   // Ist heute alles erledigt und gibt es noch ungelernte Karten,
   // kann man freiwillig weitere neue Karten lernen.
-  $("more-button").hidden = round.length > 0 || unseenCards(cards, states, focus).length === 0;
+  const fresh = unseenCards(cards, states, focusThemes()).length;
+  $("more-button").hidden = round.length > 0 || fresh === 0;
 
-  // Auswahl Fokus-Thema, mit Anzahl noch neuer Karten pro Thema
-  const options = [["", `Alle Themen gemischt (${unseenCards(cards, states).length} neu)`]];
-  for (const theme of themes(cards)) {
-    options.push([theme, `${theme} (${unseenCards(cards, states, theme).length} neu)`]);
-  }
-  $("focus-select").innerHTML = "";
-  for (const [value, label] of options) {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = label;
-    $("focus-select").appendChild(option);
-  }
-  $("focus-select").value = focus;
-  $("practice-button").textContent = `Frei üben: ${focus || "alle Themen"}`;
+  // Aktuelle Wahl "Neue Karten aus", Antippen öffnet die Themen-Seite
+  const area = focusArea();
+  $("focus-name").textContent = area ? `${area.emoji} ${area.name}` : focus || "🎲 Alle Themen gemischt";
+  $("focus-info").textContent = area ? `alle ${area.themen.length} Themen · ${fresh} neu` : `${fresh} neu`;
+  $("practice-button").textContent = `Frei üben: ${area ? area.name : focus || "alle Themen"}`;
 
   $("boxes").innerHTML = boxesHtml();
 
@@ -140,7 +135,7 @@ async function startRound() {
 // Freies Üben: Karten des gewählten Themas, ohne Einfluss auf die Fächer
 function startPractice() {
   practice = true;
-  queue = practiceRound(cards, focus);
+  queue = practiceRound(cards, focusThemes());
   roundSize = queue.length;
   showView("round");
   showNextCard();
@@ -358,18 +353,114 @@ async function learnMore() {
   startRound();
 }
 
-// Fokus-Thema gewählt: merken und Startseite neu berechnen
-async function changeFocus() {
-  focus = $("focus-select").value;
+// ---------- Themen-Seite ("Neue Karten aus …") ----------
+// Die Themen sind in Bereiche gegliedert (inhalte/bereiche.json).
+// Antippen eines Bereichs wählt den ganzen Bereich, der Pfeil klappt ihn auf.
+
+const AREA_PREFIX = "bereich:";
+
+// Gewählter Bereich, oder undefined, wenn ein Thema oder alle Themen gewählt sind
+function focusArea() {
+  return areas.find(area => AREA_PREFIX + area.id === focus);
+}
+
+// Fokus als Thema ("Taxi"), Liste von Themen (Bereich) oder "" (alle)
+function focusThemes() {
+  const area = focusArea();
+  return area ? area.themen : focus;
+}
+
+function validFocus(value) {
+  return value === "" || themes(cards).includes(value) || areas.some(area => AREA_PREFIX + area.id === value);
+}
+
+// Bereiche mit ihren Themen, die es in den Karten gibt.
+// Themen, die in keinem Bereich stehen, landen unter "Weitere".
+function areaGroups() {
+  const all = themes(cards);
+  const groups = areas
+    .map(area => ({ ...area, themen: area.themen.filter(theme => all.includes(theme)) }))
+    .filter(area => area.themen.length > 0);
+  const rest = all.filter(theme => !areas.some(area => area.themen.includes(theme)));
+  if (rest.length > 0) groups.push({ id: "weitere", name: "Weitere", emoji: "📦", themen: rest });
+  return groups;
+}
+
+// Fortschrittsbalken: grün = sicher (ab Fach 4), gelb = gelernt
+function barHtml(total, learned, sure) {
+  return `<div class="bar"><div class="sure" style="width:${(sure / total) * 100}%"></div>` +
+    `<div class="learned" style="width:${((learned - sure) / total) * 100}%"></div></div>`;
+}
+
+async function chooseFocus(value) {
+  focus = value;
   await saveMeta("focus", focus);
   showHome();
+}
+
+function showTopics() {
+  const stats = new Map(themeStats(cards, states).map(s => [s.theme, s]));
+  const fresh = list => unseenCards(cards, states, list).length;
+  const list = $("topics-list");
+  list.innerHTML = "";
+
+  // Erste Zeile: alle Themen gemischt
+  const all = document.createElement("button");
+  all.className = "area-all" + (focus === "" ? " chosen" : "");
+  all.innerHTML = '<span>🎲 Alle Themen gemischt</span><span class="muted"></span>';
+  all.lastChild.textContent = `${fresh("")} neu`;
+  all.addEventListener("click", () => chooseFocus(""));
+  list.appendChild(all);
+
+  for (const area of areaGroups()) {
+    const value = AREA_PREFIX + area.id;
+    const isOpen = openArea === area.id;
+    const box = document.createElement("div");
+    box.className = "area" + (focus === value ? " chosen" : "");
+
+    const head = document.createElement("div");
+    head.className = "area-head";
+    head.innerHTML = '<button class="area-name"></button><button class="area-toggle"></button>';
+    head.querySelector(".area-name").textContent = `${area.emoji} ${area.name}` + (focus === value ? " ✓" : "");
+    head.querySelector(".area-toggle").textContent = `${fresh(area.themen)} neu ${isOpen ? "⌄" : "›"}`;
+    head.querySelector(".area-name").addEventListener("click", () => chooseFocus(value));
+    head.querySelector(".area-toggle").addEventListener("click", () => {
+      openArea = isOpen ? "" : area.id;
+      showTopics();
+    });
+    box.appendChild(head);
+
+    const sum = key => area.themen.reduce((n, theme) => n + stats.get(theme)[key], 0);
+    box.insertAdjacentHTML("beforeend", barHtml(sum("total"), sum("learned"), sum("sure")));
+
+    if (isOpen) {
+      for (const theme of area.themen) {
+        const row = document.createElement("button");
+        row.className = "area-theme" + (focus === theme ? " chosen" : "");
+        row.innerHTML = '<span></span><span class="muted"></span>';
+        row.firstChild.textContent = theme + (focus === theme ? " ✓" : "");
+        row.lastChild.textContent = `${fresh(theme)} neu`;
+        row.addEventListener("click", () => chooseFocus(theme));
+        box.appendChild(row);
+      }
+    }
+    list.appendChild(box);
+  }
+  showView("topics");
+}
+
+function openTopics() {
+  // Aufgeklappt ist der Bereich, in dem die aktuelle Wahl liegt
+  const area = focusArea() || areaGroups().find(group => group.themen.includes(focus));
+  openArea = area ? area.id : "";
+  showTopics();
 }
 
 // ---------- Hörübung ----------
 // Die App spricht, man wählt die Bedeutung. Zählt nicht für die Fächer.
 
 function startListen() {
-  quiz = listenQuiz(cards, states, focus);
+  quiz = listenQuiz(cards, states, focusThemes());
   quizIndex = 0;
   quizScore = 0;
   $("listen-result").hidden = true;
@@ -569,20 +660,28 @@ async function showStats() {
   $("stats-days").textContent = learnedDays.length;
   $("stats-boxes").innerHTML = boxesHtml();
 
-  // Pro Thema: Balken, grün = sicher (ab Fach 4), gelb = gelernt
+  // Pro Thema, nach Bereichen: Balken, grün = sicher (ab Fach 4), gelb = gelernt
   const list = $("stats-themes");
   list.innerHTML = "";
-  for (const { theme, total, learned, sure } of themeStats(cards, states)) {
-    const row = document.createElement("div");
-    row.className = "theme-row";
-    row.innerHTML =
-      '<div class="theme-head"><span class="name"></span><span class="muted numbers"></span></div>' +
-      '<div class="bar"><div class="sure"></div><div class="learned"></div></div>';
-    row.querySelector(".name").textContent = theme;
-    row.querySelector(".numbers").textContent = `${learned} von ${total} gelernt, ${sure} sicher`;
-    row.querySelector(".sure").style.width = `${(sure / total) * 100}%`;
-    row.querySelector(".learned").style.width = `${((learned - sure) / total) * 100}%`;
-    list.appendChild(row);
+  const stats = new Map(themeStats(cards, states).map(s => [s.theme, s]));
+  for (const area of areaGroups()) {
+    const title = document.createElement("h3");
+    title.className = "area-title";
+    title.textContent = `${area.emoji} ${area.name}`;
+    list.appendChild(title);
+    for (const theme of area.themen) {
+      const { total, learned, sure } = stats.get(theme);
+      const row = document.createElement("div");
+      row.className = "theme-row";
+      row.innerHTML =
+        '<div class="theme-head"><span class="name"></span><span class="muted numbers"></span></div>' +
+        '<div class="bar"><div class="sure"></div><div class="learned"></div></div>';
+      row.querySelector(".name").textContent = theme;
+      row.querySelector(".numbers").textContent = `${learned} von ${total} gelernt, ${sure} sicher`;
+      row.querySelector(".sure").style.width = `${(sure / total) * 100}%`;
+      row.querySelector(".learned").style.width = `${((learned - sure) / total) * 100}%`;
+      list.appendChild(row);
+    }
   }
 
   // Vorschau: wie viele Wiederholungen an den nächsten 7 Tagen anstehen
@@ -605,34 +704,35 @@ async function showStats() {
 // ---------- Übersicht ----------
 
 function showOverview() {
-  // Karten nach Einheit gruppieren, in der Reihenfolge der Vokabeldatei
-  // (Map statt Objekt: bei einem Objekt kämen "4" bis "11" vor "3a")
-  const units = new Map();
-  for (const card of cards) {
-    if (!units.has(card.einheit)) units.set(card.einheit, []);
-    units.get(card.einheit).push(card);
-  }
-
+  // Karten nach Bereich und Thema gliedern, innerhalb eines Themas
+  // in der Reihenfolge der Vokabeldatei
   const list = $("overview-list");
   list.innerHTML = "";
-  for (const [unit, unitCards] of units) {
-    const title = document.createElement("h2");
-    title.className = "unit-title";
-    title.textContent = `Einheit ${unit}`;
-    list.appendChild(title);
+  for (const area of areaGroups()) {
+    const areaTitle = document.createElement("h2");
+    areaTitle.className = "area-title";
+    areaTitle.textContent = `${area.emoji} ${area.name}`;
+    list.appendChild(areaTitle);
 
-    for (const card of unitCards) {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML =
-        '<div class="text"><div class="umschrift-small"></div><div class="muted"></div></div>' +
-        '<button class="secondary">▶</button><button class="secondary">🐢</button>';
-      row.querySelector(".umschrift-small").textContent = card.umschrift + (card.aufpassen ? " ⚠" : "");
-      row.querySelector(".muted").textContent = card.deutsch;
-      const [normal, slow] = row.querySelectorAll("button");
-      normal.addEventListener("click", () => speak(card.thai, RATE_NORMAL));
-      slow.addEventListener("click", () => speak(card.thai, RATE_SLOW));
-      list.appendChild(row);
+    for (const theme of area.themen) {
+      const title = document.createElement("h3");
+      title.className = "unit-title";
+      title.textContent = theme;
+      list.appendChild(title);
+
+      for (const card of cards.filter(c => c.thema === theme)) {
+        const row = document.createElement("div");
+        row.className = "row";
+        row.innerHTML =
+          '<div class="text"><div class="umschrift-small"></div><div class="muted"></div></div>' +
+          '<button class="secondary">▶</button><button class="secondary">🐢</button>';
+        row.querySelector(".umschrift-small").textContent = card.umschrift + (card.aufpassen ? " ⚠" : "");
+        row.querySelector(".muted").textContent = card.deutsch;
+        const [normal, slow] = row.querySelectorAll("button");
+        normal.addEventListener("click", () => speak(card.thai, RATE_NORMAL));
+        slow.addEventListener("click", () => speak(card.thai, RATE_SLOW));
+        list.appendChild(row);
+      }
     }
   }
   showView("overview");
@@ -642,7 +742,8 @@ function showOverview() {
 
 $("start-button").addEventListener("click", startRound);
 $("more-button").addEventListener("click", learnMore);
-$("focus-select").addEventListener("change", changeFocus);
+$("focus-button").addEventListener("click", openTopics);
+$("topics-close").addEventListener("click", showHome);
 $("practice-button").addEventListener("click", startPractice);
 $("overview-button").addEventListener("click", showOverview);
 $("listen-button").addEventListener("click", () => showView("listen-menu"));

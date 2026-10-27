@@ -111,6 +111,23 @@ dialogs.forEach((dialog, index) => {
   }
 });
 
+// Bereiche (inhalte/bereiche.json): jedes Thema der Karten steht in genau einem Bereich
+const areaFile = new URL("../inhalte/bereiche.json", import.meta.url);
+const areas = JSON.parse(readFileSync(areaFile, "utf8"));
+const areaIds = new Set();
+for (const area of areas) {
+  for (const field of ["id", "name", "emoji"]) {
+    if (typeof area[field] !== "string" || area[field].trim() === "") errors.push(`bereiche.json: Feld "${field}" fehlt oder ist leer`);
+  }
+  if (areaIds.has(area.id)) errors.push(`bereiche.json: id "${area.id}" kommt doppelt vor`);
+  areaIds.add(area.id);
+  if (!Array.isArray(area.themen) || area.themen.length === 0) errors.push(`bereiche.json, ${area.id}: "themen" fehlt oder ist leer`);
+}
+for (const theme of new Set(cards.map(card => card.thema))) {
+  const count = areas.filter(area => (area.themen || []).includes(theme)).length;
+  if (count !== 1) errors.push(`Thema "${theme}" steht in ${count} Bereichen (muss genau 1 sein)`);
+}
+
 // Tondateien für die Ton-Kurve: fehlende sind kein Fehler, nur ein Hinweis
 const missingAudio = cards.filter(card => card.id && !existsSync(new URL(`../audio/${card.id}.m4a`, import.meta.url)));
 
@@ -119,7 +136,7 @@ if (errors.length > 0) {
   for (const error of errors) console.log("  - " + error);
   process.exit(1);
 } else {
-  console.log(`✅ Alle ${cards.length} Karten, ${toneWords} Wörter für "Töne hören" und ${dialogs.length} Dialoge (${dialogLineCount} Sätze) sind in Ordnung.`);
+  console.log(`✅ Alle ${cards.length} Karten in ${areas.length} Bereichen, ${toneWords} Wörter für "Töne hören" und ${dialogs.length} Dialoge (${dialogLineCount} Sätze) sind in Ordnung.`);
 }
 
 if (missingAudio.length > 0) {

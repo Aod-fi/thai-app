@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7.3">
+  <link rel="stylesheet" href="css/style.css?v=1.7.4">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -29,10 +29,11 @@
       <div class="muted">Karten heute fällig</div>
     </section>
 
-    <label class="focus">
-      <span class="muted">Neue Karten aus:</span>
-      <select id="focus-select"></select>
-    </label>
+    <p class="muted focus-label">Neue Karten aus:</p>
+    <button id="focus-button" class="choice">
+      <span><span id="focus-name" class="choice-name"></span><span id="focus-info" class="muted choice-info"></span></span>
+      <span class="chevron">›</span>
+    </button>
 
     <button id="start-button" class="primary big">Lernrunde starten</button>
     <button id="more-button" class="secondary big" hidden>5 weitere neue Karten lernen</button>
@@ -313,6 +314,16 @@
     <div id="overview-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7.3"></script>
+  <!-- 6. Themen-Seite: woraus die neuen Karten kommen -->
+  <main id="view-topics" hidden>
+    <div class="topbar">
+      <button id="topics-close" class="link">← Zurück</button>
+    </div>
+    <h1>Neue Karten aus …</h1>
+    <p class="muted">Bereich antippen = ganzer Bereich. Der Pfeil klappt ihn auf, dann kannst du ein einzelnes Thema wählen.</p>
+    <div id="topics-list"></div>
+  </main>
+
+  <script type="module" src="js/app.js?v=1.7.4"></script>
 </body>
 </html>

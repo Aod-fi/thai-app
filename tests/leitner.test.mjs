@@ -4,7 +4,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { addDays, rateCard, buildRound, countByBox, unseenCards, practiceRound, streak } from "../js/leitner.js";
+import { addDays, rateCard, buildRound, countByBox, unseenCards, practiceRound, streak, inFocus } from "../js/leitner.js";
 
 const today = "2026-10-19";
 
@@ -102,6 +102,28 @@ test("unseenCards zählt nur ungelernte Karten des Fokus-Themas", () => {
   const states = { Taxi1: { box: 1, due: today } };
   assert.equal(unseenCards(cards, states, "Taxi").length, 1);
   assert.equal(unseenCards(cards, states).length, 3);
+});
+
+test("Bereich als Fokus: neue Karten reihum aus den Themen des Bereichs", () => {
+  const cards = [...themed("Zahlen", 2), ...themed("Taxi", 2), ...themed("Hotel", 2)];
+  const fresh = unseenCards(cards, {}, ["Taxi", "Hotel"]);
+  assert.deepEqual(fresh.map(c => c.id), ["Taxi1", "Hotel1", "Taxi2", "Hotel2"]);
+});
+
+test("Bereich als Fokus: Frei üben nur mit Karten des Bereichs", () => {
+  const cards = [...themed("Zahlen", 3), ...themed("Taxi", 2), ...themed("Hotel", 2)];
+  const round = practiceRound(cards, ["Taxi", "Hotel"]);
+  assert.equal(round.length, 4);
+  assert.ok(round.every(card => card.thema !== "Zahlen"));
+});
+
+test("inFocus: leer = alle, Text = ein Thema, Liste = mehrere Themen", () => {
+  const card = { thema: "Taxi" };
+  assert.equal(inFocus(card, ""), true);
+  assert.equal(inFocus(card, "Taxi"), true);
+  assert.equal(inFocus(card, "Hotel"), false);
+  assert.equal(inFocus(card, ["Hotel", "Taxi"]), true);
+  assert.equal(inFocus(card, ["Hotel"]), false);
 });
 
 test("Runde: höchstens 20 Karten, fällige zuerst", () => {

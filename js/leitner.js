@@ -63,6 +63,13 @@ export function themes(cards) {
   return [...new Set(cards.map(card => card.thema))];
 }
 
+// Gehört eine Karte zum Fokus? focus ist "" (alle Themen), ein Thema ("Taxi")
+// oder eine Liste von Themen, z. B. alle Themen eines Bereichs (["Taxi", "Hotel"])
+export function inFocus(card, focus) {
+  if (!focus || focus.length === 0) return true;
+  return Array.isArray(focus) ? focus.includes(card.thema) : card.thema === focus;
+}
+
 // Sortiert neue Karten reihum nach Thema: erste Karte jedes Themas,
 // dann zweite Karte jedes Themas usw. Innerhalb eines Themas bleibt
 // die Reihenfolge aus vokabeln.json (also die des Unterrichts).
@@ -84,7 +91,8 @@ export function mixByTheme(cards) {
 //   newSeenToday: wie viele neue Karten heute schon dran waren
 //   newLimit:     wie viele neue Karten heute insgesamt erlaubt sind
 //                 (normal 5, mehr nach "5 weitere neue Karten")
-//   focus:        Fokus-Thema für neue Karten, z. B. "Taxi"; "" = alle Themen gemischt
+//   focus:        Fokus für neue Karten: ein Thema ("Taxi"), mehrere Themen
+//                 (["Taxi", "Hotel"]) oder "" = alle Themen gemischt
 // Gibt eine Liste von Karten zurück: zuerst die fälligen, dann neue.
 // Das Fokus-Thema wirkt nur auf die neuen Karten, Wiederholungen kommen aus allen Themen.
 export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MAX_NEW_PER_DAY, focus = "") {
@@ -106,7 +114,7 @@ export function buildRound(cards, states, today, newSeenToday = 0, newLimit = MA
 // Reihenfolge, egal ob fällig, gelernt oder neu. Ändert keinen Lernstand.
 //   random: Zufallsfunktion, in Tests ersetzbar
 export function practiceRound(cards, focus = "", random = Math.random) {
-  const pool = focus ? cards.filter(card => card.thema === focus) : [...cards];
+  const pool = cards.filter(card => inFocus(card, focus));
   // Mischen (Fisher-Yates): jede Reihenfolge ist gleich wahrscheinlich
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(random() * (i + 1));
@@ -116,10 +124,9 @@ export function practiceRound(cards, focus = "", random = Math.random) {
 }
 
 // Noch nie gelernte Karten, in der Reihenfolge, in der sie drankommen:
-// mit Fokus-Thema nur dieses Thema, sonst reihum aus allen Themen
+// nur Karten im Fokus, bei mehreren Themen reihum aus diesen Themen
 export function unseenCards(cards, states, focus = "") {
-  const unseen = cards.filter(card => !states[card.id]);
-  return focus ? unseen.filter(card => card.thema === focus) : mixByTheme(unseen);
+  return mixByTheme(cards.filter(card => !states[card.id] && inFocus(card, focus)));
 }
 
 // Zählt für die Fortschrittsanzeige, wie viele Karten in welchem Fach liegen.

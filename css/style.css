@@ -85,19 +85,32 @@ button:disabled { opacity: 0.5; cursor: default; }
 .secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
 .link { background: none; color: var(--accent); padding: 8px 0; }
 
-/* Auswahl Fokus-Thema */
-.focus { display: block; margin-bottom: 16px; }
-.focus select {
-  display: block;
-  width: 100%;
-  margin-top: 6px;
-  font: inherit;
-  padding: 12px;
-  border-radius: 12px;
-  border: 2px solid var(--accent);
-  background: var(--panel);
-  color: inherit;
+/* Startseite: aktuelle Wahl "Neue Karten aus" */
+.focus-label { margin: 0 0 6px; }
+.choice {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  width: 100%; margin-bottom: 16px; padding: 12px 14px; text-align: left;
+  border-radius: 12px; border: 2px solid var(--accent); background: var(--panel); color: var(--text);
 }
+.choice-name { display: block; font-weight: 700; color: var(--accent); }
+.choice-info { display: block; font-size: 0.85rem; }
+.chevron { font-size: 1.4rem; color: var(--muted); }
+
+/* Themen-Seite: Bereiche zum Auf- und Zuklappen */
+.area-all, .area { display: block; width: 100%; background: var(--panel); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+.area-all { display: flex; justify-content: space-between; padding: 14px 12px; font-weight: 700; color: var(--text); text-align: left; }
+.area-head { display: flex; align-items: center; }
+.area-head button { background: none; color: var(--text); border-radius: 0; }
+.area-name { flex: 1; text-align: left; font-weight: 700; padding: 14px 12px 8px; }
+.area-toggle { color: var(--muted) !important; font-size: 0.9rem; padding: 14px 12px 8px; white-space: nowrap; }
+.area .bar { margin: 0 12px 12px; }
+.area-theme {
+  display: flex; justify-content: space-between; width: 100%; background: none; color: var(--text);
+  border-radius: 0; border-top: 1px solid var(--bg); padding: 11px 12px 11px 40px; text-align: left;
+}
+.area-all.chosen, .area.chosen .area-head, .area-theme.chosen { background: var(--bubble-me); }
+.area-theme.chosen { font-weight: 600; }
+.area-title { margin: 18px 0 8px; font-size: 1rem; }
 
 .hint { font-size: 0.85rem; margin: -10px 0 16px; text-align: center; }
 

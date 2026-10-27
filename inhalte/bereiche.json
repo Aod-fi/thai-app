@@ -1,0 +1,7 @@
+[
+  { "id": "grundlagen", "name": "Grundlagen", "emoji": "👋", "themen": ["Begrüßung", "Grammatik", "Überlebenssätze"] },
+  { "id": "zahlen", "name": "Zahlen & Zeit", "emoji": "🔢", "themen": ["Zahlen", "Preise", "Zeit", "Wochentage"] },
+  { "id": "essen", "name": "Essen & Einkaufen", "emoji": "🍜", "themen": ["Markt", "Einkaufen", "Essen"] },
+  { "id": "reise", "name": "Unterwegs & Reise", "emoji": "🚕", "themen": ["Taxi", "Hotel", "Gesundheit & Notfall"] },
+  { "id": "menschen", "name": "Menschen & Gefühle", "emoji": "💬", "themen": ["Small Talk", "Nachbarn", "Dating", "Gefühle"] }
+]

@@ -1,7 +1,7 @@
 // Hörübung und Lernstatistik: nur Rechnen, keine Anzeige, kein Speichern.
 // Getestet in tests/extras.test.mjs.
 
-import { themes, addDays } from "./leitner.js";
+import { themes, addDays, inFocus } from "./leitner.js";
 
 export const LISTEN_QUESTIONS = 10;
 export const LISTEN_OPTIONS = 4;
@@ -17,12 +17,12 @@ export function shuffle(list, random = Math.random) {
 }
 
 // Hörübung: die App spricht eine Karte, man wählt die richtige Bedeutung.
-// Gefragt wird nach Karten des Fokus-Themas (oder aller Themen). Gibt es dort
+// Gefragt wird nach Karten im Fokus (ein Thema, ein Bereich oder alle Themen). Gibt es dort
 // schon mindestens 4 gelernte Karten, kommen nur gelernte dran.
 // Die falschen Antworten stammen möglichst aus demselben Thema.
 // Gibt eine Liste von Fragen zurück: { card, options: [deutsch, ...] }
 export function listenQuiz(cards, states, focus = "", random = Math.random) {
-  const pool = focus ? cards.filter(card => card.thema === focus) : cards;
+  const pool = cards.filter(card => inFocus(card, focus));
   const learned = pool.filter(card => states[card.id]);
   const asked = shuffle(learned.length >= LISTEN_OPTIONS ? learned : pool, random)
     .slice(0, LISTEN_QUESTIONS);
