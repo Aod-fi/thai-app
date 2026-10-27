@@ -4,7 +4,7 @@
 import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta, requestPersistence, exportAll, importAll } from "./storage.js";
 import { buildBackup, parseBackup, backupFileName } from "./backup.js";
-import { initSpeech, speak, play, stopSpeaking, RATE_NORMAL, RATE_SLOW } from "./speech.js";
+import { initSpeech, play, stopSpeaking, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { cardAudio, toneAudio } from "./audio-files.js";
 import { listenQuiz, themeStats, dueForecast, matchesSearch, todayText } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
@@ -124,6 +124,8 @@ function showView(name) {
 async function showHome() {
   const round = await todaysRound();
   $("due-count").textContent = todayText(round, states);
+  // Nichts fällig: das sagt schon die Taste "Heute alles erledigt", kein zweiter Hinweis
+  $("today-panel").hidden = round.length === 0;
   $("start-button").disabled = round.length === 0;
   $("start-button").textContent = round.length === 0 ? t("Heute alles erledigt 🎉") : t("Lernrunde starten");
 
@@ -592,7 +594,14 @@ function showNumberTask() {
   $("numbers-solution").hidden = true;
   $("numbers-next").hidden = true;
   $("numbers-input").focus();
-  speak(task.thai);
+  sayNumber(task);
+}
+
+// Zahl oder Preis vorlesen: Gibt es eine Karte mit genau diesem Thai (z. B. zahl-7,
+// preis-40), spielt Kanyas Tondatei, sonst spricht die Thai-Stimme des Geräts.
+function sayNumber(task, rate = RATE_NORMAL) {
+  const card = rawCards.find(c => c.thai === task.thai);
+  play(card ? cardAudio(card) : "", task.thai, rate);
 }
 
 function checkNumber(event) {
@@ -922,8 +931,8 @@ $("numbers-next").addEventListener("click", nextNumber);
 $("numbers-close").addEventListener("click", showHome);
 $("numbers-home").addEventListener("click", showHome);
 $("numbers-again").addEventListener("click", () => startNumbers(numberLevel));
-$("numbers-speak").addEventListener("click", () => speak(numberTasks[numberIndex].thai, RATE_NORMAL));
-$("numbers-speak-slow").addEventListener("click", () => speak(numberTasks[numberIndex].thai, RATE_SLOW));
+$("numbers-speak").addEventListener("click", () => sayNumber(numberTasks[numberIndex], RATE_NORMAL));
+$("numbers-speak-slow").addEventListener("click", () => sayNumber(numberTasks[numberIndex], RATE_SLOW));
 $("listen-close").addEventListener("click", showHome);
 $("listen-home").addEventListener("click", showHome);
 $("listen-again").addEventListener("click", startListen);
