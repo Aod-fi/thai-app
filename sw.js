@@ -25,6 +25,7 @@ const FILES = [
   "js/tone-curve.js",
   "js/dialoge.js",
   "js/dialog-view.js",
+  "js/audio-files.js",
   "inhalte/vokabeln.json",
   "inhalte/dialoge.json",
   "inhalte/toene.json",
@@ -35,12 +36,24 @@ const FILES = [
   "icons/apple-touch-icon.png",
 ];
 
-// Kanyas Tondateien für die Ton-Kurve (audio/<id>.m4a, zusammen etwa 0,6 MB).
-// Welche es gibt, steht in vokabeln.json. Fehlt eine Datei, ist das kein Fehler.
+// Kanyas Tondateien zum Vorlesen und für die Ton-Kurve. Fehlt eine Datei, ist das kein Fehler.
+//   audio/<id>.m4a                 jede Karte (vokabeln.json)
+//   audio/beispiele/<id>.m4a       Beispielsatz (Feld beispiel_thai), dazu <id>-en.m4a bei beispiel_thai_en
+//   audio/toene/<gruppe>-<n>.m4a   Wörter für "Töne hören" (toene.json)
+// (Gleiche Namensregel wie in js/audio-files.js; ein Service Worker kann sie nicht importieren.)
 async function cacheAudio(cache) {
-  const response = await fetch("inhalte/vokabeln.json", { cache: "reload" });
-  const cards = await response.json();
-  await Promise.all(cards.map(card => cache.add(`audio/${card.id}.m4a`).catch(() => {})));
+  const cards = await (await fetch("inhalte/vokabeln.json", { cache: "reload" })).json();
+  const groups = await (await fetch("inhalte/toene.json", { cache: "reload" })).json();
+  const files = [];
+  for (const card of cards) {
+    files.push(`audio/${card.id}.m4a`);
+    if (card.beispiel_thai) files.push(`audio/beispiele/${card.id}.m4a`);
+    if (card.beispiel_thai_en) files.push(`audio/beispiele/${card.id}-en.m4a`);
+  }
+  for (const group of groups) {
+    group.woerter.forEach((word, index) => files.push(`audio/toene/${group.gruppe}-${index + 1}.m4a`));
+  }
+  await Promise.all(files.map(file => cache.add(file).catch(() => {})));
 }
 
 // Tondateien der Dialoge: audio/dialoge/<dialog>-<satz>.m4a, für Sätze der anderen

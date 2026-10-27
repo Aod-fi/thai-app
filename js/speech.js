@@ -1,9 +1,12 @@
-// Sprachausgabe mit der Thai-Stimme des Geräts (Web Speech API).
-// Vorgelesen wird immer das Feld "thai" einer Karte.
+// Sprachausgabe: zuerst Kanyas Tondatei (audio/...m4a, mit scripts/make-audio.sh erzeugt),
+// sonst die Thai-Stimme des Geräts (Web Speech API) mit dem Feld "thai" einer Karte.
+// Es läuft immer nur ein Ton: jedes neue Vorlesen beendet das vorige.
 
 export const RATE_NORMAL = 1;
 // Safari auf dem iPhone verlangsamt erst bei kleinen Werten hörbar, deshalb 0.4.
 export const RATE_SLOW = 0.4;
+// Tempo der Tondateien bei "Langsam" (die Tonhöhe bleibt gleich)
+export const SLOW_PLAYBACK = 0.7;
 
 let thaiVoice = null;
 
@@ -42,11 +45,60 @@ function say(text, rate) {
   speechSynthesis.speak(utterance);
 }
 
+// Ein einziges Audio-Element für alle Tondateien: iOS erlaubt Ton nur nach einer
+// Berührung, ein einmal freigegebenes Element darf danach weiter abspielen.
+// Erst beim ersten Abspielen anlegen (die Tests im Terminal kennen kein Audio).
+let player = null;
+let playToken = 0;   // erhöht sich bei jedem Stopp; eine alte Wiedergabe liest dann nicht mehr vor
+
+// Alles anhalten: Tondatei und Thai-Stimme (z. B. vor einer Aufnahme)
+export function stopSpeaking() {
+  playToken++;
+  if (player) {
+    player.onerror = null;
+    player.pause();
+  }
+  speechSynthesis.cancel();
+}
+
+// Spielt Kanyas Tondatei. Fehlt sie oder lässt sie sich nicht abspielen,
+// liest die Thai-Stimme des Geräts den Text vor.
+export function play(file, text, rate = RATE_NORMAL) {
+  stopSpeaking();
+  if (!file) return speakNow(text, rate);
+  const token = playToken;
+  // Fehler kommen oft doppelt (Ereignis "error" und abgelehntes play), vorgelesen wird nur einmal
+  const fallback = () => {
+    if (token !== playToken) return;
+    playToken++;
+    speakNow(text, rate);
+  };
+  if (!player) {
+    player = new Audio();
+    player.preload = "auto";
+  }
+  const speed = rate === RATE_NORMAL ? 1 : SLOW_PLAYBACK;
+  player.onerror = fallback;
+  player.src = file;
+  player.defaultPlaybackRate = speed;
+  player.playbackRate = speed;
+  player.preservesPitch = true;
+  const playing = player.play();
+  if (playing) playing.catch(error => {
+    // Abgebrochen, weil schon etwas anderes abgespielt wird: nichts tun
+    if (error.name !== "AbortError") fallback();
+  });
+}
+
 // Liest vor. Bei "langsam" wird jedes Wort einzeln gesprochen, mit kleiner Pause
 // dazwischen. Das ist auf dem iPhone deutlich hörbar, auch wenn Safari das
 // Tempo (rate) kaum verändert.
 export function speak(text, rate = RATE_NORMAL) {
-  speechSynthesis.cancel();
+  stopSpeaking();
+  speakNow(text, rate);
+}
+
+function speakNow(text, rate) {
   if (rate === RATE_NORMAL || !("Segmenter" in Intl)) {
     say(text, rate);
     return;

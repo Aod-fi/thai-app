@@ -70,6 +70,9 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 }
 
 .big-number { font-size: 3rem; font-weight: 700; color: var(--accent); }
+.today-count { font-size: 1.3rem; font-weight: 700; color: var(--accent); text-wrap: balance; }
+.search { width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 1rem; border-radius: 12px; border: 2px solid var(--accent); background: var(--panel); color: var(--text); margin-bottom: 12px; }
+.listen-focus { margin: 0 0 12px; }
 
 /* Tasten */
 button {
@@ -129,6 +132,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .deutsch { font-size: 1.25rem; margin: 6px 0 14px; }
 .merkhilfe { color: var(--muted); }
 .beispiel { color: var(--muted); font-style: italic; margin-top: 6px; }
+.beispiel button { font-style: normal; font-size: 1rem; vertical-align: middle; margin-left: 4px; }
 .speak-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
 
 .rating { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }

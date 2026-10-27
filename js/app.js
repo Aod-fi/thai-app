@@ -4,8 +4,9 @@
 import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
 import { loadStates, saveState, loadMeta, saveMeta, requestPersistence, exportAll, importAll } from "./storage.js";
 import { buildBackup, parseBackup, backupFileName } from "./backup.js";
-import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
-import { listenQuiz, themeStats, dueForecast } from "./extras.js";
+import { initSpeech, speak, play, stopSpeaking, RATE_NORMAL, RATE_SLOW } from "./speech.js";
+import { cardAudio, toneAudio } from "./audio-files.js";
+import { listenQuiz, themeStats, dueForecast, matchesSearch, todayText } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
 import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
@@ -16,7 +17,7 @@ import { t, language, setLanguage, translatePage, localizeCards, localizeAreas, 
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.8.1";
+const VERSION = "1.8.2";
 
 // Adresse der App, die beim Teilen verschickt wird
 const APP_URL = "https://aod-fi.github.io/thai-app/";
@@ -51,6 +52,9 @@ let toneIndex = 0;
 let toneScore = 0;
 
 const today = () => toDateString(new Date());
+
+// Karte vorlesen: Kanyas Tondatei, sonst die Thai-Stimme des Geräts
+const sayCard = (card, rate = RATE_NORMAL) => play(cardAudio(card), card.thai, rate);
 
 // ---------- Start ----------
 
@@ -119,7 +123,7 @@ function showView(name) {
 
 async function showHome() {
   const round = await todaysRound();
-  $("due-count").textContent = round.length;
+  $("due-count").textContent = todayText(round, states);
   $("start-button").disabled = round.length === 0;
   $("start-button").textContent = round.length === 0 ? t("Heute alles erledigt 🎉") : t("Lernrunde starten");
 
@@ -133,6 +137,7 @@ async function showHome() {
   $("focus-name").textContent = area ? `${area.emoji} ${area.name}` : focus ? themeName(focus) : t("🎲 Alle Themen gemischt");
   $("focus-info").textContent = area ? t("alle {n} Themen · {fresh} neu", { n: area.themen.length, fresh }) : t("{fresh} neu", { fresh });
   $("practice-button").textContent = t("Frei üben: {what}", { what: area ? area.name : focus ? themeName(focus) : t("alle Themen") });
+  $("listen-focus").textContent = t("Wörter aus: {what}", { what: area ? `${area.emoji} ${area.name}` : focus ? themeName(focus) : t("allen Themen") });
 
   $("boxes").innerHTML = boxesHtml();
 
@@ -215,7 +220,7 @@ function showNextCard() {
     $("front-hint").textContent = t("Hör zu: Was bedeutet das?");
     $("front-text").textContent = "🔊";
     $("front-speak").hidden = false;
-    speak(current.thai);
+    sayCard(current);
   } else {
     $("front-hint").textContent = t("Sag es laut auf Thai:");
     $("front-text").textContent = current.deutsch;
@@ -234,12 +239,14 @@ function showBack(intro = false) {
   $("back-umschrift").textContent = current.umschrift;
   $("back-deutsch").textContent = current.deutsch;
   $("back-merkhilfe").textContent = current.merkhilfe ? "💡 " + current.merkhilfe : "";
-  $("back-beispiel").textContent = current.beispiel ? t("z. B. ") + current.beispiel : "";
+  $("back-beispiel-text").textContent = current.beispiel ? t("z. B. ") + current.beispiel : "";
+  $("back-beispiel-speak").hidden = !(current.beispiel && current.beispiel_thai);
+  $("back-beispiel-speak").setAttribute("aria-label", t("Beispiel anhören"));
 
   resetVoice();
 
   // Nach dem Umdrehen die richtige Aussprache vorspielen
-  speak(current.thai);
+  sayCard(current);
 }
 
 // ---------- Eigene Aussprache ----------
@@ -282,7 +289,7 @@ async function holdStartHandler(event) {
   holding = true;
   holdStart = Date.now();
   voiceCard = current;
-  speechSynthesis.cancel();
+  stopSpeaking();   // Kanya darf nicht in die Aufnahme sprechen
   $("hold-button").textContent = t("🔴 Ich höre zu … (loslassen = fertig)");
   $("hold-button").classList.add("active");
   $("play-own").hidden = true;
@@ -527,7 +534,7 @@ function showQuestion() {
     button.addEventListener("click", () => answer(button, option === card.deutsch));
     list.appendChild(button);
   }
-  speak(card.thai);
+  sayCard(card);
 }
 
 function answer(chosen, correct) {
@@ -627,6 +634,7 @@ async function startTones() {
   if (toneGroups.length === 0) {
     const response = await fetch("inhalte/toene.json", { cache: "no-cache" });
     toneGroups = localizeToneGroups(await response.json());
+    for (const group of toneGroups) group.woerter.forEach((word, i) => { word.audio = toneAudio(group, i); });
   }
   toneQuiz = toneRound(toneGroups);
   toneIndex = 0;
@@ -653,7 +661,7 @@ function showToneQuestion() {
     button.dataset.umschrift = option.umschrift;
     list.appendChild(button);
   }
-  speak(word.thai);
+  play(word.audio, word.thai);
 }
 
 // Ton als kurzer Text, z. B. "fallend (â)"
@@ -839,23 +847,38 @@ async function shareApp() {
 // ---------- Übersicht ----------
 
 function showOverview() {
-  // Karten nach Bereich und Thema gliedern, innerhalb eines Themas
-  // in der Reihenfolge der Vokabeldatei
+  $("overview-search").value = "";
+  $("overview-search").placeholder = t("Suchen …");
+  renderOverview();
+  showView("overview");
+}
+
+// Karten nach Bereich und Thema gliedern, innerhalb eines Themas
+// in der Reihenfolge der Vokabeldatei. Mit Suche nur die passenden Karten
+// (gesucht wird in den Feldern der Datei, also Deutsch und Englisch zugleich).
+function renderOverview() {
+  const query = $("overview-search").value;
+  const raw = new Map(rawCards.map(card => [card.id, card]));
+  const found = cards.filter(card => matchesSearch(raw.get(card.id), query));
   const list = $("overview-list");
   list.innerHTML = "";
+  $("overview-empty").hidden = found.length > 0;
   for (const area of areaGroups()) {
+    if (!found.some(card => area.themen.includes(card.thema))) continue;
     const areaTitle = document.createElement("h2");
     areaTitle.className = "area-title";
     areaTitle.textContent = `${area.emoji} ${area.name}`;
     list.appendChild(areaTitle);
 
     for (const theme of area.themen) {
+      const themeCards = found.filter(c => c.thema === theme);
+      if (themeCards.length === 0) continue;
       const title = document.createElement("h3");
       title.className = "unit-title";
       title.textContent = themeName(theme);
       list.appendChild(title);
 
-      for (const card of cards.filter(c => c.thema === theme)) {
+      for (const card of themeCards) {
         const row = document.createElement("div");
         row.className = "row";
         row.innerHTML =
@@ -864,13 +887,12 @@ function showOverview() {
         row.querySelector(".umschrift-small").textContent = card.umschrift + (card.aufpassen ? " ⚠" : "");
         row.querySelector(".muted").textContent = card.deutsch;
         const [normal, slow] = row.querySelectorAll("button");
-        normal.addEventListener("click", () => speak(card.thai, RATE_NORMAL));
-        slow.addEventListener("click", () => speak(card.thai, RATE_SLOW));
+        normal.addEventListener("click", () => sayCard(card, RATE_NORMAL));
+        slow.addEventListener("click", () => sayCard(card, RATE_SLOW));
         list.appendChild(row);
       }
     }
   }
-  showView("overview");
 }
 
 // ---------- Tasten verbinden ----------
@@ -889,8 +911,8 @@ $("tones-close").addEventListener("click", showHome);
 $("tones-home").addEventListener("click", showHome);
 $("tones-again").addEventListener("click", startTones);
 $("tones-next").addEventListener("click", nextToneQuestion);
-$("tones-speak").addEventListener("click", () => speak(toneQuiz[toneIndex].word.thai, RATE_NORMAL));
-$("tones-speak-slow").addEventListener("click", () => speak(toneQuiz[toneIndex].word.thai, RATE_SLOW));
+$("tones-speak").addEventListener("click", () => play(toneQuiz[toneIndex].word.audio, toneQuiz[toneIndex].word.thai, RATE_NORMAL));
+$("tones-speak-slow").addEventListener("click", () => play(toneQuiz[toneIndex].word.audio, toneQuiz[toneIndex].word.thai, RATE_SLOW));
 for (const button of document.querySelectorAll("[data-number-level]")) {
   button.addEventListener("click", () => startNumbers(Number(button.dataset.numberLevel)));
 }
@@ -905,8 +927,8 @@ $("listen-close").addEventListener("click", showHome);
 $("listen-home").addEventListener("click", showHome);
 $("listen-again").addEventListener("click", startListen);
 $("listen-next").addEventListener("click", nextQuestion);
-$("listen-speak").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_NORMAL));
-$("listen-speak-slow").addEventListener("click", () => speak(quiz[quizIndex].card.thai, RATE_SLOW));
+$("listen-speak").addEventListener("click", () => sayCard(quiz[quizIndex].card, RATE_NORMAL));
+$("listen-speak-slow").addEventListener("click", () => sayCard(quiz[quizIndex].card, RATE_SLOW));
 $("stats-button").addEventListener("click", showStats);
 initDialogs({ showView, showHome });
 // Halten und sprechen: Pointer-Ereignisse gelten für Finger und Maus
@@ -918,6 +940,7 @@ $("hold-button").addEventListener("contextmenu", event => event.preventDefault()
 $("play-own").addEventListener("click", playRecording);
 $("stats-close").addEventListener("click", showHome);
 $("overview-close").addEventListener("click", showHome);
+$("overview-search").addEventListener("input", renderOverview);
 $("round-close").addEventListener("click", () => {
   resetVoice();
   showHome();
@@ -933,9 +956,10 @@ $("info-close").addEventListener("click", showHome);
 $("share-button").addEventListener("click", shareApp);
 $("info-share").addEventListener("click", shareApp);
 $("lang-en").addEventListener("click", () => switchLanguage("en"));
-$("front-speak").addEventListener("click", () => speak(current.thai));
-$("back-speak").addEventListener("click", () => speak(current.thai, RATE_NORMAL));
-$("back-speak-slow").addEventListener("click", () => speak(current.thai, RATE_SLOW));
+$("front-speak").addEventListener("click", () => sayCard(current));
+$("back-speak").addEventListener("click", () => sayCard(current, RATE_NORMAL));
+$("back-speak-slow").addEventListener("click", () => sayCard(current, RATE_SLOW));
+$("back-beispiel-speak").addEventListener("click", () => play(current.beispiel_audio, current.beispiel_thai));
 for (const button of $("rating-buttons").querySelectorAll("button")) {
   button.addEventListener("click", () => rate(button.dataset.rating));
 }
