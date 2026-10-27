@@ -196,6 +196,8 @@ const EN = {
   "Deutsch an": "Translation on",
   "Statistik": "Statistics",
   "Lerntage in Folge": "days in a row",
+  "{n} Lerntag in Folge": "{n} day in a row",
+  "{n} Lerntage in Folge": "{n} days in a row",
   "Lerntage gesamt": "learning days in total",
   "Karten pro Fach": "Cards per box",
   "Ab Fach 4 gilt eine Karte als sicher.": "From box 4 on, a card counts as secure.",

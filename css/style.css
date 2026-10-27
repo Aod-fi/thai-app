@@ -132,7 +132,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .deutsch { font-size: 1.25rem; margin: 6px 0 14px; }
 .merkhilfe { color: var(--muted); }
 .beispiel { color: var(--muted); font-style: italic; margin-top: 6px; }
-.beispiel button { font-style: normal; font-size: 1rem; vertical-align: middle; margin-left: 4px; }
+.beispiel button { font-style: normal; font-size: 1rem; vertical-align: middle; margin-left: 4px; min-width: 44px; min-height: 44px; }
 .speak-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
 
 .rating { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -181,6 +181,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 
 /* Eigene Aussprache */
 .voice-row { margin-top: 10px; flex-wrap: wrap; }
+#dialog-hold-row { margin-bottom: 12px; }
 /* Halten-Taste: kein Markieren, kein Kontextmenü, kein Scrollen beim Gedrückthalten */
 .hold {
   flex: 1 1 100%;
