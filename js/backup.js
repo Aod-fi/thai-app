@@ -4,6 +4,8 @@
 // Die Sicherung ist eine kleine Textdatei (JSON) mit dem Lernstand aller Karten
 // und den übrigen gespeicherten Werten (Lerntage, gewähltes Thema usw.).
 
+import { t } from "./sprache.js";
+
 const KIND = "mythai-lernstand";
 
 // Baut den Inhalt der Sicherungsdatei
@@ -36,15 +38,15 @@ export function parseBackup(text) {
   try {
     data = JSON.parse(text);
   } catch {
-    throw new Error("Das ist keine Sicherung von MyThai (Datei nicht lesbar).");
+    throw new Error(t("Das ist keine Sicherung von MyThai (Datei nicht lesbar)."));
   }
-  if (!data || data.art !== KIND) throw new Error("Das ist keine Sicherung von MyThai.");
-  if (data.version !== 1) throw new Error("Diese Sicherung stammt aus einer neueren Version der App. Bitte die App zuerst aktualisieren.");
+  if (!data || data.art !== KIND) throw new Error(t("Das ist keine Sicherung von MyThai."));
+  if (data.version !== 1) throw new Error(t("Diese Sicherung stammt aus einer neueren Version der App. Bitte die App zuerst aktualisieren."));
   if (!data.progress || typeof data.progress !== "object" || !data.meta || typeof data.meta !== "object") {
-    throw new Error("Die Sicherung ist unvollständig.");
+    throw new Error(t("Die Sicherung ist unvollständig."));
   }
   for (const [id, state] of Object.entries(data.progress)) {
-    if (!validState(state)) throw new Error(`Die Sicherung ist beschädigt (Karte ${id}).`);
+    if (!validState(state)) throw new Error(t("Die Sicherung ist beschädigt (Karte {id}).", { id }));
   }
   return { progress: data.progress, meta: data.meta, gesichertAm: data.gesichertAm || "" };
 }

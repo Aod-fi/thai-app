@@ -10,7 +10,7 @@ const file = new URL("../inhalte/vokabeln.json", import.meta.url);
 const cards = JSON.parse(readFileSync(file, "utf8"));
 
 // Diese Felder muss jede Karte haben
-const requiredFields = ["id", "einheit", "thema", "umschrift", "thai", "deutsch", "merkhilfe"];
+const requiredFields = ["id", "einheit", "thema", "umschrift", "thai", "deutsch", "merkhilfe", "englisch", "merkhilfe_en"];
 // Thai-Schrift liegt im Unicode-Bereich U+0E00 bis U+0E7F
 const thaiLetters = /[฀-๿]/;
 
@@ -36,7 +36,7 @@ cards.forEach((card, index) => {
   }
 
   // Die Umschrift darf keine Thai-Schrift enthalten, die soll man nie sehen
-  for (const field of ["umschrift", "deutsch", "merkhilfe", "beispiel"]) {
+  for (const field of ["umschrift", "deutsch", "merkhilfe", "beispiel", "englisch", "merkhilfe_en", "beispiel_en"]) {
     if (card[field] && thaiLetters.test(card[field])) {
       errors.push(`${name}: Feld "${field}" enthält Thai-Schrift`);
     }
@@ -58,7 +58,7 @@ groups.forEach((group, index) => {
   if (words.length < 2 || words.length > 4) errors.push(`${name}: braucht 2 bis 4 Wörter`);
   for (const word of words) {
     toneWords++;
-    for (const field of ["umschrift", "thai", "deutsch"]) {
+    for (const field of ["umschrift", "thai", "deutsch", "englisch"]) {
       if (typeof word[field] !== "string" || word[field].trim() === "") {
         errors.push(`${name}: Wort "${word.umschrift}": Feld "${field}" fehlt oder ist leer`);
       }
@@ -82,7 +82,7 @@ const dialogIds = new Set();
 let dialogLineCount = 0;
 dialogs.forEach((dialog, index) => {
   const name = `dialoge.json, ${dialog.id || `Dialog Nr. ${index + 1}`}`;
-  for (const field of ["id", "thema", "titel", "einheit"]) {
+  for (const field of ["id", "thema", "titel", "einheit", "titel_en"]) {
     if (typeof dialog[field] !== "string" || dialog[field].trim() === "") errors.push(`${name}: Feld "${field}" fehlt oder ist leer`);
   }
   if (dialog.id) {
@@ -92,17 +92,20 @@ dialogs.forEach((dialog, index) => {
   if (!dialog.rollen || !dialog.rollen.ich || !dialog.rollen.gegenueber) {
     errors.push(`${name}: "rollen" braucht "ich" und "gegenueber"`);
   }
+  if (!dialog.rollen_en || !dialog.rollen_en.ich || !dialog.rollen_en.gegenueber) {
+    errors.push(`${name}: "rollen_en" braucht "ich" und "gegenueber"`);
+  }
   const lines = Array.isArray(dialog.saetze) ? dialog.saetze : [];
   if (lines.length < 2) errors.push(`${name}: braucht mindestens 2 Sätze`);
   lines.forEach((line, i) => {
     dialogLineCount++;
     const where = `${name}, Satz ${i + 1}`;
     if (line.wer !== "ich" && line.wer !== "gegenueber") errors.push(`${where}: "wer" muss "ich" oder "gegenueber" sein`);
-    for (const field of ["umschrift", "thai", "deutsch"]) {
+    for (const field of ["umschrift", "thai", "deutsch", "englisch"]) {
       if (typeof line[field] !== "string" || line[field].trim() === "") errors.push(`${where}: Feld "${field}" fehlt oder ist leer`);
     }
     if (line.thai && !thaiLetters.test(line.thai)) errors.push(`${where}: Feld "thai" enthält keine Thai-Schrift`);
-    for (const field of ["umschrift", "deutsch"]) {
+    for (const field of ["umschrift", "deutsch", "englisch"]) {
       if (line[field] && thaiLetters.test(line[field])) errors.push(`${where}: Feld "${field}" enthält Thai-Schrift`);
     }
   });
@@ -116,7 +119,7 @@ const areaFile = new URL("../inhalte/bereiche.json", import.meta.url);
 const areas = JSON.parse(readFileSync(areaFile, "utf8"));
 const areaIds = new Set();
 for (const area of areas) {
-  for (const field of ["id", "name", "emoji"]) {
+  for (const field of ["id", "name", "emoji", "name_en"]) {
     if (typeof area[field] !== "string" || area[field].trim() === "") errors.push(`bereiche.json: Feld "${field}" fehlt oder ist leer`);
   }
   if (areaIds.has(area.id)) errors.push(`bereiche.json: id "${area.id}" kommt doppelt vor`);
@@ -126,6 +129,7 @@ for (const area of areas) {
 for (const theme of new Set(cards.map(card => card.thema))) {
   const count = areas.filter(area => (area.themen || []).includes(theme)).length;
   if (count !== 1) errors.push(`Thema "${theme}" steht in ${count} Bereichen (muss genau 1 sein)`);
+  if (!areas.some(area => area.themen_en && area.themen_en[theme])) errors.push(`Thema "${theme}" hat keinen englischen Namen (bereiche.json, "themen_en")`);
 }
 
 // Tondateien für die Ton-Kurve: fehlende sind kein Fehler, nur ein Hinweis

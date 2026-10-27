@@ -6,6 +6,7 @@ import { dialogLines, repeatPauseMs } from "./dialoge.js";
 import { speakAndWait, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
 import { loadMeta, saveMeta } from "./storage.js";
+import { t, localizeDialogs, themeName } from "./sprache.js";
 
 const $ = id => document.getElementById(id);
 
@@ -132,9 +133,14 @@ export function initDialogs(options) {
 async function loadDialogs() {
   if (dialogs.length === 0) {
     const response = await fetch("inhalte/dialoge.json", { cache: "no-cache" });
-    dialogs = await response.json();
+    dialogs = localizeDialogs(await response.json());
   }
   return dialogs;
+}
+
+// Nach einem Sprachwechsel: Dialoge beim nächsten Öffnen neu laden
+export function resetDialogs() {
+  dialogs = [];
 }
 
 async function showList() {
@@ -148,14 +154,14 @@ async function showList() {
       theme = item.thema;
       const title = document.createElement("h2");
       title.className = "unit-title";
-      title.textContent = theme;
+      title.textContent = themeName(theme);
       list.appendChild(title);
     }
     const button = document.createElement("button");
     button.className = "dialog-item";
     button.innerHTML = '<span><b></b><small class="muted"></small></span><span class="done"></span>';
     button.querySelector("b").textContent = item.titel;
-    button.querySelector("small").textContent = `Einheit ${item.einheit} · ${item.saetze.length} Sätze`;
+    button.querySelector("small").textContent = t("Einheit {unit} · {n} Sätze", { unit: item.einheit, n: item.saetze.length });
     button.querySelector(".done").textContent = done[item.id] ? `✓ ${done[item.id]}×` : "";
     button.addEventListener("click", () => openDialog(item));
     list.appendChild(button);
@@ -191,11 +197,11 @@ function switchMode(newMode) {
   }
   $("dialog-roles").hidden = mode !== "rolle";
   $("dialog-pause").hidden = mode === "rolle";
-  $("dialog-mode-hint").textContent = {
+  $("dialog-mode-hint").textContent = t({
     hoeren: "Hör dir das Gespräch an. Tippe auf einen Satz, um ihn nochmal zu hören.",
     mitsprechen: "Nach jedem Satz kommt eine Pause: sprich ihn laut nach.",
     rolle: "Die andere Person spricht. Bei deinem Satz sagst du ihn auf Thai und tippst dann auf „Auflösen“.",
-  }[mode];
+  }[mode]);
   for (const button of document.querySelectorAll("[data-dialog-role]")) {
     const isOther = button.dataset.dialogRole === "gegenueber";
     button.textContent = dialog.rollen[button.dataset.dialogRole];
@@ -226,12 +232,14 @@ function render() {
 
     if (hiddenOwn) {
       bubble.classList.add("ask");
-      bubble.innerHTML = '<div class="who">Du bist dran</div><div class="ask-text"></div><div class="d">Sag es auf Thai.</div>';
-      bubble.querySelector(".ask-text").textContent = `„${line.deutsch}“`;
+      bubble.innerHTML = '<div class="who"></div><div class="ask-text"></div><div class="d"></div>';
+      bubble.querySelector(".who").textContent = t("Du bist dran");
+      bubble.querySelector(".d").textContent = t("Sag es auf Thai.");
+      bubble.querySelector(".ask-text").textContent = t("„{text}“", { text: line.deutsch });
     } else {
       bubble.innerHTML = '<div class="who"></div><div class="u"></div><div class="d"></div>';
       let who = line.wer;
-      if (i === index && (running || rolePlaying)) who += waitingRepeat ? " · 🗣 jetzt du" : " · 🔊";
+      if (i === index && (running || rolePlaying)) who += waitingRepeat ? " · " + t("🗣 jetzt du") : " · 🔊";
       bubble.querySelector(".who").textContent = who;
       bubble.querySelector(".u").textContent = line.umschrift;
       bubble.querySelector(".d").textContent = line.deutsch;
@@ -252,14 +260,14 @@ function render() {
   $("dialog-hold-row").hidden = !ownTurn || revealed || !canRecord();
   $("dialog-reveal").hidden = !ownTurn || revealed;
   $("dialog-after").hidden = !ownTurn || !revealed;
-  $("dialog-pause").textContent = running ? "⏸ Pause" : finished ? "▶ Von vorn" : "▶ Weiter";
+  $("dialog-pause").textContent = t(running ? "⏸ Pause" : finished ? "▶ Von vorn" : "▶ Weiter");
   $("dialog-slow").classList.toggle("on", slow);
-  $("dialog-german").textContent = showGerman ? "Deutsch aus" : "Deutsch an";
-  $("dialog-counter").textContent = finished ? "" : `Satz ${index + 1} / ${lines.length}`;
+  $("dialog-german").textContent = t(showGerman ? "Deutsch aus" : "Deutsch an");
+  $("dialog-counter").textContent = finished ? "" : t("Satz {n} / {total}", { n: index + 1, total: lines.length });
   $("dialog-end").hidden = !finished;
   if (finished) {
-    $("dialog-end-title").textContent = mode === "rolle" ? "Geschafft! 🎉" : "Ende des Gesprächs";
-    $("dialog-to-role").textContent = mode === "rolle" ? "🔄 Rolle tauschen" : "🎭 Jetzt deine Rolle";
+    $("dialog-end-title").textContent = t(mode === "rolle" ? "Geschafft! 🎉" : "Ende des Gesprächs");
+    $("dialog-to-role").textContent = t(mode === "rolle" ? "🔄 Rolle tauschen" : "🎭 Jetzt deine Rolle");
   }
 
   // Der aktuelle Satz soll sichtbar sein
@@ -359,7 +367,7 @@ function holdReset() {
   hasRecording = false;
   clearTimeout(holdTimer);
   clearRecording();
-  $("dialog-hold").textContent = "🎙 Halten und sprechen";
+  $("dialog-hold").textContent = t("🎙 Halten und sprechen");
   $("dialog-hold").classList.remove("active");
   $("dialog-play-own").hidden = true;
   $("dialog-voice-note").hidden = true;
@@ -377,7 +385,7 @@ async function holdStart(event) {
   holdBegin = Date.now();
   player.pause();
   speechSynthesis.cancel();
-  $("dialog-hold").textContent = "🔴 Ich höre zu … (loslassen = fertig)";
+  $("dialog-hold").textContent = t("🔴 Ich höre zu … (loslassen = fertig)");
   $("dialog-hold").classList.add("active");
   voiceNote("");
   holdTimer = setTimeout(holdEnd, MAX_HOLD_MS);
@@ -386,9 +394,9 @@ async function holdStart(event) {
   } catch {
     holding = false;
     clearTimeout(holdTimer);
-    $("dialog-hold").textContent = "🎙 Halten und sprechen";
+    $("dialog-hold").textContent = t("🎙 Halten und sprechen");
     $("dialog-hold").classList.remove("active");
-    voiceNote("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.");
+    voiceNote(t("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben."));
   }
 }
 
@@ -396,16 +404,16 @@ async function holdEnd() {
   if (!holding) return;
   holding = false;
   clearTimeout(holdTimer);
-  $("dialog-hold").textContent = "🎙 Nochmal sprechen";
+  $("dialog-hold").textContent = t("🎙 Nochmal sprechen");
   $("dialog-hold").classList.remove("active");
   const tooShort = Date.now() - holdBegin < MIN_HOLD_MS;
   const recorded = await stopRecording();
   if (tooShort) {
-    voiceNote("Taste gedrückt halten, solange du sprichst, dann loslassen.");
+    voiceNote(t("Taste gedrückt halten, solange du sprichst, dann loslassen."));
     return;
   }
   hasRecording = recorded;
-  voiceNote(recorded ? "Aufgenommen. Tippe auf „Auflösen“ und vergleiche mit ▶ Ich." : "Keine Aufnahme. Bitte nochmal halten und sprechen.");
+  voiceNote(t(recorded ? "Aufgenommen. Tippe auf „Auflösen“ und vergleiche mit ▶ Ich." : "Keine Aufnahme. Bitte nochmal halten und sprechen."));
 }
 
 // ---------- Einstellungen ----------

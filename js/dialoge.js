@@ -5,6 +5,8 @@
 // Beim Rollenwechsel spricht Aod die andere Rolle. Weil Aod ein Mann ist, werden
 // deren khâ/khá dann zu khráp, in der Umschrift und im Thai-Text fürs Vorlesen.
 
+import { t } from "./sprache.js";
+
 // khâ / khá als eigenes Wort (danach Satzzeichen, Leerzeichen oder Ende)
 const KHA_UMSCHRIFT = /(^|\s)kh[âá](?=[.?!,…]|\s|$)/g;
 // ค่ะ / คะ am Ende eines Satzes (danach Leerzeichen oder Ende)
@@ -39,7 +41,7 @@ export function dialogLines(dialog, swapped = false) {
     return {
       id,
       mine,
-      wer: mine ? (swapped ? `Du (${dialog.rollen.gegenueber})` : "Du") : otherRole,
+      wer: mine ? (swapped ? t("Du ({role})", { role: dialog.rollen.gegenueber }) : t("Du")) : otherRole,
       umschrift: khrap ? khrapUmschrift(line.umschrift) : line.umschrift,
       thai: khrap ? khrapThai(line.thai) : line.thai,
       deutsch: line.deutsch,

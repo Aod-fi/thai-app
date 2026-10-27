@@ -11,17 +11,20 @@ import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
 import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
-import { initDialogs } from "./dialog-view.js";
+import { initDialogs, resetDialogs } from "./dialog-view.js";
+import { t, language, setLanguage, translatePage, localizeCards, localizeAreas, localizeToneGroups, themeName } from "./sprache.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.5";
+const VERSION = "1.8.0";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
 
 // Zustand der App, solange sie geöffnet ist
-let cards = [];       // alle Karten aus vokabeln.json
+let rawCards = [];    // Karten aus vokabeln.json, wie sie in der Datei stehen
+let rawAreas = [];    // Bereiche aus bereiche.json, wie sie in der Datei stehen
+let cards = [];       // alle Karten, Texte in der gewählten Sprache
 let states = {};      // Lernstand pro Karte
 let queue = [];       // Karten der laufenden Runde, die noch dran kommen
 let roundSize = 0;    // Anzahl Karten zu Beginn der Runde
@@ -51,9 +54,10 @@ const today = () => toDateString(new Date());
 async function start() {
   // "no-cache": immer nachsehen, ob es neue Vokabeln gibt
   const response = await fetch("inhalte/vokabeln.json", { cache: "no-cache" });
-  cards = await response.json();
+  rawCards = await response.json();
   states = await loadStates();
-  areas = await (await fetch("inhalte/bereiche.json", { cache: "no-cache" })).json();
+  rawAreas = await (await fetch("inhalte/bereiche.json", { cache: "no-cache" })).json();
+  applyLanguage();
   focus = await loadMeta("focus", "");
   if (!validFocus(focus)) focus = "";
   $("version").textContent = VERSION;
@@ -62,6 +66,23 @@ async function start() {
 
   const hasVoice = await initSpeech();
   $("voice-warning").hidden = hasVoice;
+}
+
+// Texte der Seite und der Inhalte in der gewählten Sprache
+function applyLanguage() {
+  areas = localizeAreas(rawAreas);
+  cards = localizeCards(rawCards);
+  toneGroups = [];   // werden bei Bedarf in der neuen Sprache geladen
+  resetDialogs();
+  translatePage();
+  $("lang-de").classList.toggle("on", language() === "de");
+  $("lang-en").classList.toggle("on", language() === "en");
+}
+
+function switchLanguage(value) {
+  setLanguage(value);
+  applyLanguage();
+  showHome();
 }
 
 // Wie viele neue Karten heute schon dran waren
@@ -97,7 +118,7 @@ async function showHome() {
   const round = await todaysRound();
   $("due-count").textContent = round.length;
   $("start-button").disabled = round.length === 0;
-  $("start-button").textContent = round.length === 0 ? "Heute alles erledigt 🎉" : "Lernrunde starten";
+  $("start-button").textContent = round.length === 0 ? t("Heute alles erledigt 🎉") : t("Lernrunde starten");
 
   // Ist heute alles erledigt und gibt es noch ungelernte Karten,
   // kann man freiwillig weitere neue Karten lernen.
@@ -106,9 +127,9 @@ async function showHome() {
 
   // Aktuelle Wahl "Neue Karten aus", Antippen öffnet die Themen-Seite
   const area = focusArea();
-  $("focus-name").textContent = area ? `${area.emoji} ${area.name}` : focus || "🎲 Alle Themen gemischt";
-  $("focus-info").textContent = area ? `alle ${area.themen.length} Themen · ${fresh} neu` : `${fresh} neu`;
-  $("practice-button").textContent = `Frei üben: ${area ? area.name : focus || "alle Themen"}`;
+  $("focus-name").textContent = area ? `${area.emoji} ${area.name}` : focus ? themeName(focus) : t("🎲 Alle Themen gemischt");
+  $("focus-info").textContent = area ? t("alle {n} Themen · {fresh} neu", { n: area.themen.length, fresh }) : t("{fresh} neu", { fresh });
+  $("practice-button").textContent = t("Frei üben: {what}", { what: area ? area.name : focus ? themeName(focus) : t("alle Themen") });
 
   $("boxes").innerHTML = boxesHtml();
 
@@ -119,7 +140,7 @@ async function showHome() {
 // Fächer-Anzeige (Startseite und Statistik)
 function boxesHtml() {
   const counts = countByBox(cards, states);
-  const labels = ["neu", "Fach 1", "Fach 2", "Fach 3", "Fach 4", "Fach 5"];
+  const labels = [t("neu"), ...[1, 2, 3, 4, 5].map(n => t("Fach {n}", { n }))];
   return counts
     .map((count, i) => `<div><div class="count">${count}</div><div class="label">${labels[i]}</div></div>`)
     .join("");
@@ -161,11 +182,11 @@ function showNextCard() {
 
   // Noch offen: diese Karte, der Rest der Runde und die Abfragen noch nicht vorgestellter neuer Karten
   const pendingIntros = practice ? 0 : [current, ...queue].filter(card => !states[card.id] && !introduced.has(card.id)).length;
-  $("round-counter").textContent = `noch ${queue.length + 1 + pendingIntros} von ${roundSize}`;
+  $("round-counter").textContent = t("noch {n} von {total}", { n: queue.length + 1 + pendingIntros, total: roundSize });
   const badges = [];
-  if (practice) badges.push("Freies Üben");
-  if (isNew) badges.push(introduced.has(current.id) ? "Neu · Abfrage" : "Neu");
-  if (current.aufpassen) badges.push("⚠ Aufpassen");
+  if (practice) badges.push(t("Freies Üben"));
+  if (isNew) badges.push(t(introduced.has(current.id) ? "Neu · Abfrage" : "Neu"));
+  if (current.aufpassen) badges.push(t("⚠ Aufpassen"));
   $("card-badges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
 
   // Neue Karte zum ersten Mal: nur vorstellen (Lernrunde) bzw. gleich die Lösung zeigen
@@ -188,12 +209,12 @@ function showNextCard() {
   $("intro-buttons").hidden = true;
 
   if (direction === "hoeren") {
-    $("front-hint").textContent = "Hör zu: Was bedeutet das?";
+    $("front-hint").textContent = t("Hör zu: Was bedeutet das?");
     $("front-text").textContent = "🔊";
     $("front-speak").hidden = false;
     speak(current.thai);
   } else {
-    $("front-hint").textContent = "Sag es laut auf Thai:";
+    $("front-hint").textContent = t("Sag es laut auf Thai:");
     $("front-text").textContent = current.deutsch;
     $("front-speak").hidden = true;
   }
@@ -210,7 +231,7 @@ function showBack(intro = false) {
   $("back-umschrift").textContent = current.umschrift;
   $("back-deutsch").textContent = current.deutsch;
   $("back-merkhilfe").textContent = current.merkhilfe ? "💡 " + current.merkhilfe : "";
-  $("back-beispiel").textContent = current.beispiel ? "z. B. " + current.beispiel : "";
+  $("back-beispiel").textContent = current.beispiel ? t("z. B. ") + current.beispiel : "";
 
   resetVoice();
 
@@ -239,7 +260,7 @@ function resetVoice() {
   clearTimeout(holdTimer);
   clearRecording();
   $("voice-row").hidden = !canRecord();
-  $("hold-button").textContent = "🎙 Halten und sprechen";
+  $("hold-button").textContent = t("🎙 Halten und sprechen");
   $("hold-button").classList.remove("active");
   $("play-own").hidden = true;
   $("voice-result").hidden = true;
@@ -259,7 +280,7 @@ async function holdStartHandler(event) {
   holdStart = Date.now();
   voiceCard = current;
   speechSynthesis.cancel();
-  $("hold-button").textContent = "🔴 Ich höre zu … (loslassen = fertig)";
+  $("hold-button").textContent = t("🔴 Ich höre zu … (loslassen = fertig)");
   $("hold-button").classList.add("active");
   $("play-own").hidden = true;
   $("voice-result").hidden = true;
@@ -272,9 +293,9 @@ async function holdStartHandler(event) {
   } catch {
     holding = false;
     clearTimeout(holdTimer);
-    $("hold-button").textContent = "🎙 Halten und sprechen";
+    $("hold-button").textContent = t("🎙 Halten und sprechen");
     $("hold-button").classList.remove("active");
-    showVoiceResult("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben.", "no");
+    showVoiceResult(t("Kein Zugriff auf das Mikrofon. Bitte in den Einstellungen erlauben."), "no");
   }
 }
 
@@ -282,27 +303,27 @@ async function holdEndHandler() {
   if (!holding) return;
   holding = false;
   clearTimeout(holdTimer);
-  $("hold-button").textContent = "🎙 Nochmal sprechen";
+  $("hold-button").textContent = t("🎙 Nochmal sprechen");
   $("hold-button").classList.remove("active");
 
   if (Date.now() - holdStart < MIN_HOLD_MS) {
     await stopRecording();
-    showVoiceResult("Taste gedrückt halten, solange du sprichst, dann loslassen.");
+    showVoiceResult(t("Taste gedrückt halten, solange du sprichst, dann loslassen."));
     return;
   }
 
-  showVoiceResult("Einen Moment …");
+  showVoiceResult(t("Einen Moment …"));
   try {
     const hasRecording = await stopRecording();
     if (voiceCard !== current) return;   // inzwischen weitergeblättert
     $("play-own").hidden = !hasRecording;
     if (!hasRecording) {
-      showVoiceResult("Keine Aufnahme. Bitte nochmal halten und sprechen.", "no");
+      showVoiceResult(t("Keine Aufnahme. Bitte nochmal halten und sprechen."), "no");
       return;
     }
     await showToneCurve(voiceCard);
   } catch {
-    showVoiceResult(`Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.`, "no");
+    showVoiceResult(t("Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich."), "no");
   }
 }
 
@@ -311,7 +332,7 @@ async function showToneCurve(card) {
   const [own, kanya] = await Promise.all([curveFromAudio(recordingBlob()), kanyaCurve(card)]);
   if (card !== current) return;
   if (own.length === 0) {
-    showVoiceResult(`Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen.`, "no");
+    showVoiceResult(t("Keine Stimme erkannt. Nochmal halten, deutlich sprechen und erst danach loslassen."), "no");
     return;
   }
   $("tone-curve-svg").innerHTML = curveSvg(own, kanya);
@@ -320,11 +341,11 @@ async function showToneCurve(card) {
 
   // Nur wenig Stimme gefunden (z. B. sehr kurze oder geflüsterte Silben)
   const voicedShare = own.filter(Boolean).length / own.length;
-  const tip = voicedShare < 0.3 ? " Tipp: Nur wenig Stimme erkannt. Sprich die Vokale etwas länger und lauter." : "";
+  const tip = voicedShare < 0.3 ? " " + t("Tipp: Nur wenig Stimme erkannt. Sprich die Vokale etwas länger und lauter.") : "";
 
   const hint = toneHint(card.umschrift, endMovement(own));
   if (hint) showVoiceResult(hint.text + tip, hint.kind);
-  else showVoiceResult("Vergleiche den Verlauf: geht deine Linie an denselben Stellen hoch und runter wie die graue?" + tip);
+  else showVoiceResult(t("Vergleiche den Verlauf: geht deine Linie an denselben Stellen hoch und runter wie die graue?") + tip);
 }
 
 async function rate(rating) {
@@ -401,7 +422,7 @@ function areaGroups() {
     .map(area => ({ ...area, themen: area.themen.filter(theme => all.includes(theme)) }))
     .filter(area => area.themen.length > 0);
   const rest = all.filter(theme => !areas.some(area => area.themen.includes(theme)));
-  if (rest.length > 0) groups.push({ id: "weitere", name: "Weitere", emoji: "📦", themen: rest });
+  if (rest.length > 0) groups.push({ id: "weitere", name: t("Weitere"), emoji: "📦", themen: rest });
   return groups;
 }
 
@@ -426,8 +447,9 @@ function showTopics() {
   // Erste Zeile: alle Themen gemischt
   const all = document.createElement("button");
   all.className = "area-all" + (focus === "" ? " chosen" : "");
-  all.innerHTML = '<span>🎲 Alle Themen gemischt</span><span class="muted"></span>';
-  all.lastChild.textContent = `${fresh("")} neu`;
+  all.innerHTML = '<span></span><span class="muted"></span>';
+  all.firstChild.textContent = t("🎲 Alle Themen gemischt");
+  all.lastChild.textContent = t("{fresh} neu", { fresh: fresh("") });
   all.addEventListener("click", () => chooseFocus(""));
   list.appendChild(all);
 
@@ -441,7 +463,7 @@ function showTopics() {
     head.className = "area-head";
     head.innerHTML = '<button class="area-name"></button><button class="area-toggle"></button>';
     head.querySelector(".area-name").textContent = `${area.emoji} ${area.name}` + (focus === value ? " ✓" : "");
-    head.querySelector(".area-toggle").textContent = `${fresh(area.themen)} neu ${isOpen ? "⌄" : "›"}`;
+    head.querySelector(".area-toggle").textContent = t("{fresh} neu", { fresh: fresh(area.themen) }) + (isOpen ? " ⌄" : " ›");
     head.querySelector(".area-name").addEventListener("click", () => chooseFocus(value));
     head.querySelector(".area-toggle").addEventListener("click", () => {
       openArea = isOpen ? "" : area.id;
@@ -457,8 +479,8 @@ function showTopics() {
         const row = document.createElement("button");
         row.className = "area-theme" + (focus === theme ? " chosen" : "");
         row.innerHTML = '<span></span><span class="muted"></span>';
-        row.firstChild.textContent = theme + (focus === theme ? " ✓" : "");
-        row.lastChild.textContent = `${fresh(theme)} neu`;
+        row.firstChild.textContent = themeName(theme) + (focus === theme ? " ✓" : "");
+        row.lastChild.textContent = t("{fresh} neu", { fresh: fresh(theme) });
         row.addEventListener("click", () => chooseFocus(theme));
         box.appendChild(row);
       }
@@ -489,7 +511,7 @@ function startListen() {
 
 function showQuestion() {
   const { card, options } = quiz[quizIndex];
-  $("listen-counter").textContent = `Frage ${quizIndex + 1} von ${quiz.length}`;
+  $("listen-counter").textContent = t("Frage {n} von {total}", { n: quizIndex + 1, total: quiz.length });
   $("listen-question").hidden = false;
   $("listen-solution").hidden = true;
   $("listen-next").hidden = true;
@@ -530,7 +552,7 @@ function nextQuestion() {
   $("listen-options").innerHTML = "";
   $("listen-next").hidden = true;
   $("listen-counter").textContent = "";
-  $("listen-score").textContent = `${quizScore} von ${quiz.length}`;
+  $("listen-score").textContent = t("{n} von {total}", { n: quizScore, total: quiz.length });
   $("listen-result").hidden = false;
 }
 
@@ -550,7 +572,7 @@ function startNumbers(level) {
 
 function showNumberTask() {
   const task = numberTasks[numberIndex];
-  $("numbers-counter").textContent = `Aufgabe ${numberIndex + 1} von ${numberTasks.length}`;
+  $("numbers-counter").textContent = t("Aufgabe {n} von {total}", { n: numberIndex + 1, total: numberTasks.length });
   $("numbers-question").hidden = false;
   $("numbers-input").value = "";
   $("numbers-input").disabled = false;
@@ -570,7 +592,7 @@ function checkNumber(event) {
   if (right) numberScore++;
 
   const label = numberLevel === 3 ? `${task.number} Baht` : `${task.number}`;
-  $("numbers-feedback").textContent = right ? `✓ Richtig: ${label}` : `✗ Richtig wäre: ${label}`;
+  $("numbers-feedback").textContent = t(right ? "✓ Richtig: {label}" : "✗ Richtig wäre: {label}", { label });
   $("numbers-feedback").className = `number-feedback ${right ? "right" : "wrong"}`;
   $("numbers-feedback").hidden = false;
   $("numbers-solution").textContent = task.umschrift;
@@ -590,7 +612,7 @@ function nextNumber() {
   $("numbers-question").hidden = true;
   $("numbers-next").hidden = true;
   $("numbers-counter").textContent = "";
-  $("numbers-score").textContent = `${numberScore} von ${numberTasks.length}`;
+  $("numbers-score").textContent = t("{n} von {total}", { n: numberScore, total: numberTasks.length });
   $("numbers-result").hidden = false;
 }
 
@@ -601,7 +623,7 @@ function nextNumber() {
 async function startTones() {
   if (toneGroups.length === 0) {
     const response = await fetch("inhalte/toene.json", { cache: "no-cache" });
-    toneGroups = await response.json();
+    toneGroups = localizeToneGroups(await response.json());
   }
   toneQuiz = toneRound(toneGroups);
   toneIndex = 0;
@@ -613,7 +635,7 @@ async function startTones() {
 
 function showToneQuestion() {
   const { word, options } = toneQuiz[toneIndex];
-  $("tones-counter").textContent = `Frage ${toneIndex + 1} von ${toneQuiz.length}`;
+  $("tones-counter").textContent = t("Frage {n} von {total}", { n: toneIndex + 1, total: toneQuiz.length });
   $("tones-question").hidden = false;
   $("tones-solution").hidden = true;
   $("tones-next").hidden = true;
@@ -634,7 +656,7 @@ function showToneQuestion() {
 // Ton als kurzer Text, z. B. "fallend (â)"
 function toneLabel(umschrift) {
   const tone = toneOf(umschrift);
-  return tone === "mittel" ? "mittel (keine Marke)" : `${tone} (${TONES[tone].mark})`;
+  return tone === "mittel" ? t("mittel (keine Marke)") : `${t(tone)} (${TONES[tone].mark})`;
 }
 
 function answerTone(chosen, option) {
@@ -650,8 +672,8 @@ function answerTone(chosen, option) {
   }
   if (!correct) chosen.classList.add("wrong");
   $("tones-solution").textContent = correct
-    ? `✓ Richtig: ${word.umschrift} = ${word.deutsch}`
-    : `✗ Es war ${word.umschrift} = ${word.deutsch}`;
+    ? t("✓ Richtig: {u} = {d}", { u: word.umschrift, d: word.deutsch })
+    : t("✗ Es war {u} = {d}", { u: word.umschrift, d: word.deutsch });
   $("tones-solution").className = `tone-solution ${correct ? "right" : "wrong"}`;
   $("tones-solution").hidden = false;
   $("tones-next").hidden = false;
@@ -667,7 +689,7 @@ function nextToneQuestion() {
   $("tones-options").innerHTML = "";
   $("tones-next").hidden = true;
   $("tones-counter").textContent = "";
-  $("tones-score").textContent = `${toneScore} von ${toneQuiz.length}`;
+  $("tones-score").textContent = t("{n} von {total}", { n: toneScore, total: toneQuiz.length });
   $("tones-result").hidden = false;
 }
 
@@ -695,8 +717,8 @@ async function showStats() {
       row.innerHTML =
         '<div class="theme-head"><span class="name"></span><span class="muted numbers"></span></div>' +
         '<div class="bar"><div class="sure"></div><div class="learned"></div></div>';
-      row.querySelector(".name").textContent = theme;
-      row.querySelector(".numbers").textContent = `${learned} von ${total} gelernt, ${sure} sicher`;
+      row.querySelector(".name").textContent = themeName(theme);
+      row.querySelector(".numbers").textContent = t("{learned} von {total} gelernt, {sure} sicher", { learned, total, sure });
       row.querySelector(".sure").style.width = `${(sure / total) * 100}%`;
       row.querySelector(".learned").style.width = `${((learned - sure) / total) * 100}%`;
       list.appendChild(row);
@@ -706,11 +728,11 @@ async function showStats() {
   // Vorschau: wie viele Wiederholungen an den nächsten 7 Tagen anstehen
   const forecast = dueForecast(cards, states, today());
   const max = Math.max(1, ...forecast.map(f => f.count));
-  const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  const weekdays = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"].map(day => t(day));
   $("stats-forecast").innerHTML = forecast
     .map(({ day, count }, i) => {
       const [y, m, d] = day.split("-").map(Number);
-      const label = i === 0 ? "heute" : weekdays[new Date(y, m - 1, d).getDay()];
+      const label = i === 0 ? t("heute") : weekdays[new Date(y, m - 1, d).getDay()];
       return `<div class="col"><div class="num">${count}</div>` +
         `<div class="pillar" style="height:${(count / max) * 70}px"></div>` +
         `<div class="day">${label}</div></div>`;
@@ -737,10 +759,10 @@ async function saveBackup() {
 
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: "MyThai Lernstand" });
-      showBackupMessage("✓ Gesichert. Tipp: „In Dateien sichern“ und iCloud Drive wählen.");
+      await navigator.share({ files: [file], title: t("MyThai Lernstand") });
+      showBackupMessage(t("✓ Gesichert. Tipp: „In Dateien sichern“ und iCloud Drive wählen."));
     } catch (error) {
-      if (error.name !== "AbortError") showBackupMessage("Sichern hat nicht geklappt. Bitte nochmal versuchen.");
+      if (error.name !== "AbortError") showBackupMessage(t("Sichern hat nicht geklappt. Bitte nochmal versuchen."));
     }
     return;
   }
@@ -749,7 +771,7 @@ async function saveBackup() {
   link.download = name;
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 10000);
-  showBackupMessage(`✓ Gesichert als „${name}“ (Ordner Downloads).`);
+  showBackupMessage(t("✓ Gesichert als „{name}“ (Ordner Downloads).", { name }));
 }
 
 // Lädt eine Sicherungsdatei und ersetzt nach Rückfrage den Lernstand auf diesem Gerät
@@ -765,19 +787,20 @@ async function loadBackup(event) {
     return;
   }
   const count = Object.keys(backup.progress).length;
-  const when = backup.gesichertAm ? ` vom ${new Date(backup.gesichertAm).toLocaleDateString("de-DE")}` : "";
-  if (!confirm(`Sicherung${when} mit ${count} gelernten Karten laden?\nDer jetzige Lernstand auf diesem Gerät wird dabei ersetzt.`)) return;
+  const date = backup.gesichertAm ? new Date(backup.gesichertAm).toLocaleDateString(language() === "en" ? "en-GB" : "de-DE") : "";
+  const question = date ? "Sicherung vom {date} mit {count} gelernten Karten laden?" : "Sicherung mit {count} gelernten Karten laden?";
+  if (!confirm(t(question, { date, count }) + "\n" + t("Der jetzige Lernstand auf diesem Gerät wird dabei ersetzt."))) return;
   try {
     await importAll(backup);
   } catch {
-    showBackupMessage("Laden hat nicht geklappt. Dein bisheriger Lernstand ist unverändert.");
+    showBackupMessage(t("Laden hat nicht geklappt. Dein bisheriger Lernstand ist unverändert."));
     return;
   }
   states = await loadStates();
   focus = await loadMeta("focus", "");
   if (!validFocus(focus)) focus = "";
   await showStats();
-  showBackupMessage(`✓ Lernstand geladen: ${count} gelernte Karten.`);
+  showBackupMessage(t("✓ Lernstand geladen: {count} gelernte Karten.", { count }));
 }
 
 // ---------- Übersicht ----------
@@ -796,7 +819,7 @@ function showOverview() {
     for (const theme of area.themen) {
       const title = document.createElement("h3");
       title.className = "unit-title";
-      title.textContent = theme;
+      title.textContent = themeName(theme);
       list.appendChild(title);
 
       for (const card of cards.filter(c => c.thema === theme)) {
@@ -871,6 +894,8 @@ $("intro-next").addEventListener("click", showNextCard);
 $("backup-save").addEventListener("click", saveBackup);
 $("backup-load").addEventListener("click", () => $("backup-file").click());
 $("backup-file").addEventListener("change", loadBackup);
+$("lang-de").addEventListener("click", () => switchLanguage("de"));
+$("lang-en").addEventListener("click", () => switchLanguage("en"));
 $("front-speak").addEventListener("click", () => speak(current.thai));
 $("back-speak").addEventListener("click", () => speak(current.thai, RATE_NORMAL));
 $("back-speak-slow").addEventListener("click", () => speak(current.thai, RATE_SLOW));

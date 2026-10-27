@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7.5">
+  <link rel="stylesheet" href="css/style.css?v=1.8.0">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -19,47 +19,45 @@
   <!-- 1. Startseite mit Fortschritt -->
   <main id="view-home">
     <h1>MyThai</h1>
-    <p id="voice-warning" class="warning" hidden>
-      Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen →
-      Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.
-    </p>
+    <p id="voice-warning" class="warning" hidden data-t>Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.</p>
 
     <section class="panel">
       <div class="big-number" id="due-count">–</div>
-      <div class="muted">Karten heute fällig</div>
+      <div class="muted" data-t>Karten heute fällig</div>
     </section>
 
-    <p class="muted focus-label">Neue Karten aus:</p>
+    <p class="muted focus-label" data-t>Neue Karten aus:</p>
     <button id="focus-button" class="choice">
       <span><span id="focus-name" class="choice-name"></span><span id="focus-info" class="muted choice-info"></span></span>
-      <span class="chevron">›</span>
+      <span class="chevron" data-t>›</span>
     </button>
 
-    <button id="start-button" class="primary big">Lernrunde starten</button>
-    <button id="more-button" class="secondary big" hidden>5 weitere neue Karten lernen</button>
-    <button id="practice-button" class="secondary big">Frei üben</button>
-    <p class="muted hint">Frei üben zählt nicht für die Fächer.</p>
+    <button id="start-button" class="primary big" data-t>Lernrunde starten</button>
+    <button id="more-button" class="secondary big" hidden data-t>5 weitere neue Karten lernen</button>
+    <button id="practice-button" class="secondary big" data-t>Frei üben</button>
+    <p class="muted hint" data-t>Frei üben zählt nicht für die Fächer.</p>
 
     <section class="panel">
-      <h2>Fortschritt</h2>
+      <h2 data-t>Fortschritt</h2>
       <div id="boxes" class="boxes"></div>
-      <p class="muted"><span id="streak">0</span> Lerntage in Folge</p>
+      <p class="muted"><span id="streak">0</span> <span data-t>Lerntage in Folge</span></p>
     </section>
 
     <div class="two-buttons">
-      <button id="listen-button" class="secondary big">🎧 Hörübung</button>
-      <button id="stats-button" class="secondary big">📊 Statistik</button>
+      <button id="listen-button" class="secondary big" data-t>🎧 Hörübung</button>
+      <button id="stats-button" class="secondary big" data-t>📊 Statistik</button>
     </div>
 
-    <button id="dialogs-button" class="secondary big">💬 Dialoge</button>
-    <button id="overview-button" class="secondary big">Alle Karten ansehen</button>
-    <p class="muted version">Version <span id="version"></span></p>
+    <button id="dialogs-button" class="secondary big" data-t>💬 Dialoge</button>
+    <button id="overview-button" class="secondary big" data-t>Alle Karten ansehen</button>
+    <p class="muted version"><span data-t>Version</span> <span id="version"></span></p>
+    <p class="language-switch"><button id="lang-de" class="link">Deutsch</button> · <button id="lang-en" class="link">English</button></p>
   </main>
 
   <!-- 2. Lernrunde -->
   <main id="view-round" hidden>
     <div class="topbar">
-      <button id="round-close" class="link">✕ Beenden</button>
+      <button id="round-close" class="link" data-t>✕ Beenden</button>
       <span id="round-counter" class="muted"></span>
     </div>
 
@@ -70,7 +68,7 @@
       <div id="card-front">
         <p id="front-hint" class="muted"></p>
         <div id="front-text" class="front-text"></div>
-        <button id="front-speak" class="secondary">🔊 Nochmal hören</button>
+        <button id="front-speak" class="secondary" data-t>🔊 Nochmal hören</button>
       </div>
 
       <!-- Rückseite -->
@@ -80,21 +78,21 @@
         <div id="back-merkhilfe" class="merkhilfe"></div>
         <div id="back-beispiel" class="beispiel"></div>
         <div class="speak-row">
-          <button id="back-speak" class="secondary">▶ Normal</button>
-          <button id="back-speak-slow" class="secondary">🐢 Langsam</button>
+          <button id="back-speak" class="secondary" data-t>▶ Normal</button>
+          <button id="back-speak-slow" class="secondary" data-t>🐢 Langsam</button>
         </div>
         <!-- Eigene Aussprache: aufnehmen und vergleichen, Verstanden-Test -->
         <div id="voice-row" class="speak-row voice-row">
-          <button id="hold-button" class="secondary hold">🎙 Halten und sprechen</button>
-          <button id="play-own" class="secondary" hidden>▶ Ich</button>
+          <button id="hold-button" class="secondary hold" data-t>🎙 Halten und sprechen</button>
+          <button id="play-own" class="secondary" hidden data-t>▶ Ich</button>
         </div>
         <!-- Ton-Kurve: eigene Tonhöhe (farbig) und Kanya (grau) -->
         <div id="tone-curve" class="tone-curve" hidden>
           <div id="tone-curve-svg"></div>
           <div class="curve-legend">
-            <span class="own">━ du</span>
-            <span id="tone-curve-kanya" class="kanya">━ Kanya</span>
-            <span class="muted">hoch ↑ · tief ↓</span>
+            <span class="own" data-t>━ du</span>
+            <span id="tone-curve-kanya" class="kanya" data-t>━ Kanya</span>
+            <span class="muted" data-t>hoch ↑ · tief ↓</span>
           </div>
         </div>
         <p id="voice-result" class="voice-result" hidden></p>
@@ -102,16 +100,16 @@
     </section>
 
     <div class="actions">
-      <button id="flip-button" class="primary big">Umdrehen</button>
+      <button id="flip-button" class="primary big" data-t>Umdrehen</button>
       <!-- Neue Karte: erst vorstellen, abgefragt wird sie am Ende der Runde -->
       <div id="intro-buttons" hidden>
-        <button id="intro-next" class="primary big">Gemerkt, weiter</button>
-        <p class="muted hint">Neue Karte: anhören und nachsprechen. Am Ende der Runde fragt die App sie ab.</p>
+        <button id="intro-next" class="primary big" data-t>Gemerkt, weiter</button>
+        <p class="muted hint" data-t>Neue Karte: anhören und nachsprechen. Am Ende der Runde fragt die App sie ab.</p>
       </div>
       <div id="rating-buttons" class="rating" hidden>
-        <button data-rating="nochmal" class="again">Nochmal</button>
-        <button data-rating="schwer" class="hard">Schwer</button>
-        <button data-rating="gewusst" class="good">Gewusst</button>
+        <button data-rating="nochmal" class="again" data-t>Nochmal</button>
+        <button data-rating="schwer" class="hard" data-t>Schwer</button>
+        <button data-rating="gewusst" class="good" data-t>Gewusst</button>
       </div>
     </div>
   </main>
@@ -119,131 +117,131 @@
   <!-- Hörübung: Auswahl der Übung -->
   <main id="view-listen-menu" hidden>
     <div class="topbar">
-      <button id="listen-menu-close" class="link">← Zurück</button>
+      <button id="listen-menu-close" class="link" data-t>← Zurück</button>
     </div>
-    <h1>Hörübung</h1>
-    <button id="listen-words" class="primary big">Wörter verstehen</button>
-    <button id="listen-tones" class="secondary big">Töne hören</button>
-    <p class="muted hint">Gleiche Silbe, anderer Ton: welches Wort war es?</p>
-    <h2>Zahlen und Preise</h2>
-    <p class="muted">Die App spricht eine Zahl, du tippst sie ein.</p>
-    <button class="secondary big" data-number-level="1">Zahlen 1 bis 10</button>
-    <button class="secondary big" data-number-level="2">Zahlen bis 100</button>
-    <button class="secondary big" data-number-level="3">Preise bis 1.000 Baht</button>
+    <h1 data-t>Hörübung</h1>
+    <button id="listen-words" class="primary big" data-t>Wörter verstehen</button>
+    <button id="listen-tones" class="secondary big" data-t>Töne hören</button>
+    <p class="muted hint" data-t>Gleiche Silbe, anderer Ton: welches Wort war es?</p>
+    <h2 data-t>Zahlen und Preise</h2>
+    <p class="muted" data-t>Die App spricht eine Zahl, du tippst sie ein.</p>
+    <button class="secondary big" data-number-level="1" data-t>Zahlen 1 bis 10</button>
+    <button class="secondary big" data-number-level="2" data-t>Zahlen bis 100</button>
+    <button class="secondary big" data-number-level="3" data-t>Preise bis 1.000 Baht</button>
   </main>
 
   <!-- Zahlen und Preise: Thai hören, Zahl eintippen -->
   <main id="view-numbers" hidden>
     <div class="topbar">
-      <button id="numbers-close" class="link">✕ Beenden</button>
+      <button id="numbers-close" class="link" data-t>✕ Beenden</button>
       <span id="numbers-counter" class="muted"></span>
     </div>
 
     <section id="numbers-question" class="card">
-      <p class="muted">Hör zu und tippe die Zahl ein:</p>
+      <p class="muted" data-t>Hör zu und tippe die Zahl ein:</p>
       <div class="speak-row">
-        <button id="numbers-speak" class="secondary">▶ Nochmal</button>
-        <button id="numbers-speak-slow" class="secondary">🐢 Langsam</button>
+        <button id="numbers-speak" class="secondary" data-t>▶ Nochmal</button>
+        <button id="numbers-speak-slow" class="secondary" data-t>🐢 Langsam</button>
       </div>
       <form id="numbers-form" class="number-form">
         <input id="numbers-input" type="text" inputmode="numeric" autocomplete="off" aria-label="Zahl">
-        <button id="numbers-check" class="primary" type="submit">Prüfen</button>
+        <button id="numbers-check" class="primary" type="submit" data-t>Prüfen</button>
       </form>
       <div id="numbers-feedback" class="number-feedback" hidden></div>
       <div id="numbers-solution" class="umschrift" hidden></div>
     </section>
 
-    <button id="numbers-next" class="primary big" hidden>Weiter</button>
+    <button id="numbers-next" class="primary big" hidden data-t>Weiter</button>
 
     <section id="numbers-result" class="panel" hidden>
       <div class="big-number" id="numbers-score"></div>
-      <div class="muted">richtig</div>
-      <p class="muted">Die Übung zählt nicht für die Fächer.</p>
-      <button id="numbers-again" class="primary big">Nochmal üben</button>
-      <button id="numbers-home" class="secondary big">Zur Startseite</button>
+      <div class="muted" data-t>richtig</div>
+      <p class="muted" data-t>Die Übung zählt nicht für die Fächer.</p>
+      <button id="numbers-again" class="primary big" data-t>Nochmal üben</button>
+      <button id="numbers-home" class="secondary big" data-t>Zur Startseite</button>
     </section>
   </main>
 
   <!-- 3. Hörübung: Thai hören, Bedeutung wählen -->
   <main id="view-listen" hidden>
     <div class="topbar">
-      <button id="listen-close" class="link">✕ Beenden</button>
+      <button id="listen-close" class="link" data-t>✕ Beenden</button>
       <span id="listen-counter" class="muted"></span>
     </div>
 
     <section id="listen-question" class="card">
-      <p class="muted">Hör zu: Was bedeutet das?</p>
+      <p class="muted" data-t>Hör zu: Was bedeutet das?</p>
       <div class="speak-row">
-        <button id="listen-speak" class="secondary">▶ Nochmal</button>
-        <button id="listen-speak-slow" class="secondary">🐢 Langsam</button>
+        <button id="listen-speak" class="secondary" data-t>▶ Nochmal</button>
+        <button id="listen-speak-slow" class="secondary" data-t>🐢 Langsam</button>
       </div>
       <div id="listen-solution" class="umschrift" hidden></div>
     </section>
 
     <div id="listen-options" class="options"></div>
-    <button id="listen-next" class="primary big" hidden>Weiter</button>
+    <button id="listen-next" class="primary big" hidden data-t>Weiter</button>
 
     <section id="listen-result" class="panel" hidden>
       <div class="big-number" id="listen-score"></div>
-      <div class="muted">richtig</div>
-      <p class="muted">Die Hörübung zählt nicht für die Fächer.</p>
-      <button id="listen-again" class="primary big">Nochmal üben</button>
-      <button id="listen-home" class="secondary big">Zur Startseite</button>
+      <div class="muted" data-t>richtig</div>
+      <p class="muted" data-t>Die Hörübung zählt nicht für die Fächer.</p>
+      <button id="listen-again" class="primary big" data-t>Nochmal üben</button>
+      <button id="listen-home" class="secondary big" data-t>Zur Startseite</button>
     </section>
   </main>
 
   <!-- Töne hören: ein Wort hören, die Umschrift mit dem richtigen Ton wählen -->
   <main id="view-tones" hidden>
     <div class="topbar">
-      <button id="tones-close" class="link">✕ Beenden</button>
+      <button id="tones-close" class="link" data-t>✕ Beenden</button>
       <span id="tones-counter" class="muted"></span>
     </div>
 
     <section id="tones-question" class="card">
-      <p class="muted">Hör zu: Welcher Ton war es?</p>
+      <p class="muted" data-t>Hör zu: Welcher Ton war es?</p>
       <div class="speak-row">
-        <button id="tones-speak" class="secondary">▶ Nochmal</button>
-        <button id="tones-speak-slow" class="secondary">🐢 Langsam</button>
+        <button id="tones-speak" class="secondary" data-t>▶ Nochmal</button>
+        <button id="tones-speak-slow" class="secondary" data-t>🐢 Langsam</button>
       </div>
       <div id="tones-solution" class="tone-solution" hidden></div>
     </section>
 
     <div id="tones-options" class="options tone-options"></div>
-    <button id="tones-next" class="primary big" hidden>Weiter</button>
+    <button id="tones-next" class="primary big" hidden data-t>Weiter</button>
 
     <section id="tones-result" class="panel" hidden>
       <div class="big-number" id="tones-score"></div>
-      <div class="muted">richtig</div>
-      <p class="muted">Die Übung zählt nicht für die Fächer.</p>
-      <button id="tones-again" class="primary big">Nochmal üben</button>
-      <button id="tones-home" class="secondary big">Zur Startseite</button>
+      <div class="muted" data-t>richtig</div>
+      <p class="muted" data-t>Die Übung zählt nicht für die Fächer.</p>
+      <button id="tones-again" class="primary big" data-t>Nochmal üben</button>
+      <button id="tones-home" class="secondary big" data-t>Zur Startseite</button>
     </section>
   </main>
 
   <!-- Dialoge: Auswahl -->
   <main id="view-dialog-list" hidden>
     <div class="topbar">
-      <button id="dialog-list-close" class="link">← Zurück</button>
+      <button id="dialog-list-close" class="link" data-t>← Zurück</button>
     </div>
-    <h1>Dialoge</h1>
-    <p class="muted">Kurze Gespräche aus deinen Einheiten. Zählen nicht für die Fächer.</p>
+    <h1 data-t>Dialoge</h1>
+    <p class="muted" data-t>Kurze Gespräche aus deinen Einheiten. Zählen nicht für die Fächer.</p>
     <div id="dialog-list"></div>
   </main>
 
   <!-- Dialoge: ein Gespräch anhören, mitsprechen oder selbst eine Rolle sprechen -->
   <main id="view-dialog" hidden>
     <div class="topbar">
-      <button id="dialog-close" class="link">← Dialoge</button>
+      <button id="dialog-close" class="link" data-t>← Dialoge</button>
       <span id="dialog-counter" class="muted"></span>
     </div>
     <h2 id="dialog-title"></h2>
     <div class="dialog-modes">
-      <button data-dialog-mode="hoeren">🎧 Anhören</button>
-      <button data-dialog-mode="mitsprechen">🗣 Mitsprechen</button>
-      <button data-dialog-mode="rolle">🎭 Deine Rolle</button>
+      <button data-dialog-mode="hoeren" data-t>🎧 Anhören</button>
+      <button data-dialog-mode="mitsprechen" data-t>🗣 Mitsprechen</button>
+      <button data-dialog-mode="rolle" data-t>🎭 Deine Rolle</button>
     </div>
     <div id="dialog-roles" class="dialog-roles" hidden>
-      <span class="muted">Du bist:</span>
+      <span class="muted" data-t>Du bist:</span>
       <button data-dialog-role="ich"></button>
       <button data-dialog-role="gegenueber"></button>
     </div>
@@ -254,66 +252,66 @@
     <!-- Deine Rolle: eigener Satz -->
     <div id="dialog-own" hidden>
       <div id="dialog-hold-row" class="speak-row voice-row">
-        <button id="dialog-hold" class="secondary hold">🎙 Halten und sprechen</button>
+        <button id="dialog-hold" class="secondary hold" data-t>🎙 Halten und sprechen</button>
       </div>
       <p id="dialog-voice-note" class="voice-result" hidden></p>
-      <button id="dialog-reveal" class="primary big">Auflösen</button>
+      <button id="dialog-reveal" class="primary big" data-t>Auflösen</button>
       <div id="dialog-after" hidden>
         <div class="speak-row">
-          <button id="dialog-again" class="secondary">▶ Nochmal</button>
-          <button id="dialog-play-own" class="secondary" hidden>▶ Ich</button>
+          <button id="dialog-again" class="secondary" data-t>▶ Nochmal</button>
+          <button id="dialog-play-own" class="secondary" hidden data-t>▶ Ich</button>
         </div>
-        <button id="dialog-next" class="primary big">Weiter</button>
+        <button id="dialog-next" class="primary big" data-t>Weiter</button>
       </div>
     </div>
 
     <section id="dialog-end" class="panel dialog-end" hidden>
       <div id="dialog-end-title" class="dialog-end-title"></div>
-      <button id="dialog-restart" class="primary big">Nochmal</button>
+      <button id="dialog-restart" class="primary big" data-t>Nochmal</button>
       <button id="dialog-to-role" class="secondary big"></button>
-      <button id="dialog-back-list" class="secondary big">Andere Dialoge</button>
+      <button id="dialog-back-list" class="secondary big" data-t>Andere Dialoge</button>
     </section>
 
     <div class="dialog-tools">
-      <button id="dialog-pause" class="secondary">⏸ Pause</button>
-      <button id="dialog-slow" class="secondary">🐢 Langsam</button>
-      <button id="dialog-german" class="secondary">Deutsch aus</button>
+      <button id="dialog-pause" class="secondary" data-t>⏸ Pause</button>
+      <button id="dialog-slow" class="secondary" data-t>🐢 Langsam</button>
+      <button id="dialog-german" class="secondary" data-t>Deutsch aus</button>
     </div>
   </main>
 
   <!-- 4. Lernstatistik -->
   <main id="view-stats" hidden>
     <div class="topbar">
-      <button id="stats-close" class="link">← Zurück</button>
+      <button id="stats-close" class="link" data-t>← Zurück</button>
     </div>
-    <h1>Statistik</h1>
+    <h1 data-t>Statistik</h1>
 
     <section class="panel stat-row">
-      <div><div class="big-number" id="stats-streak">0</div><div class="muted">Lerntage in Folge</div></div>
-      <div><div class="big-number" id="stats-days">0</div><div class="muted">Lerntage gesamt</div></div>
+      <div><div class="big-number" id="stats-streak">0</div><div class="muted" data-t>Lerntage in Folge</div></div>
+      <div><div class="big-number" id="stats-days">0</div><div class="muted" data-t>Lerntage gesamt</div></div>
     </section>
 
     <section class="panel">
-      <h2>Karten pro Fach</h2>
+      <h2 data-t>Karten pro Fach</h2>
       <div id="stats-boxes" class="boxes"></div>
-      <p class="muted">Ab Fach 4 gilt eine Karte als sicher.</p>
+      <p class="muted" data-t>Ab Fach 4 gilt eine Karte als sicher.</p>
     </section>
 
     <section class="panel">
-      <h2>Pro Thema</h2>
+      <h2 data-t>Pro Thema</h2>
       <div id="stats-themes"></div>
     </section>
 
     <section class="panel">
-      <h2>Wiederholungen der nächsten 7 Tage</h2>
+      <h2 data-t>Wiederholungen der nächsten 7 Tage</h2>
       <div id="stats-forecast" class="forecast"></div>
     </section>
 
     <section class="panel">
-      <h2>Lernstand sichern</h2>
-      <p class="muted">Dein Lernstand ist nur auf diesem Gerät gespeichert. Sichere ihn ab und zu als Datei, z. B. in iCloud Drive. Mit „Lernstand laden“ holst du ihn zurück, auch auf ein anderes Gerät.</p>
-      <button id="backup-save" class="secondary big">💾 Lernstand sichern</button>
-      <button id="backup-load" class="secondary big">📂 Lernstand laden</button>
+      <h2 data-t>Lernstand sichern</h2>
+      <p class="muted" data-t>Dein Lernstand ist nur auf diesem Gerät gespeichert. Sichere ihn ab und zu als Datei, z. B. in iCloud Drive. Mit „Lernstand laden“ holst du ihn zurück, auch auf ein anderes Gerät.</p>
+      <button id="backup-save" class="secondary big" data-t>💾 Lernstand sichern</button>
+      <button id="backup-load" class="secondary big" data-t>📂 Lernstand laden</button>
       <input id="backup-file" type="file" accept=".json,application/json" hidden>
       <p id="backup-message" class="muted" hidden></p>
     </section>
@@ -322,22 +320,22 @@
   <!-- 5. Übersicht aller Karten -->
   <main id="view-overview" hidden>
     <div class="topbar">
-      <button id="overview-close" class="link">← Zurück</button>
+      <button id="overview-close" class="link" data-t>← Zurück</button>
     </div>
-    <h1>Alle Karten</h1>
+    <h1 data-t>Alle Karten</h1>
     <div id="overview-list"></div>
   </main>
 
   <!-- 6. Themen-Seite: woraus die neuen Karten kommen -->
   <main id="view-topics" hidden>
     <div class="topbar">
-      <button id="topics-close" class="link">← Zurück</button>
+      <button id="topics-close" class="link" data-t>← Zurück</button>
     </div>
-    <h1>Neue Karten aus …</h1>
-    <p class="muted">Bereich antippen = ganzer Bereich. Der Pfeil klappt ihn auf, dann kannst du ein einzelnes Thema wählen.</p>
+    <h1 data-t>Neue Karten aus …</h1>
+    <p class="muted" data-t>Bereich antippen = ganzer Bereich. Der Pfeil klappt ihn auf, dann kannst du ein einzelnes Thema wählen.</p>
     <div id="topics-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7.5"></script>
+  <script type="module" src="js/app.js?v=1.8.0"></script>
 </body>
 </html>

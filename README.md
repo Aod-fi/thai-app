@@ -14,6 +14,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `js/app.js` | Der Ablauf: Karte zeigen, umdrehen, bewerten |
 | `js/leitner.js` | Die Regeln, wann eine Karte wiederkommt (5 Fächer) |
 | `js/storage.js` | Speichert den Lernstand auf dem Gerät |
+| `js/sprache.js` | Sprachwahl Deutsch/Englisch und alle englischen Texte der Bedienung |
 | `js/backup.js` | Lernstand sichern und laden (Prüfen der Sicherungsdatei) |
 | `js/speech.js` | Die Sprachausgabe mit der Thai-Stimme |
 | `js/pitch.js` | Ton-Kurve: berechnet die Tonhöhe einer Aufnahme |
@@ -47,7 +48,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 3. Die Felder ausfüllen:
 
 ```json
-{ "id": "taxi-links", "einheit": "4a", "thema": "Taxi", "umschrift": "líao sáai", "thai": "เลี้ยวซ้าย", "deutsch": "links abbiegen", "merkhilfe": "sáai = links" }
+{ "id": "taxi-links", "einheit": "4a", "thema": "Taxi", "umschrift": "líao sáai", "thai": "เลี้ยวซ้าย", "deutsch": "links abbiegen", "merkhilfe": "sáai = links", "englisch": "turn left", "merkhilfe_en": "sáai = left" }
 ```
 
 | Feld | Pflicht | Bedeutung |
@@ -59,6 +60,9 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `thai` | ja | Thai-Schrift, wird nur vorgelesen, nie angezeigt |
 | `deutsch` | ja | Bedeutung |
 | `merkhilfe` | ja | Eselsbrücke |
+| `englisch` | ja | Bedeutung auf Englisch |
+| `merkhilfe_en` | ja | Eselsbrücke auf Englisch (für Englischsprachige neu ausgedacht, nicht nur übersetzt) |
+| `beispiel_en` | nein | Beispielsatz mit englischer Bedeutung |
 | `beispiel` | nein | Beispielsatz in Umschrift |
 | `aufpassen` | nein | `true` bei Schwachstellen |
 
@@ -76,6 +80,21 @@ Läuft auf iPhone, iPad und Mac, auch offline.
    Die andere Person ist eine Frau und sagt khâ/khá. Beim Rollenwechsel macht die App daraus automatisch khráp.
 4. Prüfen: `npm run check`, dann Tondateien erzeugen: `zsh scripts/make-audio.sh`
    (fehlt eine Tondatei, liest die Thai-Stimme des Geräts den Satz vor).
+
+## Englische Fassung
+
+Unten auf der Startseite stehen **Deutsch · English**. Beim ersten Öffnen nimmt die App die Sprache des Geräts.
+Die Wahl gilt nur für das jeweilige Gerät.
+
+- Texte der Bedienung: in `js/sprache.js` ganz unten, links Deutsch, rechts Englisch.
+  Im Programm steht `t("Deutscher Text")`, feste Texte in `index.html` haben das Merkmal `data-t`.
+- Karten: Felder `englisch`, `merkhilfe_en`, `beispiel_en` (siehe oben).
+- Dialoge: `titel_en`, `rollen_en` und bei jedem Satz `englisch`.
+- Töne hören (`inhalte/toene.json`): bei jedem Wort `englisch`.
+- Bereiche (`inhalte/bereiche.json`): `name_en` und `themen_en` (englische Namen der Themen).
+  Der deutsche Themenname bleibt der Schlüssel, z. B. `"thema": "Taxi"`.
+
+`npm run check` meldet, wo eine englische Fassung fehlt.
 
 ## Eine Farbe ändern
 

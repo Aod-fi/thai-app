@@ -263,3 +263,8 @@ button:disabled { opacity: 0.5; cursor: default; }
 .dialog-tools button.on { background: var(--accent); color: #ffffff; }
 .dialog-end { text-align: center; }
 .dialog-end-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
+
+/* Sprachwahl unten auf der Startseite */
+.language-switch { text-align: center; color: var(--muted); margin: -8px 0 16px; }
+.language-switch .link { padding: 4px 6px; color: var(--muted); }
+.language-switch .link.on { color: var(--accent); font-weight: 700; }

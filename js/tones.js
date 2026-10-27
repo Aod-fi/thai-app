@@ -3,6 +3,7 @@
 // Nur Rechnen, keine Anzeige. Getestet in tests/tones.test.mjs.
 
 import { shuffle } from "./extras.js";
+import { t } from "./sprache.js";
 
 // Tonzeichen der Umschrift (als eigene Zeichen nach dem Vokal, Unicode "NFD")
 export const TONES = {
@@ -43,20 +44,20 @@ export function toneHint(umschrift, movement) {
   const syllable = singleSyllable(umschrift);
   if (!syllable) return null;
   const tone = toneOf(syllable);
-  const label = tone === "mittel" ? "mittel (keine Marke)" : `${tone} (${TONES[tone].mark})`;
+  const label = tone === "mittel" ? t("mittel (keine Marke)") : `${t(tone)} (${TONES[tone].mark})`;
 
   if (movement === null || movement === undefined) {
-    return { text: `Ton: ${label}. Deine Kurve war zu kurz zum Vergleichen.`, kind: "" };
+    return { text: t("Ton: {label}. Deine Kurve war zu kurz zum Vergleichen.", { label }), kind: "" };
   }
   if (tone === "fallend") {
     return movement <= STEP.fallend
-      ? { text: `Ton: ${label}. Deine Stimme fällt am Ende, das passt gut.`, kind: "ok" }
-      : { text: `Ton: ${label}. Die Stimme sollte am Ende deutlich fallen, bei dir eher wenig. Vergleiche mit der grauen Linie.`, kind: "" };
+      ? { text: t("Ton: {label}. Deine Stimme fällt am Ende, das passt gut.", { label }), kind: "ok" }
+      : { text: t("Ton: {label}. Die Stimme sollte am Ende deutlich fallen, bei dir eher wenig. Vergleiche mit der grauen Linie.", { label }), kind: "" };
   }
   if (tone === "steigend") {
     return movement >= STEP.steigend
-      ? { text: `Ton: ${label}. Deine Stimme steigt am Ende, das passt gut.`, kind: "ok" }
-      : { text: `Ton: ${label}. Die Stimme sollte erst etwas sinken und am Ende hochgehen, bei dir eher wenig. Vergleiche mit der grauen Linie.`, kind: "" };
+      ? { text: t("Ton: {label}. Deine Stimme steigt am Ende, das passt gut.", { label }), kind: "ok" }
+      : { text: t("Ton: {label}. Die Stimme sollte erst etwas sinken und am Ende hochgehen, bei dir eher wenig. Vergleiche mit der grauen Linie.", { label }), kind: "" };
   }
   // Mittel, tief und hoch lassen sich ohne feste Bezugshöhe nicht sicher prüfen
   const expect = {
@@ -64,7 +65,7 @@ export function toneHint(umschrift, movement) {
     tief: "Die Stimme bleibt tief und ruhig, am Ende eher etwas tiefer.",
     hoch: "Die Stimme liegt hoch, oft mit leichtem Anstieg.",
   };
-  return { text: `Ton: ${label}. ${expect[tone]} Vergleiche mit der grauen Linie.`, kind: "" };
+  return { text: t("Ton: {label}.", { label }) + " " + t(expect[tone]) + " " + t("Vergleiche mit der grauen Linie."), kind: "" };
 }
 
 export const TONE_QUESTIONS = 10;

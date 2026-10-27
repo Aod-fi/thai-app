@@ -16,6 +16,7 @@ const FILES = [
   "js/speech.js",
   "js/extras.js",
   "js/backup.js",
+  "js/sprache.js",
   "js/recorder.js",
   "js/voice-check.js",
   "js/numbers.js",
