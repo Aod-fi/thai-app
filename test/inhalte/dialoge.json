@@ -1,0 +1,180 @@
+[
+  {
+    "id": "markt-handeln", "thema": "Markt", "titel": "Handeln auf dem Markt", "einheit": "2–3",
+    "titel_en": "Haggling at the market",
+    "rollen": { "ich": "Kunde", "gegenueber": "Verkäuferin" },
+    "rollen_en": { "ich": "Customer", "gegenueber": "Seller" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "an níi tâo-rài khráp?", "thai": "อันนี้เท่าไหร่ครับ", "deutsch": "Was kostet das hier?", "englisch": "How much is this?" },
+      { "wer": "gegenueber", "umschrift": "pɛ̀ɛt-sìp bàat khâ.", "thai": "แปดสิบบาทค่ะ", "deutsch": "80 Baht.", "englisch": "80 baht." },
+      { "wer": "ich", "umschrift": "phɛɛng pai khráp. lót dâi mǎi khráp?", "thai": "แพงไปครับ ลดได้ไหมครับ", "deutsch": "Zu teuer. Geht ein Rabatt?", "englisch": "Too expensive. Can you give a discount?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ. hòk-sìp bàat khâ.", "thai": "ได้ค่ะ หกสิบบาทค่ะ", "deutsch": "Geht. 60 Baht.", "englisch": "Okay. 60 baht." },
+      { "wer": "ich", "umschrift": "oo-khee khráp. ao an níi khráp.", "thai": "โอเคครับ เอาอันนี้ครับ", "deutsch": "Okay. Ich nehme das hier.", "englisch": "Okay. I'll take this one." },
+      { "wer": "gegenueber", "umschrift": "khɔ̀ɔp-khun khâ.", "thai": "ขอบคุณค่ะ", "deutsch": "Danke.", "englisch": "Thank you." }
+    ]
+  },
+  {
+    "id": "taxi-einsteigen", "thema": "Taxi", "titel": "Einsteigen", "einheit": "4",
+    "titel_en": "Getting in",
+    "rollen": { "ich": "Fahrgast", "gegenueber": "Fahrerin" },
+    "rollen_en": { "ich": "Passenger", "gegenueber": "Driver" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ. pai nǎi khá?", "thai": "สวัสดีค่ะ ไปไหนคะ", "deutsch": "Hallo. Wohin?", "englisch": "Hello. Where to?" },
+      { "wer": "ich", "umschrift": "sà-wàt-dii khráp. pai Central khráp.", "thai": "สวัสดีครับ ไปเซ็นทรัลครับ", "deutsch": "Hallo. Zum Central, bitte.", "englisch": "Hello. To Central, please." },
+      { "wer": "ich", "umschrift": "pə̀ət mí-tə̂ə dâi mǎi khráp?", "thai": "เปิดมิเตอร์ได้ไหมครับ", "deutsch": "Machen Sie das Taxameter an?", "englisch": "Could you turn on the meter?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ.", "thai": "ได้ค่ะ", "deutsch": "Ja, geht.", "englisch": "Yes, sure." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp.", "thai": "ขอบคุณครับ", "deutsch": "Danke.", "englisch": "Thank you." },
+      { "wer": "gegenueber", "umschrift": "mâi pen rai khâ.", "thai": "ไม่เป็นไรค่ะ", "deutsch": "Gern geschehen.", "englisch": "You're welcome." }
+    ]
+  },
+  {
+    "id": "taxi-weg", "thema": "Taxi", "titel": "Den Weg zeigen", "einheit": "5",
+    "titel_en": "Giving directions",
+    "rollen": { "ich": "Fahrgast", "gegenueber": "Fahrerin" },
+    "rollen_en": { "ich": "Passenger", "gegenueber": "Driver" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "líao sáai mǎi khá?", "thai": "เลี้ยวซ้ายไหมคะ", "deutsch": "Links abbiegen?", "englisch": "Turn left?" },
+      { "wer": "ich", "umschrift": "mâi líao sáai khráp. trong pai khráp.", "thai": "ไม่เลี้ยวซ้ายครับ ตรงไปครับ", "deutsch": "Nicht links. Geradeaus.", "englisch": "Not left. Straight on." },
+      { "wer": "gegenueber", "umschrift": "oo-khee khâ.", "thai": "โอเคค่ะ", "deutsch": "Okay.", "englisch": "Okay." },
+      { "wer": "ich", "umschrift": "lɛ́ɛo líao khwǎa khráp.", "thai": "แล้วเลี้ยวขวาครับ", "deutsch": "Dann rechts abbiegen.", "englisch": "Then turn right." },
+      { "wer": "ich", "umschrift": "jɔ̀ɔt thîi-nân khráp.", "thai": "จอดที่นั่นครับ", "deutsch": "Halten Sie dort.", "englisch": "Stop there." },
+      { "wer": "gegenueber", "umschrift": "dâi khâ.", "thai": "ได้ค่ะ", "deutsch": "Geht.", "englisch": "Sure." }
+    ]
+  },
+  {
+    "id": "taxi-zahlen", "thema": "Taxi", "titel": "Ankommen und zahlen", "einheit": "6",
+    "titel_en": "Arriving and paying",
+    "rollen": { "ich": "Fahrgast", "gegenueber": "Fahrerin" },
+    "rollen_en": { "ich": "Passenger", "gegenueber": "Driver" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "cháa cháa nɔ̀i khráp.", "thai": "ช้าๆหน่อยครับ", "deutsch": "Etwas langsamer, bitte.", "englisch": "A bit slower, please." },
+      { "wer": "gegenueber", "umschrift": "thʉ̌ng lɛ́ɛo khâ.", "thai": "ถึงแล้วค่ะ", "deutsch": "Wir sind da.", "englisch": "We're here." },
+      { "wer": "ich", "umschrift": "khâa rót tâo-rài khráp?", "thai": "ค่ารถเท่าไหร่ครับ", "deutsch": "Was kostet die Fahrt?", "englisch": "How much is the fare?" },
+      { "wer": "gegenueber", "umschrift": "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat khâ.", "thai": "สองร้อยห้าสิบบาทค่ะ", "deutsch": "250 Baht.", "englisch": "250 baht." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. sà-wàt-dii khráp.", "thai": "ขอบคุณครับ สวัสดีครับ", "deutsch": "Danke. Tschüss.", "englisch": "Thank you. Bye." },
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ.", "thai": "สวัสดีค่ะ", "deutsch": "Tschüss.", "englisch": "Bye." }
+    ]
+  },
+  {
+    "id": "essen-bestellen", "thema": "Essen", "titel": "Im Restaurant bestellen", "einheit": "7–8",
+    "titel_en": "Ordering at a restaurant",
+    "rollen": { "ich": "Gast", "gegenueber": "Bedienung" },
+    "rollen_en": { "ich": "Guest", "gegenueber": "Waitress" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "nɔ́ɔng khráp!", "thai": "น้องครับ", "deutsch": "Entschuldigung! (Bedienung rufen)", "englisch": "Excuse me! (calling the waitress)" },
+      { "wer": "gegenueber", "umschrift": "khâ.", "thai": "ค่ะ", "deutsch": "Ja?", "englisch": "Yes?" },
+      { "wer": "ich", "umschrift": "khɔ̌ɔ khâao phàt kài nɔ̀i khráp. mâi phèt khráp.", "thai": "ขอข้าวผัดไก่หน่อยครับ ไม่เผ็ดครับ", "deutsch": "Gebratenen Reis mit Huhn, bitte. Nicht scharf.", "englisch": "Fried rice with chicken, please. Not spicy." },
+      { "wer": "ich", "umschrift": "khɔ̌ɔ náam plàao nɔ̀i khráp.", "thai": "ขอน้ำเปล่าหน่อยครับ", "deutsch": "Ein Wasser, bitte.", "englisch": "A water, please." },
+      { "wer": "gegenueber", "umschrift": "khâ.", "thai": "ค่ะ", "deutsch": "Gern.", "englisch": "Sure." },
+      { "wer": "ich", "umschrift": "à-ròi mâak khráp. gèp tang khráp.", "thai": "อร่อยมากครับ เก็บตังค์ครับ", "deutsch": "Sehr lecker. Zahlen, bitte.", "englisch": "Very tasty. The bill, please." },
+      { "wer": "gegenueber", "umschrift": "sǎam-sìp hâa bàat khâ.", "thai": "สามสิบห้าบาทค่ะ", "deutsch": "35 Baht.", "englisch": "35 baht." }
+    ]
+  },
+  {
+    "id": "small-kennenlernen", "thema": "Small Talk", "titel": "Sich vorstellen", "einheit": "9",
+    "titel_en": "Introducing yourself",
+    "rollen": { "ich": "Du", "gegenueber": "Nachbarin" },
+    "rollen_en": { "ich": "You", "gegenueber": "Neighbour" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ. khun chʉ̂ʉ à-rai khá?", "thai": "สวัสดีค่ะ คุณชื่ออะไรคะ", "deutsch": "Hallo. Wie heißt du?", "englisch": "Hello. What's your name?" },
+      { "wer": "ich", "umschrift": "phǒm chʉ̂ʉ Aod khráp. yin-dii thîi dâi rúu-jàk khráp.", "thai": "ผมชื่ออ๊อดครับ ยินดีที่ได้รู้จักครับ", "deutsch": "Ich heiße Aod. Freut mich.", "englisch": "My name is Aod. Nice to meet you." },
+      { "wer": "gegenueber", "umschrift": "khun maa jàak nǎi khá?", "thai": "คุณมาจากไหนคะ", "deutsch": "Woher kommst du?", "englisch": "Where are you from?" },
+      { "wer": "ich", "umschrift": "phǒm maa jàak yəə-rá-man khráp. phûut thai nít nɔ̀i khráp.", "thai": "ผมมาจากเยอรมันครับ พูดไทยนิดหน่อยครับ", "deutsch": "Aus Deutschland. Ich spreche ein bisschen Thai.", "englisch": "From Germany. I speak a little Thai." },
+      { "wer": "gegenueber", "umschrift": "wan-níi rɔ́ɔn mâak ná khá.", "thai": "วันนี้ร้อนมากนะคะ", "deutsch": "Heute ist es sehr heiß, oder?", "englisch": "It's very hot today, isn't it?" },
+      { "wer": "ich", "umschrift": "châi khráp. rɔ́ɔn mâak khráp.", "thai": "ใช่ครับ ร้อนมากครับ", "deutsch": "Ja, stimmt. Sehr heiß.", "englisch": "Yes, it is. Very hot." }
+    ]
+  },
+  {
+    "id": "nachbarn-plaudern", "thema": "Nachbarn", "titel": "Plaudern mit der Nachbarin", "einheit": "10",
+    "titel_en": "Chatting with the neighbour",
+    "rollen": { "ich": "Du", "gegenueber": "Nachbarin" },
+    "rollen_en": { "ich": "You", "gegenueber": "Neighbour" },
+    "saetze": [
+      { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ. sà-baai-dii mǎi khá?", "thai": "สวัสดีค่ะ สบายดีไหมคะ", "deutsch": "Hallo. Wie geht's?", "englisch": "Hello. How are you?" },
+      { "wer": "ich", "umschrift": "sà-baai-dii khráp. lɛ́ɛo khun lâ khráp?", "thai": "สบายดีครับ แล้วคุณล่ะครับ", "deutsch": "Gut. Und dir?", "englisch": "Fine. And you?" },
+      { "wer": "gegenueber", "umschrift": "sà-baai-dii khâ. bâan yùu thîi nǎi khá?", "thai": "สบายดีค่ะ บ้านอยู่ที่ไหนคะ", "deutsch": "Gut. Wo wohnst du?", "englisch": "Fine. Where do you live?" },
+      { "wer": "ich", "umschrift": "phǒm yùu thîi-nîi khráp.", "thai": "ผมอยู่ที่นี่ครับ", "deutsch": "Ich wohne hier.", "englisch": "I live here." },
+      { "wer": "gegenueber", "umschrift": "mii lûuk mǎi khá?", "thai": "มีลูกไหมคะ", "deutsch": "Hast du Kinder?", "englisch": "Do you have children?" },
+      { "wer": "ich", "umschrift": "mâi mii khráp. phǒm mii mǎa khráp.", "thai": "ไม่มีครับ ผมมีหมาครับ", "deutsch": "Nein. Ich habe einen Hund.", "englisch": "No. I have a dog." },
+      { "wer": "ich", "umschrift": "pai kɔ̀ɔn ná khráp. phóp kan mài phrûng-níi khráp.", "thai": "ไปก่อนนะครับ พบกันใหม่พรุ่งนี้ครับ", "deutsch": "Ich geh dann mal. Bis morgen.", "englisch": "I'll be off then. See you tomorrow." }
+    ]
+  },
+  {
+    "id": "dating-einladen", "thema": "Dating", "titel": "Zum Essen einladen", "einheit": "11",
+    "titel_en": "Asking her out for dinner",
+    "rollen": { "ich": "Du", "gegenueber": "Sie" },
+    "rollen_en": { "ich": "You", "gegenueber": "Her" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "khun sǔai mâak khráp.", "thai": "คุณสวยมากครับ", "deutsch": "Du bist sehr schön.", "englisch": "You're very beautiful." },
+      { "wer": "gegenueber", "umschrift": "pàak wǎan ná khá!", "thai": "ปากหวานนะคะ", "deutsch": "Du Schmeichler!", "englisch": "Smooth talker!" },
+      { "wer": "ich", "umschrift": "mii fɛɛn rʉ̌ʉ yang khráp?", "thai": "มีแฟนหรือยังครับ", "deutsch": "Hast du schon einen Freund?", "englisch": "Do you have a boyfriend yet?" },
+      { "wer": "gegenueber", "umschrift": "yang mâi mii khâ.", "thai": "ยังไม่มีค่ะ", "deutsch": "Noch nicht.", "englisch": "Not yet." },
+      { "wer": "ich", "umschrift": "pai kin khâao dûai kan mǎi khráp?", "thai": "ไปกินข้าวด้วยกันไหมครับ", "deutsch": "Gehen wir zusammen essen?", "englisch": "Shall we go out to eat together?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ. khɔ̌ɔ LINE nɔ̀i khâ.", "thai": "ได้ค่ะ ขอไลน์หน่อยค่ะ", "deutsch": "Gern. Gib mir deine LINE.", "englisch": "Sure. Give me your LINE." },
+      { "wer": "ich", "umschrift": "oo-khee khráp. khɔ̀ɔp-khun khráp.", "thai": "โอเคครับ ขอบคุณครับ", "deutsch": "Okay. Danke.", "englisch": "Okay. Thank you." }
+    ]
+  },
+  {
+    "id": "einkauf-laden", "thema": "Einkaufen", "titel": "Im Laden einkaufen", "einheit": "12",
+    "titel_en": "Shopping in a store",
+    "rollen": { "ich": "Kunde", "gegenueber": "Verkäuferin" },
+    "rollen_en": { "ich": "Customer", "gegenueber": "Shop assistant" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "an níi mii sǐi ʉ̀ʉn mǎi khráp?", "thai": "อันนี้มีสีอื่นไหมครับ", "deutsch": "Gibt es das hier in einer anderen Farbe?", "englisch": "Do you have this in another colour?" },
+      { "wer": "gegenueber", "umschrift": "mii khâ. nîi khâ.", "thai": "มีค่ะ นี่ค่ะ", "deutsch": "Ja. Hier, bitte.", "englisch": "Yes. Here you are." },
+      { "wer": "ich", "umschrift": "ao sɔ̌ɔng an khráp. tâo-rài khráp?", "thai": "เอาสองอันครับ เท่าไหร่ครับ", "deutsch": "Ich nehme zwei Stück. Was macht das?", "englisch": "I'll take two. How much is that?" },
+      { "wer": "gegenueber", "umschrift": "sǎam rɔ́ɔi bàat khâ.", "thai": "สามร้อยบาทค่ะ", "deutsch": "300 Baht.", "englisch": "300 baht." },
+      { "wer": "ich", "umschrift": "jàai dûai bàt dâi mǎi khráp?", "thai": "จ่ายด้วยบัตรได้ไหมครับ", "deutsch": "Kann ich mit Karte zahlen?", "englisch": "Can I pay by card?" },
+      { "wer": "gegenueber", "umschrift": "mâi dâi khâ. ngən sòt khâ.", "thai": "ไม่ได้ค่ะ เงินสดค่ะ", "deutsch": "Nein, nur bar (ngən sòt = Bargeld).", "englisch": "No, cash only (ngən sòt = cash)." },
+      { "wer": "ich", "umschrift": "oo-khee khráp. mâi ao thǔng khráp.", "thai": "โอเคครับ ไม่เอาถุงครับ", "deutsch": "Okay. Keine Tüte, bitte.", "englisch": "Okay. No bag, please." },
+      { "wer": "gegenueber", "umschrift": "khɔ̀ɔp-khun khâ.", "thai": "ขอบคุณค่ะ", "deutsch": "Danke.", "englisch": "Thank you." }
+    ]
+  },
+  {
+    "id": "hotel-einchecken", "thema": "Hotel", "titel": "Im Hotel einchecken", "einheit": "13",
+    "titel_en": "Checking in at the hotel",
+    "rollen": { "ich": "Gast", "gegenueber": "Rezeption" },
+    "rollen_en": { "ich": "Guest", "gegenueber": "Reception" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "sà-wàt-dii khráp. mii hɔ̂ng wâang mǎi khráp?", "thai": "สวัสดีครับ มีห้องว่างไหมครับ", "deutsch": "Hallo. Haben Sie ein Zimmer frei?", "englisch": "Hello. Do you have a room free?" },
+      { "wer": "gegenueber", "umschrift": "mii khâ. yùu kìi khʉʉn khá?", "thai": "มีค่ะ อยู่กี่คืนคะ", "deutsch": "Ja. Wie viele Nächte bleiben Sie?", "englisch": "Yes. How many nights are you staying?" },
+      { "wer": "ich", "umschrift": "sɔ̌ɔng khʉʉn khráp. khʉʉn lá tâo-rài khráp?", "thai": "สองคืนครับ คืนละเท่าไหร่ครับ", "deutsch": "Zwei Nächte. Was kostet eine Nacht?", "englisch": "Two nights. How much is it per night?" },
+      { "wer": "gegenueber", "umschrift": "khʉʉn lá kâo rɔ́ɔi bàat khâ.", "thai": "คืนละเก้าร้อยบาทค่ะ", "deutsch": "900 Baht pro Nacht.", "englisch": "900 baht per night." },
+      { "wer": "ich", "umschrift": "oo-khee khráp.", "thai": "โอเคครับ", "deutsch": "Okay.", "englisch": "Okay." },
+      { "wer": "gegenueber", "umschrift": "nîi kun-jɛɛ khâ.", "thai": "นี่กุญแจค่ะ", "deutsch": "Hier ist der Schlüssel.", "englisch": "Here's the key." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. rá-hàt wai-fai à-rai khráp?", "thai": "ขอบคุณครับ รหัสไวไฟอะไรครับ", "deutsch": "Danke. Wie ist das WLAN-Passwort?", "englisch": "Thank you. What's the Wi-Fi password?" },
+      { "wer": "gegenueber", "umschrift": "nʉ̀ng sɔ̌ɔng sǎam sìi hâa hòk khâ.", "thai": "หนึ่งสองสามสี่ห้าหกค่ะ", "deutsch": "1 2 3 4 5 6.", "englisch": "1 2 3 4 5 6." }
+    ]
+  },
+  {
+    "id": "zeit-verabreden", "thema": "Zeit", "titel": "Sich verabreden", "einheit": "14–15",
+    "titel_en": "Making plans",
+    "rollen": { "ich": "Du", "gegenueber": "Bekannte" },
+    "rollen_en": { "ich": "You", "gegenueber": "Friend" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "phrûng-níi wâang mǎi khráp?", "thai": "พรุ่งนี้ว่างไหมครับ", "deutsch": "Hast du morgen Zeit?", "englisch": "Are you free tomorrow?" },
+      { "wer": "gegenueber", "umschrift": "phrûng-níi mâi wâang khâ. wan sǎo wâang khâ.", "thai": "พรุ่งนี้ไม่ว่างค่ะ วันเสาร์ว่างค่ะ", "deutsch": "Morgen nicht. Am Samstag habe ich Zeit.", "englisch": "Not tomorrow. I'm free on Saturday." },
+      { "wer": "ich", "umschrift": "wan sǎo pai kin khâao dûai kan mǎi khráp?", "thai": "วันเสาร์ไปกินข้าวด้วยกันไหมครับ", "deutsch": "Gehen wir Samstag zusammen essen?", "englisch": "Shall we go out to eat on Saturday?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ. kìi moong khá?", "thai": "ได้ค่ะ กี่โมงคะ", "deutsch": "Gern. Um wie viel Uhr?", "englisch": "Sure. What time?" },
+      { "wer": "ich", "umschrift": "hòk moong yen khráp.", "thai": "หกโมงเย็นครับ", "deutsch": "Um sechs Uhr abends.", "englisch": "Six in the evening." },
+      { "wer": "gegenueber", "umschrift": "oo-khee khâ. phóp kan wan sǎo ná khá.", "thai": "โอเคค่ะ พบกันวันเสาร์นะคะ", "deutsch": "Okay. Bis Samstag!", "englisch": "Okay. See you on Saturday!" },
+      { "wer": "ich", "umschrift": "phóp kan wan sǎo khráp.", "thai": "พบกันวันเสาร์ครับ", "deutsch": "Bis Samstag!", "englisch": "See you on Saturday!" }
+    ]
+  },
+  {
+    "id": "notfall-apotheke", "thema": "Gesundheit & Notfall", "titel": "In der Apotheke", "einheit": "16",
+    "titel_en": "At the pharmacy",
+    "rollen": { "ich": "Kunde", "gegenueber": "Apothekerin" },
+    "rollen_en": { "ich": "Customer", "gegenueber": "Pharmacist" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "sà-wàt-dii khráp. phǒm pùat hǔa mâak khráp.", "thai": "สวัสดีครับ ผมปวดหัวมากครับ", "deutsch": "Hallo. Ich habe starke Kopfschmerzen.", "englisch": "Hello. I have a bad headache." },
+      { "wer": "gegenueber", "umschrift": "pen khâi dûai mǎi khá?", "thai": "เป็นไข้ด้วยไหมคะ", "deutsch": "Haben Sie auch Fieber?", "englisch": "Do you have a fever too?" },
+      { "wer": "ich", "umschrift": "mâi pen khâi khráp.", "thai": "ไม่เป็นไข้ครับ", "deutsch": "Nein, kein Fieber.", "englisch": "No, no fever." },
+      { "wer": "gegenueber", "umschrift": "phɛ́ɛ yaa à-rai mǎi khá?", "thai": "แพ้ยาอะไรไหมคะ", "deutsch": "Sind Sie gegen ein Medikament allergisch?", "englisch": "Are you allergic to any medicine?" },
+      { "wer": "ich", "umschrift": "mâi phɛ́ɛ khráp.", "thai": "ไม่แพ้ครับ", "deutsch": "Nein.", "englisch": "No." },
+      { "wer": "gegenueber", "umschrift": "kin yaa níi khâ. wan lá sǎam khráng khâ.", "thai": "กินยานี้ค่ะ วันละสามครั้งค่ะ", "deutsch": "Nehmen Sie diese Tabletten, dreimal am Tag (khráng = Mal).", "englisch": "Take these tablets, three times a day (khráng = time)." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. tâo-rài khráp?", "thai": "ขอบคุณครับ เท่าไหร่ครับ", "deutsch": "Danke. Was kostet das?", "englisch": "Thank you. How much is it?" },
+      { "wer": "gegenueber", "umschrift": "hâa-sìp bàat khâ.", "thai": "ห้าสิบบาทค่ะ", "deutsch": "50 Baht.", "englisch": "50 baht." }
+    ]
+  }
+]
