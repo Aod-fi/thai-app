@@ -3,14 +3,13 @@
 // Dialoge zählen nicht für die Fächer der Karteikarten.
 
 import { dialogLines, repeatPauseMs } from "./dialoge.js";
-import { speakAndWait, RATE_NORMAL, RATE_SLOW } from "./speech.js";
+import { speakAndWait, stopSpeaking, RATE_NORMAL, RATE_SLOW, SLOW_PLAYBACK } from "./speech.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
 import { loadMeta, saveMeta } from "./storage.js";
 import { t, localizeDialogs, themeName } from "./sprache.js";
 
 const $ = id => document.getElementById(id);
 
-const SLOW_PLAYBACK = 0.7;   // Tempo der Tondateien bei "Langsam"
 const GAP_MS = 600;          // kleine Pause zwischen zwei Sätzen
 const MIN_HOLD_MS = 400;     // kürzer gilt als versehentliches Antippen
 const MAX_HOLD_MS = 10000;   // danach endet die Aufnahme von selbst
@@ -48,7 +47,7 @@ function wait(ms) {
 // Gibt zurück, wie lange gesprochen wurde (Millisekunden).
 function playLine(line) {
   const started = Date.now();
-  speechSynthesis.cancel();
+  stopSpeaking();   // auch ein Wort, das gerade anderswo vorgelesen wird
   if (endPrevious) endPrevious();
   return new Promise(resolve => {
     let finished = false;
@@ -89,7 +88,7 @@ function stopAll() {
   if (endPrevious) endPrevious();
   player.onended = player.onerror = null;
   player.pause();
-  speechSynthesis.cancel();
+  stopSpeaking();
 }
 
 // ---------- Liste ----------
@@ -384,7 +383,7 @@ async function holdStart(event) {
   holding = true;
   holdBegin = Date.now();
   player.pause();
-  speechSynthesis.cancel();
+  stopSpeaking();
   $("dialog-hold").textContent = t("🔴 Ich höre zu … (loslassen = fertig)");
   $("dialog-hold").classList.add("active");
   voiceNote("");

@@ -25,6 +25,7 @@ const FILES = [
   "js/tone-curve.js",
   "js/dialoge.js",
   "js/dialog-view.js",
+  "js/audio-files.js",
   "inhalte/vokabeln.json",
   "inhalte/dialoge.json",
   "inhalte/toene.json",
@@ -35,12 +36,24 @@ const FILES = [
   "icons/apple-touch-icon.png",
 ];
 
-// Kanyas Tondateien für die Ton-Kurve (audio/<id>.m4a, zusammen etwa 0,6 MB).
-// Welche es gibt, steht in vokabeln.json. Fehlt eine Datei, ist das kein Fehler.
+// Kanyas Tondateien zum Vorlesen und für die Ton-Kurve. Fehlt eine Datei, ist das kein Fehler.
+//   audio/<id>.m4a                 jede Karte (vokabeln.json)
+//   audio/beispiele/<id>.m4a       Beispielsatz (Feld beispiel_thai), dazu <id>-en.m4a bei beispiel_thai_en
+//   audio/toene/<gruppe>-<n>.m4a   Wörter für "Töne hören" (toene.json)
+// (Gleiche Namensregel wie in js/audio-files.js; ein Service Worker kann sie nicht importieren.)
 async function cacheAudio(cache) {
-  const response = await fetch("inhalte/vokabeln.json", { cache: "reload" });
-  const cards = await response.json();
-  await Promise.all(cards.map(card => cache.add(`audio/${card.id}.m4a`).catch(() => {})));
+  const cards = await (await fetch("inhalte/vokabeln.json", { cache: "reload" })).json();
+  const groups = await (await fetch("inhalte/toene.json", { cache: "reload" })).json();
+  const files = [];
+  for (const card of cards) {
+    files.push(`audio/${card.id}.m4a`);
+    if (card.beispiel_thai) files.push(`audio/beispiele/${card.id}.m4a`);
+    if (card.beispiel_thai_en) files.push(`audio/beispiele/${card.id}-en.m4a`);
+  }
+  for (const group of groups) {
+    group.woerter.forEach((word, index) => files.push(`audio/toene/${group.gruppe}-${index + 1}.m4a`));
+  }
+  await Promise.all(files.map(file => cache.add(file).catch(() => {})));
 }
 
 // Tondateien der Dialoge: audio/dialoge/<dialog>-<satz>.m4a, für Sätze der anderen
@@ -88,10 +101,12 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET" || new URL(request.url).origin !== location.origin) return;
 
   // "no-cache": beim Server nachfragen, ob es eine neuere Version gibt
+  // Nur vollständige Antworten speichern (Status 200). Tonabspieler holen Dateien
+  // manchmal stückweise (Status 206), die lassen sich nicht speichern.
   const network = fetch(request, { cache: "no-cache" }).then(async response => {
-    if (response.ok) {
+    if (response.status === 200) {
       const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, response.clone());
+      await cache.put(request, response.clone()).catch(() => {});
     }
     return response;
   });
@@ -102,7 +117,9 @@ self.addEventListener("fetch", event => {
     // Netz antwortet rechtzeitig: frische Datei. Kein Netz oder zu langsam: null
     const quick = await Promise.race([network.catch(() => null), wait(NETWORK_TIMEOUT_MS).then(() => null)]);
     if (quick) return quick;
-    const cached = await caches.match(request, { ignoreSearch: true });
+    // ignoreVary: GitHub schickt "Vary: Accept-Encoding". Der Tonabspieler fragt mit
+    // anderen Angaben als beim Speichern, ohne ignoreVary fände er offline nichts.
+    const cached = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
     // Noch keine Kopie gespeichert: dann eben weiter auf das Netz warten
     return cached || network;
   })());

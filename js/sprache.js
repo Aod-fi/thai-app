@@ -7,6 +7,8 @@
 // Die Inhalte (Karten, Dialoge, Töne) haben eigene englische Felder,
 // siehe localizeCards, localizeDialogs usw. weiter unten.
 
+import { exampleAudio } from "./audio-files.js";
+
 const KEY = "mythai-sprache";
 export const LANGUAGES = ["de", "en"];
 
@@ -89,6 +91,9 @@ export function localizeCards(cards) {
     deutsch: pick(card.englisch, card.deutsch),
     merkhilfe: pick(card.merkhilfe_en, card.merkhilfe),
     beispiel: pick(card.beispiel_en, card.beispiel),
+    // Thai-Text des Beispiels (nur zum Vorlesen); meist in beiden Sprachen gleich
+    beispiel_thai: pick(card.beispiel_thai_en, card.beispiel_thai),
+    beispiel_audio: card.beispiel_thai ? exampleAudio(card, lang === "en") : "",
   }));
 }
 
@@ -120,7 +125,16 @@ const EN = {
   "Link kopiert. Du kannst ihn jetzt in eine Nachricht einfügen.": "Link copied. You can now paste it into a message.",
   "Diesen Link kannst du teilen:": "You can share this link:",
   "Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.": "No Thai voice found. Download it under Settings → Accessibility → Spoken Content → Voices → Thai → “Kanya (Enhanced)”.",
-  "Karten heute fällig": "cards due today",
+  "{n} Wiederholung": "{n} review",
+  "{n} Wiederholungen": "{n} reviews",
+  "{n} neue": "{n} new",
+  "Heute: {a} + {b}": "Today: {a} + {b}",
+  "Heute: {a}": "Today: {a}",
+  "Heute: nichts fällig": "Today: nothing due",
+  "Suchen …": "Search …",
+  "Keine Karte gefunden.": "No card found.",
+  "Wörter aus: {what}": "Words from: {what}",
+  "allen Themen": "all topics",
   "Neue Karten aus:": "New cards from:",
   "Lernrunde starten": "Start round",
   "5 weitere neue Karten lernen": "Learn 5 more new cards",
@@ -182,6 +196,8 @@ const EN = {
   "Deutsch an": "Translation on",
   "Statistik": "Statistics",
   "Lerntage in Folge": "days in a row",
+  "{n} Lerntag in Folge": "{n} day in a row",
+  "{n} Lerntage in Folge": "{n} days in a row",
   "Lerntage gesamt": "learning days in total",
   "Karten pro Fach": "Cards per box",
   "Ab Fach 4 gilt eine Karte als sicher.": "From box 4 on, a card counts as secure.",
@@ -239,6 +255,7 @@ const EN = {
   "Neu": "New",
   "Sag es laut auf Thai:": "Say it out loud in Thai:",
   "z. B. ": "e.g. ",
+  "Beispiel anhören": "Listen to the example",
   "Einen Moment …": "One moment …",
   "Keine Aufnahme. Bitte nochmal halten und sprechen.": "Nothing recorded. Please hold and speak again.",
   "Ton-Kurve konnte nicht berechnet werden. Vergleichen geht trotzdem mit ▶ Normal und ▶ Ich.": "The tone curve couldn't be calculated. You can still compare with ▶ Normal and ▶ Me.",

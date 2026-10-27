@@ -2,7 +2,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { listenQuiz, themeStats, dueForecast } from "../js/extras.js";
+import { listenQuiz, themeStats, dueForecast, searchKey, matchesSearch, todayText } from "../js/extras.js";
+import { useLanguage } from "../js/sprache.js";
 
 const today = "2026-10-22";
 
@@ -64,4 +65,40 @@ test("Hörübung: eine gleich klingende Karte ist nie eine falsche Antwort", () 
       if (twin) assert.ok(!options.includes(twin.deutsch));
     }
   }
+});
+
+test("Suche: ohne Tonzeichen, Lautschrift-Buchstaben, Sonderzeichen und doppelte Buchstaben", () => {
+  assert.equal(searchKey("khâo-jai"), "khaojai");
+  assert.equal(searchKey("phɛɛng"), "pheng");
+  assert.equal(searchKey("khɔ̀ɔp-khun"), "khopkhun");
+  assert.equal(searchKey("chʉ̂ʉ"), "chu");
+  assert.equal(searchKey("pə̀ət"), "pet");
+  assert.equal(searchKey("Kein Problem!"), "keinproblem");
+});
+
+test("Suche: in Deutsch, Englisch und Umschrift, leer = alle", () => {
+  const card = { umschrift: "khɔ̀ɔp-khun khráp", deutsch: "Danke", englisch: "Thank you" };
+  assert.ok(matchesSearch(card, ""));
+  assert.ok(matchesSearch(card, "  "));
+  assert.ok(matchesSearch(card, "danke"));
+  assert.ok(matchesSearch(card, "THANK"));
+  assert.ok(matchesSearch(card, "khoop khun"));
+  assert.ok(matchesSearch(card, "khop khun"));
+  assert.ok(matchesSearch(card, "khrap"));
+  assert.ok(!matchesSearch(card, "teuer"));
+});
+
+test("Startzahl: Wiederholungen und neue getrennt, Einzahl beachtet", () => {
+  const states = { a: { box: 1, due: today }, b: { box: 2, due: today } };
+  const card = id => ({ id });
+  useLanguage("de");
+  assert.equal(todayText([card("a"), card("b"), card("x"), card("y"), card("z")], states), "Heute: 2 Wiederholungen + 3 neue");
+  assert.equal(todayText([card("a"), card("x")], states), "Heute: 1 Wiederholung + 1 neue");
+  assert.equal(todayText([card("a")], states), "Heute: 1 Wiederholung");
+  assert.equal(todayText([card("x"), card("y")], states), "Heute: 2 neue");
+  assert.equal(todayText([], states), "Heute: nichts fällig");
+  useLanguage("en");
+  assert.equal(todayText([card("a"), card("b"), card("x")], states), "Today: 2 reviews + 1 new");
+  assert.equal(todayText([card("a")], states), "Today: 1 review");
+  useLanguage("de");
 });

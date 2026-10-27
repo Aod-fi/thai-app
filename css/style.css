@@ -9,10 +9,12 @@
   --muted: #6b6b6b;
   --accent: #2f6f5e;
   --again: #c0533a;
-  --hard: #c48a1a;
-  --good: #2f8a4f;
+  --hard: #946510;
+  --good: #2a7a46;
   --warning-bg: #fff3d6;
   --bubble-me: #dcefe7;
+  /* Schrift auf farbigen Tasten (Kontrast mindestens 4,5 : 1) */
+  --on-color: #ffffff;
 }
 
 /* Dunkle Farben, wenn das Gerät auf Dunkelmodus steht */
@@ -28,6 +30,8 @@
     --good: #5cbf7c;
     --warning-bg: #3a3220;
     --bubble-me: #23453b;
+    /* Die farbigen Tasten sind im Dunkeln hell, darauf dunkle Schrift */
+    --on-color: #151715;
   }
 }
 
@@ -70,6 +74,9 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 }
 
 .big-number { font-size: 3rem; font-weight: 700; color: var(--accent); }
+.today-count { font-size: 1.3rem; font-weight: 700; color: var(--accent); text-wrap: balance; }
+.search { width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 1rem; border-radius: 12px; border: 2px solid var(--accent); background: var(--panel); color: var(--text); margin-bottom: 12px; }
+.listen-focus { margin: 0 0 12px; }
 
 /* Tasten */
 button {
@@ -80,10 +87,12 @@ button {
   cursor: pointer;
 }
 button:disabled { opacity: 0.5; cursor: default; }
+/* Ausgegraute Haupttaste (z. B. "Heute alles erledigt"): gut lesbar, aber sichtbar ohne Funktion */
+.primary:disabled { opacity: 1; background: var(--bubble-me); color: var(--text); }
 .big { width: 100%; padding: 18px; font-size: 1.15rem; font-weight: 600; margin-bottom: 16px; }
-.primary { background: var(--accent); color: #ffffff; }
+.primary { background: var(--accent); color: var(--on-color); }
 .secondary { background: transparent; color: var(--accent); border: 2px solid var(--accent); }
-.link { background: none; color: var(--accent); padding: 8px 0; }
+.link { background: none; color: var(--accent); padding: 8px 0; min-height: 44px; min-width: 44px; }
 
 /* Startseite: aktuelle Wahl "Neue Karten aus" */
 .focus-label { margin: 0 0 6px; }
@@ -129,10 +138,11 @@ button:disabled { opacity: 0.5; cursor: default; }
 .deutsch { font-size: 1.25rem; margin: 6px 0 14px; }
 .merkhilfe { color: var(--muted); }
 .beispiel { color: var(--muted); font-style: italic; margin-top: 6px; }
+.beispiel button { font-style: normal; font-size: 1rem; vertical-align: middle; margin-left: 4px; min-width: 44px; min-height: 44px; }
 .speak-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }
 
 .rating { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.rating button { color: #ffffff; font-weight: 600; padding: 18px 4px; font-size: 1.05rem; }
+.rating button { color: var(--on-color); font-weight: 600; padding: 18px 4px; font-size: 1.05rem; }
 .again { background: var(--again); }
 .hard { background: var(--hard); }
 .good { background: var(--good); }
@@ -157,8 +167,8 @@ button:disabled { opacity: 0.5; cursor: default; }
 .options { display: grid; gap: 10px; margin-bottom: 16px; }
 .options button { background: var(--panel); color: var(--text); border: 2px solid var(--muted); padding: 16px; font-size: 1.05rem; text-align: left; }
 .options button.right, .options button.wrong { opacity: 1; }
-.options button.right { background: var(--good); border-color: var(--good); color: #ffffff; }
-.options button.wrong { background: var(--again); border-color: var(--again); color: #ffffff; }
+.options button.right { background: var(--good); border-color: var(--good); color: var(--on-color); }
+.options button.wrong { background: var(--again); border-color: var(--again); color: var(--on-color); }
 #listen-question { min-height: 180px; }
 #listen-result { text-align: center; }
 
@@ -177,6 +187,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 
 /* Eigene Aussprache */
 .voice-row { margin-top: 10px; flex-wrap: wrap; }
+#dialog-hold-row { margin-bottom: 12px; }
 /* Halten-Taste: kein Markieren, kein Kontextmenü, kein Scrollen beim Gedrückthalten */
 .hold {
   flex: 1 1 100%;
@@ -186,7 +197,7 @@ button:disabled { opacity: 0.5; cursor: default; }
   -webkit-touch-callout: none;
   touch-action: none;
 }
-.voice-row button.active { background: var(--again); border-color: var(--again); color: #ffffff; }
+.voice-row button.active { background: var(--again); border-color: var(--again); color: var(--on-color); }
 .voice-result { margin: 10px 0 0; font-size: 0.95rem; }
 .voice-result.ok { color: var(--good); font-weight: 600; }
 .voice-result.no { color: var(--again); font-weight: 600; }
@@ -244,7 +255,7 @@ button:disabled { opacity: 0.5; cursor: default; }
 .dialog-item .done { color: var(--good); font-size: 0.9rem; white-space: nowrap; }
 .dialog-modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px; }
 .dialog-modes button { padding: 10px 2px; font-size: 0.9rem; background: var(--panel); color: var(--text); border: 2px solid var(--muted); }
-.dialog-modes button.on { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.dialog-modes button.on { background: var(--accent); border-color: var(--accent); color: var(--on-color); }
 .dialog-roles { display: flex; gap: 8px; align-items: center; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
 .dialog-roles button { padding: 8px 14px; }
 .dialog-hint { font-size: 0.85rem; margin: 0 0 12px; }
@@ -260,19 +271,22 @@ button:disabled { opacity: 0.5; cursor: default; }
 .bubble .ask-text { font-size: 1.1rem; }
 .dialog-tools { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
 .dialog-tools button { padding: 8px 12px; font-size: 0.9rem; }
-.dialog-tools button.on { background: var(--accent); color: #ffffff; }
+.dialog-tools button.on { background: var(--accent); color: var(--on-color); }
 .dialog-end { text-align: center; }
 .dialog-end-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
 
 /* Sprachwahl unten auf der Startseite */
 .language-switch { text-align: center; color: var(--muted); margin: -8px 0 16px; }
-.language-switch .link { padding: 4px 6px; color: var(--muted); }
+.language-switch .link { padding: 4px 6px; color: var(--muted); min-height: 44px; }
 .language-switch .link.on { color: var(--accent); font-weight: 700; }
 
 /* Kopf der Startseite: Titel links, Teilen und Info rechts */
 .home-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .head-buttons { display: flex; gap: 6px; }
 .secondary.small { padding: 6px 10px; font-size: 0.85rem; font-weight: 600; margin: 0; }
+/* Kleine Tasten oben (Teilen, Info): Tippfläche 44 px, sichtbarer Rahmen bleibt klein */
+.head-buttons .secondary.small { position: relative; }
+.head-buttons .secondary.small::after { content: ""; position: absolute; inset: -5px -2px; }
 
 /* Info-Seite: aufklappbare Abschnitte */
 details.info { padding: 0; margin-bottom: 10px; }

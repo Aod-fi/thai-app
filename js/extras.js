@@ -1,7 +1,8 @@
-// Hörübung und Lernstatistik: nur Rechnen, keine Anzeige, kein Speichern.
+// Hörübung, Lernstatistik, Suche und Startzahl: nur Rechnen, keine Anzeige, kein Speichern.
 // Getestet in tests/extras.test.mjs.
 
 import { themes, addDays, inFocus } from "./leitner.js";
+import { t } from "./sprache.js";
 
 export const LISTEN_QUESTIONS = 10;
 export const LISTEN_OPTIONS = 4;
@@ -69,4 +70,45 @@ export function dueForecast(cards, states, today, days = 7) {
     forecast.push({ day, count });
   }
   return forecast;
+}
+
+// ---------- Suche in "Alle Karten" ----------
+
+// Text zum Vergleichen: klein, ohne Tonzeichen, Lautschrift-Buchstaben als normale
+// Buchstaben (ɛ → e, ɔ → o, ʉ → u, ə → e), ohne Leer- und Sonderzeichen, doppelte
+// Buchstaben (lange Vokale) einfach. So findet "khao jai" auch "khâo-jai",
+// und "pheng" wie "pheeng" findet "phɛɛng".
+const PLAIN_LETTERS = { "ɛ": "e", "ɔ": "o", "ʉ": "u", "ə": "e" };
+
+export function searchKey(text) {
+  return (text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[ɛɔʉə]/g, letter => PLAIN_LETTERS[letter])
+    .replace(/[^\p{L}\p{N}]/gu, "")
+    .replace(/(.)\1+/gu, "$1");
+}
+
+// Passt eine Karte zur Suche? Gesucht wird in Deutsch, Englisch und Umschrift.
+// Leere Suche: jede Karte passt.
+export function matchesSearch(card, query) {
+  const key = searchKey(query);
+  if (key === "") return true;
+  return [card.deutsch, card.englisch, card.umschrift].some(field => searchKey(field).includes(key));
+}
+
+// ---------- Startseite ----------
+
+// Was heute in der Lernrunde dran ist: Wiederholungen und neue Karten
+//   round:  Karten der heutigen Runde (buildRound), states: Lernstand pro Karte
+export function todayText(round, states) {
+  const reviews = round.filter(card => states[card.id]).length;
+  const fresh = round.length - reviews;
+  const reviewText = t(reviews === 1 ? "{n} Wiederholung" : "{n} Wiederholungen", { n: reviews });
+  const freshText = t("{n} neue", { n: fresh });   // "1 neue" wie "3 neue"
+  if (reviews > 0 && fresh > 0) return t("Heute: {a} + {b}", { a: reviewText, b: freshText });
+  if (reviews > 0) return t("Heute: {a}", { a: reviewText });
+  if (fresh > 0) return t("Heute: {a}", { a: freshText });
+  return t("Heute: nichts fällig");
 }

@@ -16,7 +16,8 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `js/storage.js` | Speichert den Lernstand auf dem Gerät |
 | `js/sprache.js` | Sprachwahl Deutsch/Englisch und alle englischen Texte der Bedienung |
 | `js/backup.js` | Lernstand sichern und laden (Prüfen der Sicherungsdatei) |
-| `js/speech.js` | Die Sprachausgabe mit der Thai-Stimme |
+| `js/speech.js` | Vorlesen: Kanyas Tondatei, sonst die Thai-Stimme des Geräts |
+| `js/audio-files.js` | Namen der Tondateien (Karten, Beispielsätze, Töne hören) |
 | `js/pitch.js` | Ton-Kurve: berechnet die Tonhöhe einer Aufnahme |
 | `js/tone-curve.js` | Ton-Kurve: lädt die Tondateien und zeichnet die Linien |
 | `js/tones.js` | Töne an der Umschrift erkennen, Übung „Töne hören“ |
@@ -25,7 +26,9 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `inhalte/dialoge.json` | **Alle Dialoge** (kurze Gespräche aus den Einheiten) |
 | `js/dialoge.js` | Dialoge: Rollenwechsel (khâ/khá → khráp), Namen der Tondateien |
 | `js/dialog-view.js` | Dialoge: Anhören, Mitsprechen, Deine Rolle |
-| `audio/` | Kanyas Aussprache jeder Karte als Tondatei (für die Ton-Kurve) |
+| `audio/` | Kanyas Aussprache jeder Karte als Tondatei (zum Vorlesen und für die Ton-Kurve) |
+| `audio/beispiele/` | Kanyas Aussprache jedes Beispielsatzes |
+| `audio/toene/` | Kanyas Aussprache der Wörter für „Töne hören“ |
 | `audio/dialoge/` | Kanyas Aussprache jedes Dialog-Satzes |
 | `scripts/make-audio.sh` | Erzeugt die Tondateien in `audio/` |
 | `sw.js` | Service Worker: Offline-Betrieb und frische Dateien |
@@ -64,11 +67,13 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `merkhilfe_en` | ja | Eselsbrücke auf Englisch (für Englischsprachige neu ausgedacht, nicht nur übersetzt) |
 | `beispiel_en` | nein | Beispielsatz mit englischer Bedeutung |
 | `beispiel` | nein | Beispielsatz in Umschrift |
+| `beispiel_thai` | bei Beispiel ja | Nur der Thai-Teil des Beispiels (vor dem „=“) in Thai-Schrift, wird nur vorgelesen, nie angezeigt |
+| `beispiel_thai_en` | nein | Nur falls der Thai-Teil auf Englisch anders ist (z. B. anderer Name) |
 | `aufpassen` | nein | `true` bei Schwachstellen |
 
 4. Im Terminal prüfen: `npm run check`
 5. Tondatei für die Ton-Kurve erzeugen (nur auf dem Mac): `zsh scripts/make-audio.sh`
-   Das Skript lässt Kanya jede neue Karte sprechen und speichert sie in `audio/`.
+   Das Skript lässt Kanya jede neue Karte und jeden neuen Beispielsatz sprechen und speichert sie in `audio/`.
    Vorhandene Dateien bleiben, es dauert nur bei neuen Karten kurz.
 6. Speichern und hochladen (siehe unten).
 

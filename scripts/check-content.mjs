@@ -5,6 +5,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { toneOf, withoutTone } from "../js/tones.js";
 import { audioFiles } from "../js/dialoge.js";
+import { exampleAudioFiles, toneAudioFiles } from "../js/audio-files.js";
 
 const file = new URL("../inhalte/vokabeln.json", import.meta.url);
 const cards = JSON.parse(readFileSync(file, "utf8"));
@@ -39,6 +40,16 @@ cards.forEach((card, index) => {
   for (const field of ["umschrift", "deutsch", "merkhilfe", "beispiel", "englisch", "merkhilfe_en", "beispiel_en"]) {
     if (card[field] && thaiLetters.test(card[field])) {
       errors.push(`${name}: Feld "${field}" enthält Thai-Schrift`);
+    }
+  }
+
+  // Beispielsatz: der Thai-Teil in Thai-Schrift, nur zum Vorlesen (Tondatei audio/beispiele/<id>.m4a)
+  if ((card.beispiel || card.beispiel_en) && !card.beispiel_thai) {
+    errors.push(`${name}: hat ein Beispiel, aber kein Feld "beispiel_thai"`);
+  }
+  for (const field of ["beispiel_thai", "beispiel_thai_en"]) {
+    if (field in card && (typeof card[field] !== "string" || !thaiLetters.test(card[field]))) {
+      errors.push(`${name}: Feld "${field}" enthält keine Thai-Schrift`);
     }
   }
 
@@ -132,7 +143,7 @@ for (const theme of new Set(cards.map(card => card.thema))) {
   if (!areas.some(area => area.themen_en && area.themen_en[theme])) errors.push(`Thema "${theme}" hat keinen englischen Namen (bereiche.json, "themen_en")`);
 }
 
-// Tondateien für die Ton-Kurve: fehlende sind kein Fehler, nur ein Hinweis
+// Tondateien zum Vorlesen und für die Ton-Kurve: fehlende sind kein Fehler, nur ein Hinweis
 const missingAudio = cards.filter(card => card.id && !existsSync(new URL(`../audio/${card.id}.m4a`, import.meta.url)));
 
 if (errors.length > 0) {
@@ -145,6 +156,13 @@ if (errors.length > 0) {
 
 if (missingAudio.length > 0) {
   console.log(`ℹ️  ${missingAudio.length} Karten ohne Tondatei für die Ton-Kurve (${missingAudio.map(c => c.id).join(", ")}).`);
+  console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
+}
+
+const missingOtherAudio = [...exampleAudioFiles(cards), ...toneAudioFiles(groups)]
+  .filter(({ file }) => !existsSync(new URL(`../${file}`, import.meta.url)));
+if (missingOtherAudio.length > 0) {
+  console.log(`ℹ️  ${missingOtherAudio.length} Beispielsätze oder Wörter für "Töne hören" ohne Tondatei (${missingOtherAudio.map(f => f.file).join(", ")}).`);
   console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
 }
 

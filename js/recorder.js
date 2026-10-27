@@ -1,6 +1,8 @@
 // Aufnahme über das Mikrofon, um die eigene Aussprache mit der Thai-Stimme zu vergleichen.
 // Die Aufnahme bleibt nur im Speicher, bis die nächste Karte kommt. Nichts wird hochgeladen.
 
+import { stopSpeaking } from "./speech.js";
+
 let recorder = null;
 let stream = null;
 let chunks = [];
@@ -15,6 +17,7 @@ export function canRecord() {
 // Startet die Aufnahme. Wartet auf das Mikrofon (beim ersten Mal fragt das iPhone nach).
 // Wurde die Taste schon losgelassen, bevor das Mikrofon bereit war, wird gleich wieder gestoppt.
 export async function startRecording() {
+  stopSpeaking();   // nichts abspielen, solange aufgenommen wird
   stopRequested = false;
   chunks = [];
   stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -70,7 +73,7 @@ export function recordingBlob() {
 
 export function playRecording() {
   if (lastAudio) {
-    speechSynthesis.cancel();
+    stopSpeaking();
     lastAudio.currentTime = 0;
     lastAudio.play();
   }
