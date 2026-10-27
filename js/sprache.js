@@ -112,6 +112,13 @@ export function localizeToneGroups(groups) {
 // Links der deutsche Text genau wie im Programm, rechts die Übersetzung.
 
 const EN = {
+  "📤 Teilen": "📤 Share",
+  "ⓘ Info": "ⓘ Info",
+  "So funktioniert MyThai": "How MyThai works",
+  "📤 App mit Freunden teilen": "📤 Share the app with friends",
+  "Ich lerne Thai mit MyThai: Karteikarten mit Aussprache, Hörübungen und kurze Dialoge für den Alltag. Kostenlos, einfach in Safari öffnen und zum Home-Bildschirm hinzufügen:": "I'm learning Thai with MyThai: flashcards with pronunciation, listening practice and short everyday dialogues. It's free – just open it in Safari and add it to your home screen:",
+  "Link kopiert. Du kannst ihn jetzt in eine Nachricht einfügen.": "Link copied. You can now paste it into a message.",
+  "Diesen Link kannst du teilen:": "You can share this link:",
   "Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.": "No Thai voice found. Download it under Settings → Accessibility → Spoken Content → Voices → Thai → “Kanya (Enhanced)”.",
   "Karten heute fällig": "cards due today",
   "Neue Karten aus:": "New cards from:",

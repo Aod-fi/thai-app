@@ -16,7 +16,10 @@ import { t, language, setLanguage, translatePage, localizeCards, localizeAreas, 
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.8.0";
+const VERSION = "1.8.1";
+
+// Adresse der App, die beim Teilen verschickt wird
+const APP_URL = "https://aod-fi.github.io/thai-app/";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -106,7 +109,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog", "topics"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog", "topics", "info"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -803,6 +806,36 @@ async function loadBackup(event) {
   showBackupMessage(t("✓ Lernstand geladen: {count} gelernte Karten.", { count }));
 }
 
+// ---------- Info und Teilen ----------
+
+// Info-Seite: Beschreibung aller Funktionen in der gewählten Sprache
+function showInfo() {
+  for (const block of document.querySelectorAll("#view-info [data-lang]")) {
+    block.hidden = block.dataset.lang !== language();
+  }
+  showView("info");
+}
+
+// App teilen: auf dem iPhone öffnet sich das Teilen-Menü (Nachrichten, WhatsApp, Mail …).
+// Geht das nicht, wird der Link in die Zwischenablage kopiert.
+async function shareApp() {
+  const text = t("Ich lerne Thai mit MyThai: Karteikarten mit Aussprache, Hörübungen und kurze Dialoge für den Alltag. Kostenlos, einfach in Safari öffnen und zum Home-Bildschirm hinzufügen:");
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "MyThai", text, url: APP_URL });
+    } catch {
+      // abgebrochen: nichts tun
+    }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(`${text} ${APP_URL}`);
+    alert(t("Link kopiert. Du kannst ihn jetzt in eine Nachricht einfügen."));
+  } catch {
+    prompt(t("Diesen Link kannst du teilen:"), APP_URL);
+  }
+}
+
 // ---------- Übersicht ----------
 
 function showOverview() {
@@ -895,6 +928,10 @@ $("backup-save").addEventListener("click", saveBackup);
 $("backup-load").addEventListener("click", () => $("backup-file").click());
 $("backup-file").addEventListener("change", loadBackup);
 $("lang-de").addEventListener("click", () => switchLanguage("de"));
+$("info-button").addEventListener("click", showInfo);
+$("info-close").addEventListener("click", showHome);
+$("share-button").addEventListener("click", shareApp);
+$("info-share").addEventListener("click", shareApp);
 $("lang-en").addEventListener("click", () => switchLanguage("en"));
 $("front-speak").addEventListener("click", () => speak(current.thai));
 $("back-speak").addEventListener("click", () => speak(current.thai, RATE_NORMAL));

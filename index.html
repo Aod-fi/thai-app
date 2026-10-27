@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.8.0">
+  <link rel="stylesheet" href="css/style.css?v=1.8.1">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -18,7 +18,13 @@
 
   <!-- 1. Startseite mit Fortschritt -->
   <main id="view-home">
-    <h1>MyThai</h1>
+    <div class="home-head">
+      <h1>MyThai</h1>
+      <span class="head-buttons">
+        <button id="share-button" class="secondary small" data-t>📤 Teilen</button>
+        <button id="info-button" class="secondary small" data-t>ⓘ Info</button>
+      </span>
+    </div>
     <p id="voice-warning" class="warning" hidden data-t>Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.</p>
 
     <section class="panel">
@@ -336,6 +342,158 @@
     <div id="topics-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.8.0"></script>
+
+  <!-- 7. Info: Beschreibung aller Funktionen. Zwei Fassungen, sichtbar ist die der gewählten Sprache. -->
+  <main id="view-info" hidden>
+    <div class="topbar">
+      <button id="info-close" class="link" data-t>← Zurück</button>
+    </div>
+    <h1 data-t>So funktioniert MyThai</h1>
+    <div class="info-text" data-lang="de">
+      <details class="panel info" open><summary>Was ist MyThai?</summary>
+<p>MyThai hilft dir, Alltags-Thai zu sprechen und zu verstehen: auf dem Markt, im Taxi, im Restaurant, im Hotel und mit Nachbarn. Thai wird hier nicht in Thai-Schrift gezeigt, sondern in lateinischen Buchstaben (Umschrift). Die Aussprache kommt von der Thai-Stimme „Kanya“.</p>
+<p>Am besten lernst du jeden Tag ein paar Minuten. Die App merkt sich, welche Karten du kannst, und zeigt sie dir genau dann wieder, wenn du sie sonst vergessen würdest.</p>
+      </details>
+      <details class="panel info"><summary>Die Lernrunde</summary>
+<p>Tippe auf <b>Lernrunde starten</b>. Eine Runde hat höchstens 20 Karten: zuerst die fälligen Wiederholungen, dann bis zu 5 neue Karten pro Tag. Wenn du fertig bist und mehr willst, gibt es „5 weitere neue Karten lernen“.</p>
+<ul>
+<li><b>Neue Karten</b> werden zuerst vorgestellt: anhören, laut nachsprechen, dann „Gemerkt, weiter“. Am Ende der Runde fragt die App sie richtig ab.</li>
+<li><b>Abfrage</b>: Entweder hörst du Thai und überlegst die Bedeutung, oder du siehst Deutsch und sagst es laut auf Thai. Dann „Umdrehen“.</li>
+<li><b>Bewerten</b>: <i>Gewusst</i> = die Karte rückt ein Fach weiter. <i>Schwer</i> = sie bleibt im Fach. <i>Nochmal</i> = zurück in Fach 1, und sie kommt in derselben Runde noch einmal.</li>
+<li><b>Fächer</b>: Fach 1 bis 5 bedeuten Wiederholung nach 1, 2, 4, 8 und 16 Tagen. Ab Fach 4 gilt eine Karte als sicher.</li>
+<li><b>⚠ Aufpassen</b>: Karten mit typischen Stolperstellen kommen etwas öfter.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>Neue Karten aus … (Themen)</summary>
+<p>Auf der Startseite wählst du, woraus die neuen Karten kommen: alle Themen gemischt, ein ganzer Bereich (z. B. „Essen & Einkaufen“) oder ein einzelnes Thema. Der Pfeil klappt einen Bereich auf. Wiederholungen kommen immer aus allen Themen.</p>
+      </details>
+      <details class="panel info"><summary>Auf der Karte</summary>
+<ul>
+<li><b>▶ Normal</b> und <b>🐢 Langsam</b> spielen die Aussprache ab. Langsam spricht Wort für Wort.</li>
+<li><b>💡</b> ist eine Merkhilfe, <b>z. B.</b> ein Beispielsatz.</li>
+<li><b>🎙 Halten und sprechen</b>: Taste gedrückt halten, sprechen, loslassen. Mit „▶ Ich“ hörst du dich selbst.</li>
+<li><b>Ton-Kurve</b>: Deine Tonhöhe (farbig) neben der von Kanya (grau). Geht deine Linie an denselben Stellen hoch und runter, stimmt der Ton. Bei kurzen Wörtern gibt es zusätzlich einen Hinweis.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>Frei üben</summary>
+<p>Übt bis zu 20 Karten aus dem gewählten Thema in zufälliger Reihenfolge, egal ob fällig oder nicht. Zählt nicht für die Fächer, gut zum Auffrischen vor einer Reise.</p>
+      </details>
+      <details class="panel info"><summary>🎧 Hörübung</summary>
+<ul>
+<li><b>Wörter verstehen</b>: Die App spricht, du wählst die richtige Bedeutung aus vier.</li>
+<li><b>Töne hören</b>: Gleiche Silbe, anderer Ton (z. B. mǎa = Hund, máa = Pferd). Welches Wort war es?</li>
+<li><b>Zahlen und Preise</b>: Die App sagt eine Zahl oder einen Preis, du tippst ihn ein. Drei Stufen bis 1.000 Baht.</li>
+</ul>
+<p>Die Hörübungen zählen nicht für die Fächer.</p>
+      </details>
+      <details class="panel info"><summary>💬 Dialoge</summary>
+<p>Kurze Gespräche aus dem Alltag, gesprochen von Kanya.</p>
+<ul>
+<li><b>🎧 Anhören</b>: das ganze Gespräch hören. Einen Satz antippen = nochmal hören.</li>
+<li><b>🗣 Mitsprechen</b>: nach jedem Satz eine Pause zum Nachsprechen.</li>
+<li><b>🎭 Deine Rolle</b>: Die andere Person spricht, bei deinem Satz sagst du ihn selbst auf Thai und tippst dann „Auflösen“. Danach kannst du die Rolle tauschen.</li>
+<li>Unten: Pause, Langsam und Übersetzung ein- oder ausblenden.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>📊 Statistik und Lernstand sichern</summary>
+<p>Die Statistik zeigt Lerntage in Folge, Karten pro Fach, deinen Stand pro Thema und die Wiederholungen der nächsten 7 Tage.</p>
+<p>Dein Lernstand ist nur auf diesem Gerät gespeichert. Sichere ihn ab und zu mit <b>💾 Lernstand sichern</b> (auf dem iPhone: „In Dateien sichern“, z. B. in iCloud Drive). Mit <b>📂 Lernstand laden</b> holst du ihn zurück, auch auf ein neues Gerät.</p>
+      </details>
+      <details class="panel info"><summary>Umschrift und Töne</summary>
+<p>Thai hat fünf Töne. Das Zeichen über dem Vokal zeigt den Ton:</p>
+<ul>
+<li>keine Marke = mittel (maa)</li>
+<li>à = tief (pàa)</li>
+<li>â = fallend (mâi)</li>
+<li>á = hoch (máa)</li>
+<li>ǎ = steigend (mǎa)</li>
+</ul>
+<p>Doppelte Vokale (aa, ii) sind lang. kh, ph, th werden mit Hauch gesprochen, k, p, t ohne. Besondere Zeichen: ɛ wie in „Bär“, ɔ wie in „Sonne“, ʉ wie „ü“ mit breiten Lippen, ə wie „ö“.</p>
+      </details>
+      <details class="panel info"><summary>Einrichten und Tipps</summary>
+<ul>
+<li><b>Thai-Stimme</b>: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“ laden.</li>
+<li><b>Auf den Home-Bildschirm</b>: Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.</li>
+<li><b>Offline</b>: Nach dem ersten Öffnen funktioniert die App auch ohne Internet.</li>
+<li><b>Sprache</b>: Unten auf der Startseite zwischen Deutsch und English wechseln.</li>
+<li><b>Neue Version</b>: App schließen und wieder öffnen. Die Versionsnummer steht unten auf der Startseite.</li>
+</ul>
+      </details>
+    </div>
+    <div class="info-text" data-lang="en">
+      <details class="panel info" open><summary>What is MyThai?</summary>
+<p>MyThai helps you speak and understand everyday Thai: at the market, in a taxi, at a restaurant, at the hotel and with neighbours. Thai isn't shown in Thai script here but in Latin letters (transliteration). The pronunciation comes from the Thai voice “Kanya”.</p>
+<p>It works best if you learn a few minutes every day. The app remembers which cards you know and shows them again just before you would forget them.</p>
+      </details>
+      <details class="panel info"><summary>The learning round</summary>
+<p>Tap <b>Start round</b>. A round has up to 20 cards: first the reviews that are due, then up to 5 new cards a day. If you're done and want more, there's “Learn 5 more new cards”.</p>
+<ul>
+<li><b>New cards</b> are introduced first: listen, repeat out loud, then “Got it, next”. At the end of the round the app tests you on them.</li>
+<li><b>Testing</b>: Either you hear Thai and think of the meaning, or you see English and say it out loud in Thai. Then “Turn over”.</li>
+<li><b>Rating</b>: <i>Knew it</i> = the card moves up a box. <i>Hard</i> = it stays in its box. <i>Again</i> = back to box 1, and it comes again in the same round.</li>
+<li><b>Boxes</b>: Boxes 1 to 5 mean a review after 1, 2, 4, 8 and 16 days. From box 4 on, a card counts as secure.</li>
+<li><b>⚠ Watch out</b>: Cards with typical pitfalls come back a little more often.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>New cards from … (topics)</summary>
+<p>On the start page you choose where new cards come from: all topics mixed, a whole area (e.g. “Food & shopping”) or a single topic. The arrow opens an area. Reviews always come from all topics.</p>
+      </details>
+      <details class="panel info"><summary>On the card</summary>
+<ul>
+<li><b>▶ Normal</b> and <b>🐢 Slow</b> play the pronunciation. Slow speaks word by word.</li>
+<li><b>💡</b> is a memory aid, <b>e.g.</b> an example sentence.</li>
+<li><b>🎙 Hold and speak</b>: keep the button pressed, speak, let go. “▶ Me” plays your recording.</li>
+<li><b>Tone curve</b>: your pitch (in colour) next to Kanya's (grey). If your line goes up and down in the same places, the tone is right. Short words also get a hint.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>Free practice</summary>
+<p>Practises up to 20 cards from the chosen topic in random order, whether they're due or not. Doesn't count towards your boxes; good for a refresher before a trip.</p>
+      </details>
+      <details class="panel info"><summary>🎧 Listening</summary>
+<ul>
+<li><b>Understand words</b>: the app speaks, you pick the right meaning out of four.</li>
+<li><b>Hear the tones</b>: same syllable, different tone (e.g. mǎa = dog, máa = horse). Which word was it?</li>
+<li><b>Numbers and prices</b>: the app says a number or a price, you type it in. Three levels up to 1,000 baht.</li>
+</ul>
+<p>Listening exercises don't count towards your boxes.</p>
+      </details>
+      <details class="panel info"><summary>💬 Dialogues</summary>
+<p>Short everyday conversations, spoken by Kanya.</p>
+<ul>
+<li><b>🎧 Listen</b>: hear the whole conversation. Tap a line to hear it again.</li>
+<li><b>🗣 Repeat</b>: a pause after each line to repeat it.</li>
+<li><b>🎭 Your part</b>: the other person speaks; on your line you say it yourself in Thai, then tap “Show answer”. Afterwards you can swap roles.</li>
+<li>At the bottom: pause, slow, and show or hide the translation.</li>
+</ul>
+      </details>
+      <details class="panel info"><summary>📊 Statistics and backup</summary>
+<p>Statistics show your days in a row, cards per box, your progress per topic and the reviews for the next 7 days.</p>
+<p>Your progress is only stored on this device. Back it up now and then with <b>💾 Save progress</b> (on iPhone: “Save to Files”, e.g. iCloud Drive). <b>📂 Load progress</b> brings it back, also on a new device.</p>
+      </details>
+      <details class="panel info"><summary>Transliteration and tones</summary>
+<p>Thai has five tones. The mark above the vowel shows the tone:</p>
+<ul>
+<li>no mark = mid (maa)</li>
+<li>à = low (pàa)</li>
+<li>â = falling (mâi)</li>
+<li>á = high (máa)</li>
+<li>ǎ = rising (mǎa)</li>
+</ul>
+<p>Double vowels (aa, ii) are long. kh, ph, th are spoken with a puff of air, k, p, t without. Special letters: ɛ as in “air”, ɔ as in “law”, ʉ like “oo” with spread lips, ə as in “her”.</p>
+      </details>
+      <details class="panel info"><summary>Set-up and tips</summary>
+<ul>
+<li><b>Thai voice</b>: Settings → Accessibility → Spoken Content → Voices → Thai → download “Kanya (Enhanced)”.</li>
+<li><b>Home screen</b>: open the page in Safari → Share → “Add to Home Screen”.</li>
+<li><b>Offline</b>: after the first start, the app also works without internet.</li>
+<li><b>Language</b>: switch between Deutsch and English at the bottom of the start page.</li>
+<li><b>New version</b>: close the app and open it again. The version number is at the bottom of the start page.</li>
+</ul>
+      </details>
+    </div>
+    <button id="info-share" class="primary big" data-t>📤 App mit Freunden teilen</button>
+  </main>
+
+  <script type="module" src="js/app.js?v=1.8.1"></script>
 </body>
 </html>
