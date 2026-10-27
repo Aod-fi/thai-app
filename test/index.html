@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MyThai</title>
+</head>
+<body>
+  <!-- Die Testfassung ist beendet: aufräumen (nur Daten der Testfassung) und zur Haupt-App -->
+  <p>Die Testfassung ist beendet. Weiter zu <a href="../">MyThai</a> …</p>
+  <script>
+    (async () => {
+      try {
+        for (const reg of await navigator.serviceWorker.getRegistrations()) {
+          if (reg.scope.endsWith("/test/")) await reg.unregister();
+        }
+        await caches.delete("thai-app-test");
+        indexedDB.deleteDatabase("thai-app-test");
+        localStorage.removeItem("mythai-sprache-test");
+      } catch {
+        // nicht schlimm, dann bleibt eben etwas Speicher belegt
+      }
+      location.replace("../");
+    })();
+  </script>
+</body>
+</html>
