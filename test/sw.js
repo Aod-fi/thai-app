@@ -101,10 +101,12 @@ self.addEventListener("fetch", event => {
   if (request.method !== "GET" || new URL(request.url).origin !== location.origin) return;
 
   // "no-cache": beim Server nachfragen, ob es eine neuere Version gibt
+  // Nur vollständige Antworten speichern (Status 200). Tonabspieler holen Dateien
+  // manchmal stückweise (Status 206), die lassen sich nicht speichern.
   const network = fetch(request, { cache: "no-cache" }).then(async response => {
-    if (response.ok) {
+    if (response.status === 200) {
       const cache = await caches.open(CACHE_NAME);
-      await cache.put(request, response.clone());
+      await cache.put(request, response.clone()).catch(() => {});
     }
     return response;
   });
@@ -115,7 +117,9 @@ self.addEventListener("fetch", event => {
     // Netz antwortet rechtzeitig: frische Datei. Kein Netz oder zu langsam: null
     const quick = await Promise.race([network.catch(() => null), wait(NETWORK_TIMEOUT_MS).then(() => null)]);
     if (quick) return quick;
-    const cached = await caches.match(request, { ignoreSearch: true });
+    // ignoreVary: GitHub schickt "Vary: Accept-Encoding". Der Tonabspieler fragt mit
+    // anderen Angaben als beim Speichern, ohne ignoreVary fände er offline nichts.
+    const cached = await caches.match(request, { ignoreSearch: true, ignoreVary: true });
     // Noch keine Kopie gespeichert: dann eben weiter auf das Netz warten
     return cached || network;
   })());

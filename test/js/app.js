@@ -141,7 +141,8 @@ async function showHome() {
 
   $("boxes").innerHTML = boxesHtml();
 
-  $("streak").textContent = streak(await loadMeta("learnedDays", []), today());
+  const days = streak(await loadMeta("learnedDays", []), today());
+  $("streak").textContent = t(days === 1 ? "{n} Lerntag in Folge" : "{n} Lerntage in Folge", { n: days });
   showView("home");
 }
 
