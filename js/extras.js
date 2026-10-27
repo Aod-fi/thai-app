@@ -28,7 +28,9 @@ export function listenQuiz(cards, states, focus = "", random = Math.random) {
     .slice(0, LISTEN_QUESTIONS);
 
   return asked.map(card => {
-    const others = card2 => card2.deutsch !== card.deutsch;
+    // Falsche Antworten: andere Bedeutung und anders klingend. Zwei Karten mit
+    // demselben Thai (z. B. "mâi ao khráp" bei Markt und Essen) wären sonst beide richtig.
+    const others = card2 => card2.deutsch !== card.deutsch && (!card.thai || card2.thai !== card.thai);
     const sameTheme = shuffle(cards.filter(c => c.thema === card.thema && others(c)), random);
     const otherTheme = shuffle(cards.filter(c => c.thema !== card.thema && others(c)), random);
     const wrong = [];

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.7.4">
+  <link rel="stylesheet" href="css/style.css?v=1.7.5">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -103,6 +103,11 @@
 
     <div class="actions">
       <button id="flip-button" class="primary big">Umdrehen</button>
+      <!-- Neue Karte: erst vorstellen, abgefragt wird sie am Ende der Runde -->
+      <div id="intro-buttons" hidden>
+        <button id="intro-next" class="primary big">Gemerkt, weiter</button>
+        <p class="muted hint">Neue Karte: anhören und nachsprechen. Am Ende der Runde fragt die App sie ab.</p>
+      </div>
       <div id="rating-buttons" class="rating" hidden>
         <button data-rating="nochmal" class="again">Nochmal</button>
         <button data-rating="schwer" class="hard">Schwer</button>
@@ -303,6 +308,15 @@
       <h2>Wiederholungen der nächsten 7 Tage</h2>
       <div id="stats-forecast" class="forecast"></div>
     </section>
+
+    <section class="panel">
+      <h2>Lernstand sichern</h2>
+      <p class="muted">Dein Lernstand ist nur auf diesem Gerät gespeichert. Sichere ihn ab und zu als Datei, z. B. in iCloud Drive. Mit „Lernstand laden“ holst du ihn zurück, auch auf ein anderes Gerät.</p>
+      <button id="backup-save" class="secondary big">💾 Lernstand sichern</button>
+      <button id="backup-load" class="secondary big">📂 Lernstand laden</button>
+      <input id="backup-file" type="file" accept=".json,application/json" hidden>
+      <p id="backup-message" class="muted" hidden></p>
+    </section>
   </main>
 
   <!-- 5. Übersicht aller Karten -->
@@ -324,6 +338,6 @@
     <div id="topics-list"></div>
   </main>
 
-  <script type="module" src="js/app.js?v=1.7.4"></script>
+  <script type="module" src="js/app.js?v=1.7.5"></script>
 </body>
 </html>

@@ -51,3 +51,17 @@ test("Vorschau: heute zählt Überfälliges mit", () => {
   const forecast = dueForecast(themed("Taxi", 2), states, today, 3);
   assert.deepEqual(forecast.map(f => f.count), [1, 1, 0]);
 });
+
+test("Hörübung: eine gleich klingende Karte ist nie eine falsche Antwort", () => {
+  const cards = [
+    { id: "markt-nein", thema: "Markt", thai: "ไม่เอาครับ", deutsch: "Nein, nehme ich nicht" },
+    { id: "essen-nein", thema: "Essen", thai: "ไม่เอาครับ", deutsch: "Ich möchte nicht" },
+    ...themed("Taxi", 6),
+  ];
+  for (let run = 0; run < 20; run++) {
+    for (const { card, options } of listenQuiz(cards, {})) {
+      const twin = cards.find(c => c !== card && c.thai && c.thai === card.thai);
+      if (twin) assert.ok(!options.includes(twin.deutsch));
+    }
+  }
+});

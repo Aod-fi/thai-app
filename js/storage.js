@@ -68,3 +68,55 @@ export async function loadMeta(key, fallback) {
 export function saveMeta(key, value) {
   return run("meta", "readwrite", store => store.put(value, key));
 }
+
+// Bittet das Gerät, die Daten der App dauerhaft zu behalten. Ohne diese Bitte darf
+// das iPhone sie bei Speichermangel löschen. Fehlt die Funktion, passiert nichts.
+export async function requestPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
+  } catch {
+    // nicht schlimm, die App läuft trotzdem
+  }
+}
+
+// Liest eine ganze Tabelle als Objekt { Schlüssel: Wert }
+async function readAll(storeName) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const all = {};
+    const request = db.transaction(storeName).objectStore(storeName).openCursor();
+    request.onsuccess = () => {
+      const cursor = request.result;
+      if (cursor) {
+        all[cursor.key] = cursor.value;
+        cursor.continue();
+      } else {
+        resolve(all);
+      }
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+// Für "Lernstand sichern": alles, was gespeichert ist
+export async function exportAll() {
+  return { progress: await readAll("progress"), meta: await readAll("meta") };
+}
+
+// Für "Lernstand laden": ersetzt den ganzen Lernstand auf einmal.
+// Klappt etwas nicht, bleibt der alte Lernstand unverändert.
+export async function importAll({ progress, meta }) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["progress", "meta"], "readwrite");
+    const progressStore = transaction.objectStore("progress");
+    const metaStore = transaction.objectStore("meta");
+    progressStore.clear();
+    metaStore.clear();
+    for (const [key, value] of Object.entries(progress)) progressStore.put(value, key);
+    for (const [key, value] of Object.entries(meta)) metaStore.put(value, key);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error);
+  });
+}

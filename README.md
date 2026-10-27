@@ -14,6 +14,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `js/app.js` | Der Ablauf: Karte zeigen, umdrehen, bewerten |
 | `js/leitner.js` | Die Regeln, wann eine Karte wiederkommt (5 Fächer) |
 | `js/storage.js` | Speichert den Lernstand auf dem Gerät |
+| `js/backup.js` | Lernstand sichern und laden (Prüfen der Sicherungsdatei) |
 | `js/speech.js` | Die Sprachausgabe mit der Thai-Stimme |
 | `js/pitch.js` | Ton-Kurve: berechnet die Tonhöhe einer Aufnahme |
 | `js/tone-curve.js` | Ton-Kurve: lädt die Tondateien und zeichnet die Linien |
@@ -35,6 +36,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 
 - Pro Runde höchstens 20 Karten, davon höchstens 5 neue pro Tag.
 - Fach 1 bis 5 = Wiederholung nach 1, 2, 4, 8, 16 Tagen.
+- Eine neue Karte wird zuerst nur vorgestellt („Gemerkt, weiter“). Am Ende der Runde fragt die App sie ab, erst diese Antwort zählt.
 - **Gewusst:** ein Fach weiter. **Schwer:** Fach bleibt. **Nochmal:** zurück in Fach 1 und in derselben Runde noch einmal.
 - Karten mit „aufpassen“ (deine Schwachstellen) bekommen immer den Abstand des Fachs darunter.
 
@@ -129,6 +131,8 @@ npm test        # prüft die Fächer-Logik
 **Mac:** Adresse in Safari öffnen → Menü **Ablage → Zum Dock hinzufügen**.
 
 Jedes Gerät hat seinen eigenen Lernstand. Der Abgleich zwischen den Geräten kommt in Stufe 2.
+Bis dahin: **Statistik → Lernstand sichern** speichert ihn als Datei (iPhone: „In Dateien sichern“, z. B. iCloud Drive),
+**Lernstand laden** holt ihn zurück, auch auf ein anderes Gerät.
 
 Fehlt die Thai-Stimme: Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“ laden
 (Mac: Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten).

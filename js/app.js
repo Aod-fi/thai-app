@@ -2,7 +2,8 @@
 // Speicher (storage.js) und Sprachausgabe (speech.js).
 
 import { buildRound, rateCard, countByBox, unseenCards, practiceRound, themes, streak, toDateString, MAX_NEW_PER_DAY, EXTRA_NEW_STEP } from "./leitner.js";
-import { loadStates, saveState, loadMeta, saveMeta } from "./storage.js";
+import { loadStates, saveState, loadMeta, saveMeta, requestPersistence, exportAll, importAll } from "./storage.js";
+import { buildBackup, parseBackup, backupFileName } from "./backup.js";
 import { initSpeech, speak, RATE_NORMAL, RATE_SLOW } from "./speech.js";
 import { listenQuiz, themeStats, dueForecast } from "./extras.js";
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording, recordingBlob } from "./recorder.js";
@@ -14,7 +15,7 @@ import { initDialogs } from "./dialog-view.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.7.4";
+const VERSION = "1.7.5";
 
 // Kurzschreibweise, um ein Element über seine id zu finden
 const $ = id => document.getElementById(id);
@@ -30,6 +31,7 @@ let focus = "";       // Fokus für neue Karten: "" = alle Themen, ein Thema ode
 let areas = [];       // Bereiche aus inhalte/bereiche.json
 let openArea = "";    // aufgeklappter Bereich auf der Themen-Seite
 let practice = false; // true = freies Üben, Bewertungen ändern keinen Lernstand
+let introduced = new Set(); // neue Karten, die in dieser Runde schon vorgestellt wurden
 let quiz = [];        // Fragen der Hörübung
 let quizIndex = 0;    // aktuelle Frage
 let quizScore = 0;    // richtige Antworten
@@ -56,6 +58,7 @@ async function start() {
   if (!validFocus(focus)) focus = "";
   $("version").textContent = VERSION;
   showHome();
+  requestPersistence();
 
   const hasVoice = await initSpeech();
   $("voice-warning").hidden = hasVoice;
@@ -126,8 +129,10 @@ function boxesHtml() {
 
 async function startRound() {
   practice = false;
+  introduced = new Set();
   queue = await todaysRound();
-  roundSize = queue.length;
+  // Neue Karten kommen zweimal dran: erst vorstellen, am Ende der Runde abfragen
+  roundSize = queue.length + queue.filter(card => !states[card.id]).length;
   showView("round");
   showNextCard();
 }
@@ -135,6 +140,7 @@ async function startRound() {
 // Freies Üben: Karten des gewählten Themas, ohne Einfluss auf die Fächer
 function startPractice() {
   practice = true;
+  introduced = new Set();
   queue = practiceRound(cards, focusThemes());
   roundSize = queue.length;
   showView("round");
@@ -153,15 +159,25 @@ function showNextCard() {
   // Richtung zufällig wählen; neue Karten werden zuerst einmal vorgestellt
   direction = Math.random() < 0.5 ? "hoeren" : "sprechen";
 
-  $("round-counter").textContent = `noch ${queue.length + 1} von ${roundSize}`;
+  // Noch offen: diese Karte, der Rest der Runde und die Abfragen noch nicht vorgestellter neuer Karten
+  const pendingIntros = practice ? 0 : [current, ...queue].filter(card => !states[card.id] && !introduced.has(card.id)).length;
+  $("round-counter").textContent = `noch ${queue.length + 1 + pendingIntros} von ${roundSize}`;
   const badges = [];
   if (practice) badges.push("Freies Üben");
-  if (isNew) badges.push("Neu");
+  if (isNew) badges.push(introduced.has(current.id) ? "Neu · Abfrage" : "Neu");
   if (current.aufpassen) badges.push("⚠ Aufpassen");
   $("card-badges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
 
-  if (isNew) {
-    showBack();
+  // Neue Karte zum ersten Mal: nur vorstellen (Lernrunde) bzw. gleich die Lösung zeigen
+  // (freies Üben). In der Lernrunde kommt sie am Ende der Runde zum Abfragen wieder.
+  if (isNew && !introduced.has(current.id)) {
+    if (practice) {
+      showBack();
+    } else {
+      introduced.add(current.id);
+      queue.push(current);
+      showBack(true);
+    }
     return;
   }
 
@@ -169,6 +185,7 @@ function showNextCard() {
   $("card-back").hidden = true;
   $("flip-button").hidden = false;
   $("rating-buttons").hidden = true;
+  $("intro-buttons").hidden = true;
 
   if (direction === "hoeren") {
     $("front-hint").textContent = "Hör zu: Was bedeutet das?";
@@ -182,11 +199,13 @@ function showNextCard() {
   }
 }
 
-function showBack() {
+// intro = true: neue Karte wird nur vorgestellt, statt Bewerten gibt es "Gemerkt, weiter"
+function showBack(intro = false) {
   $("card-front").hidden = true;
   $("card-back").hidden = false;
   $("flip-button").hidden = true;
-  $("rating-buttons").hidden = false;
+  $("rating-buttons").hidden = intro;
+  $("intro-buttons").hidden = !intro;
 
   $("back-umschrift").textContent = current.umschrift;
   $("back-deutsch").textContent = current.deutsch;
@@ -698,7 +717,67 @@ async function showStats() {
     })
     .join("");
 
+  $("backup-message").hidden = true;
   showView("stats");
+}
+
+// ---------- Lernstand sichern und laden ----------
+
+function showBackupMessage(text) {
+  $("backup-message").textContent = text;
+  $("backup-message").hidden = false;
+}
+
+// Speichert den Lernstand als Datei. Auf dem iPhone öffnet sich das Teilen-Menü,
+// dort "In Dateien sichern" wählen. Sonst wird die Datei heruntergeladen.
+async function saveBackup() {
+  const backup = buildBackup(await exportAll(), VERSION);
+  const name = backupFileName(today());
+  const file = new File([JSON.stringify(backup, null, 1)], name, { type: "application/json" });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: "MyThai Lernstand" });
+      showBackupMessage("✓ Gesichert. Tipp: „In Dateien sichern“ und iCloud Drive wählen.");
+    } catch (error) {
+      if (error.name !== "AbortError") showBackupMessage("Sichern hat nicht geklappt. Bitte nochmal versuchen.");
+    }
+    return;
+  }
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(file);
+  link.download = name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+  showBackupMessage(`✓ Gesichert als „${name}“ (Ordner Downloads).`);
+}
+
+// Lädt eine Sicherungsdatei und ersetzt nach Rückfrage den Lernstand auf diesem Gerät
+async function loadBackup(event) {
+  const file = event.target.files[0];
+  event.target.value = "";   // dieselbe Datei später nochmal wählbar
+  if (!file) return;
+  let backup;
+  try {
+    backup = parseBackup(await file.text());
+  } catch (error) {
+    showBackupMessage(error.message);
+    return;
+  }
+  const count = Object.keys(backup.progress).length;
+  const when = backup.gesichertAm ? ` vom ${new Date(backup.gesichertAm).toLocaleDateString("de-DE")}` : "";
+  if (!confirm(`Sicherung${when} mit ${count} gelernten Karten laden?\nDer jetzige Lernstand auf diesem Gerät wird dabei ersetzt.`)) return;
+  try {
+    await importAll(backup);
+  } catch {
+    showBackupMessage("Laden hat nicht geklappt. Dein bisheriger Lernstand ist unverändert.");
+    return;
+  }
+  states = await loadStates();
+  focus = await loadMeta("focus", "");
+  if (!validFocus(focus)) focus = "";
+  await showStats();
+  showBackupMessage(`✓ Lernstand geladen: ${count} gelernte Karten.`);
 }
 
 // ---------- Übersicht ----------
@@ -787,7 +866,11 @@ $("round-close").addEventListener("click", () => {
   resetVoice();
   showHome();
 });
-$("flip-button").addEventListener("click", showBack);
+$("flip-button").addEventListener("click", () => showBack());
+$("intro-next").addEventListener("click", showNextCard);
+$("backup-save").addEventListener("click", saveBackup);
+$("backup-load").addEventListener("click", () => $("backup-file").click());
+$("backup-file").addEventListener("change", loadBackup);
 $("front-speak").addEventListener("click", () => speak(current.thai));
 $("back-speak").addEventListener("click", () => speak(current.thai, RATE_NORMAL));
 $("back-speak-slow").addEventListener("click", () => speak(current.thai, RATE_SLOW));

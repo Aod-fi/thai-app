@@ -97,5 +97,60 @@
       { "wer": "gegenueber", "umschrift": "dâi khâ. khɔ̌ɔ LINE nɔ̀i khâ.", "thai": "ได้ค่ะ ขอไลน์หน่อยค่ะ", "deutsch": "Gern. Gib mir deine LINE." },
       { "wer": "ich", "umschrift": "oo-khee khráp. khɔ̀ɔp-khun khráp.", "thai": "โอเคครับ ขอบคุณครับ", "deutsch": "Okay. Danke." }
     ]
+  },
+  {
+    "id": "einkauf-laden", "thema": "Einkaufen", "titel": "Im Laden einkaufen", "einheit": "12",
+    "rollen": { "ich": "Kunde", "gegenueber": "Verkäuferin" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "an níi mii sǐi ʉ̀ʉn mǎi khráp?", "thai": "อันนี้มีสีอื่นไหมครับ", "deutsch": "Gibt es das hier in einer anderen Farbe?" },
+      { "wer": "gegenueber", "umschrift": "mii khâ. nîi khâ.", "thai": "มีค่ะ นี่ค่ะ", "deutsch": "Ja. Hier, bitte." },
+      { "wer": "ich", "umschrift": "ao sɔ̌ɔng an khráp. tâo-rài khráp?", "thai": "เอาสองอันครับ เท่าไหร่ครับ", "deutsch": "Ich nehme zwei Stück. Was macht das?" },
+      { "wer": "gegenueber", "umschrift": "sǎam rɔ́ɔi bàat khâ.", "thai": "สามร้อยบาทค่ะ", "deutsch": "300 Baht." },
+      { "wer": "ich", "umschrift": "jàai dûai bàt dâi mǎi khráp?", "thai": "จ่ายด้วยบัตรได้ไหมครับ", "deutsch": "Kann ich mit Karte zahlen?" },
+      { "wer": "gegenueber", "umschrift": "mâi dâi khâ. ngən sòt khâ.", "thai": "ไม่ได้ค่ะ เงินสดค่ะ", "deutsch": "Nein, nur bar (ngən sòt = Bargeld)." },
+      { "wer": "ich", "umschrift": "oo-khee khráp. mâi ao thǔng khráp.", "thai": "โอเคครับ ไม่เอาถุงครับ", "deutsch": "Okay. Keine Tüte, bitte." },
+      { "wer": "gegenueber", "umschrift": "khɔ̀ɔp-khun khâ.", "thai": "ขอบคุณค่ะ", "deutsch": "Danke." }
+    ]
+  },
+  {
+    "id": "hotel-einchecken", "thema": "Hotel", "titel": "Im Hotel einchecken", "einheit": "13",
+    "rollen": { "ich": "Gast", "gegenueber": "Rezeption" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "sà-wàt-dii khráp. mii hɔ̂ng wâang mǎi khráp?", "thai": "สวัสดีครับ มีห้องว่างไหมครับ", "deutsch": "Hallo. Haben Sie ein Zimmer frei?" },
+      { "wer": "gegenueber", "umschrift": "mii khâ. yùu kìi khʉʉn khá?", "thai": "มีค่ะ อยู่กี่คืนคะ", "deutsch": "Ja. Wie viele Nächte bleiben Sie?" },
+      { "wer": "ich", "umschrift": "sɔ̌ɔng khʉʉn khráp. khʉʉn lá tâo-rài khráp?", "thai": "สองคืนครับ คืนละเท่าไหร่ครับ", "deutsch": "Zwei Nächte. Was kostet eine Nacht?" },
+      { "wer": "gegenueber", "umschrift": "khʉʉn lá kâo rɔ́ɔi bàat khâ.", "thai": "คืนละเก้าร้อยบาทค่ะ", "deutsch": "900 Baht pro Nacht." },
+      { "wer": "ich", "umschrift": "oo-khee khráp.", "thai": "โอเคครับ", "deutsch": "Okay." },
+      { "wer": "gegenueber", "umschrift": "nîi kun-jɛɛ khâ.", "thai": "นี่กุญแจค่ะ", "deutsch": "Hier ist der Schlüssel." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. rá-hàt wai-fai à-rai khráp?", "thai": "ขอบคุณครับ รหัสไวไฟอะไรครับ", "deutsch": "Danke. Wie ist das WLAN-Passwort?" },
+      { "wer": "gegenueber", "umschrift": "nʉ̀ng sɔ̌ɔng sǎam sìi hâa hòk khâ.", "thai": "หนึ่งสองสามสี่ห้าหกค่ะ", "deutsch": "1 2 3 4 5 6." }
+    ]
+  },
+  {
+    "id": "zeit-verabreden", "thema": "Zeit", "titel": "Sich verabreden", "einheit": "14–15",
+    "rollen": { "ich": "Du", "gegenueber": "Bekannte" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "phrûng-níi wâang mǎi khráp?", "thai": "พรุ่งนี้ว่างไหมครับ", "deutsch": "Hast du morgen Zeit?" },
+      { "wer": "gegenueber", "umschrift": "phrûng-níi mâi wâang khâ. wan sǎo wâang khâ.", "thai": "พรุ่งนี้ไม่ว่างค่ะ วันเสาร์ว่างค่ะ", "deutsch": "Morgen nicht. Am Samstag habe ich Zeit." },
+      { "wer": "ich", "umschrift": "wan sǎo pai kin khâao dûai kan mǎi khráp?", "thai": "วันเสาร์ไปกินข้าวด้วยกันไหมครับ", "deutsch": "Gehen wir Samstag zusammen essen?" },
+      { "wer": "gegenueber", "umschrift": "dâi khâ. kìi moong khá?", "thai": "ได้ค่ะ กี่โมงคะ", "deutsch": "Gern. Um wie viel Uhr?" },
+      { "wer": "ich", "umschrift": "hòk moong yen khráp.", "thai": "หกโมงเย็นครับ", "deutsch": "Um sechs Uhr abends." },
+      { "wer": "gegenueber", "umschrift": "oo-khee khâ. phóp kan wan sǎo ná khá.", "thai": "โอเคค่ะ พบกันวันเสาร์นะคะ", "deutsch": "Okay. Bis Samstag!" },
+      { "wer": "ich", "umschrift": "phóp kan wan sǎo khráp.", "thai": "พบกันวันเสาร์ครับ", "deutsch": "Bis Samstag!" }
+    ]
+  },
+  {
+    "id": "notfall-apotheke", "thema": "Gesundheit & Notfall", "titel": "In der Apotheke", "einheit": "16",
+    "rollen": { "ich": "Kunde", "gegenueber": "Apothekerin" },
+    "saetze": [
+      { "wer": "ich", "umschrift": "sà-wàt-dii khráp. phǒm pùat hǔa mâak khráp.", "thai": "สวัสดีครับ ผมปวดหัวมากครับ", "deutsch": "Hallo. Ich habe starke Kopfschmerzen." },
+      { "wer": "gegenueber", "umschrift": "pen khâi dûai mǎi khá?", "thai": "เป็นไข้ด้วยไหมคะ", "deutsch": "Haben Sie auch Fieber?" },
+      { "wer": "ich", "umschrift": "mâi pen khâi khráp.", "thai": "ไม่เป็นไข้ครับ", "deutsch": "Nein, kein Fieber." },
+      { "wer": "gegenueber", "umschrift": "phɛ́ɛ yaa à-rai mǎi khá?", "thai": "แพ้ยาอะไรไหมคะ", "deutsch": "Sind Sie gegen ein Medikament allergisch?" },
+      { "wer": "ich", "umschrift": "mâi phɛ́ɛ khráp.", "thai": "ไม่แพ้ครับ", "deutsch": "Nein." },
+      { "wer": "gegenueber", "umschrift": "kin yaa níi khâ. wan lá sǎam khráng khâ.", "thai": "กินยานี้ค่ะ วันละสามครั้งค่ะ", "deutsch": "Nehmen Sie diese Tabletten, dreimal am Tag (khráng = Mal)." },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. tâo-rài khráp?", "thai": "ขอบคุณครับ เท่าไหร่ครับ", "deutsch": "Danke. Was kostet das?" },
+      { "wer": "gegenueber", "umschrift": "hâa-sìp bàat khâ.", "thai": "ห้าสิบบาทค่ะ", "deutsch": "50 Baht." }
+    ]
   }
 ]

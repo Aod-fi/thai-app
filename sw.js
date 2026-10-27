@@ -15,6 +15,7 @@ const FILES = [
   "js/storage.js",
   "js/speech.js",
   "js/extras.js",
+  "js/backup.js",
   "js/recorder.js",
   "js/voice-check.js",
   "js/numbers.js",
@@ -73,20 +74,35 @@ self.addEventListener("activate", event => {
   event.waitUntil(self.clients.claim());
 });
 
+// So lange wird höchstens auf das Netz gewartet. Antwortet es nicht schneller
+// (schwacher Empfang), kommt die gespeicherte Kopie, damit die App sofort startet.
+// Die Antwort aus dem Netz wird trotzdem noch gespeichert und gilt beim nächsten Mal.
+const NETWORK_TIMEOUT_MS = 3000;
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 // Jede Anfrage der App läuft hier durch
 self.addEventListener("fetch", event => {
   const request = event.request;
   if (request.method !== "GET" || new URL(request.url).origin !== location.origin) return;
 
-  event.respondWith(
-    // "no-cache": beim Server nachfragen, ob es eine neuere Version gibt
-    fetch(request, { cache: "no-cache" })
-      .then(response => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
-        return response;
-      })
-      // Kein Netz: gespeicherte Kopie nehmen
-      .catch(() => caches.match(request, { ignoreSearch: true }))
-  );
+  // "no-cache": beim Server nachfragen, ob es eine neuere Version gibt
+  const network = fetch(request, { cache: "no-cache" }).then(async response => {
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      await cache.put(request, response.clone());
+    }
+    return response;
+  });
+  // Auch wenn schon die gespeicherte Kopie geliefert wurde: das Speichern fertig machen
+  event.waitUntil(network.catch(() => {}));
+
+  event.respondWith((async () => {
+    // Netz antwortet rechtzeitig: frische Datei. Kein Netz oder zu langsam: null
+    const quick = await Promise.race([network.catch(() => null), wait(NETWORK_TIMEOUT_MS).then(() => null)]);
+    if (quick) return quick;
+    const cached = await caches.match(request, { ignoreSearch: true });
+    // Noch keine Kopie gespeichert: dann eben weiter auf das Netz warten
+    return cached || network;
+  })());
 });
