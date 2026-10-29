@@ -288,8 +288,29 @@ button:disabled { opacity: 0.5; cursor: default; }
 .head-buttons .secondary.small { position: relative; }
 .head-buttons .secondary.small::after { content: ""; position: absolute; inset: -5px -2px; }
 
+/* Startseite "Karten:": vier Tasten nebeneinander, passen auch auf 320 px */
+.kind-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+.kind-buttons button {
+  min-height: 44px; padding: 8px 2px; font-size: 0.9rem; font-weight: 600;
+  background: var(--panel); color: var(--text); border: 2px solid var(--muted);
+}
+.kind-buttons button.on { background: var(--accent); border-color: var(--accent); color: var(--on-color); }
+
+/* Abzeichen der Kartenart (Wort, Satz, Verstehen): dezent, Schrift in Textfarbe */
+.kind-badge { border: 1px solid var(--muted); color: var(--text); }
+.kind-hoeren { background: var(--bubble-me); }
+.kind-hint { font-size: 0.85rem; text-align: center; margin: 6px 0 0; }
+.row .kind-badge { font-size: 0.7rem; font-weight: 500; padding: 1px 7px; vertical-align: middle; white-space: nowrap; }
+
 /* Profil-Taste oben (👤): mindestens 44 px breit */
 .head-buttons .profile-button { min-width: 44px; }
+/* Schmale Bildschirme (320 px): Tasten oben nicht umbrechen */
+.head-buttons .secondary.small { white-space: nowrap; }
+@media (max-width: 360px) {
+  .home-head h1 { font-size: 1.4rem; }
+  .head-buttons { gap: 4px; }
+  .head-buttons .secondary.small { padding: 6px 7px; }
+}
 
 /* Mein Profil */
 .profile-form label, .profile-form .field-label { display: block; font-weight: 700; margin: 0 0 6px; }

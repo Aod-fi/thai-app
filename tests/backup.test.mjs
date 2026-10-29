@@ -46,3 +46,10 @@ test("Ältere Sicherungen ohne Profil lassen sich weiter laden", () => {
   assert.deepEqual(loaded.progress, data.progress);
   assert.equal(loaded.profil, null);
 });
+
+test("Die Wahl „Karten:“ wird mitgesichert, ältere Sicherungen haben keine", () => {
+  const backup = buildBackup({ ...data, kartenart: "wort" }, "1.8.3");
+  assert.equal(parseBackup(JSON.stringify(backup)).kartenart, "wort");
+  assert.equal(parseBackup(JSON.stringify(buildBackup(data, "1.8.3"))).kartenart, null);
+  assert.equal(parseBackup(JSON.stringify({ ...backup, kartenart: "unsinn" })).kartenart, null);
+});

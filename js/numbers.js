@@ -76,6 +76,22 @@ export function makeTask(number, baht = false) {
     : { number, thai, umschrift };
 }
 
+// Kanyas Tondatei einer Aufgabe: audio/zahlen/<zahl>.m4a, Preise audio/zahlen/<zahl>-baht.m4a
+// (erzeugt mit scripts/make-audio.sh, offline gespeichert von sw.js)
+export function numberAudio(task) {
+  return `audio/zahlen/${task.number}${task.thai.endsWith("บาท") ? "-baht" : ""}.m4a`;
+}
+
+// Alle Tondateien der Zahlenübung mit dem Text, den Kanya dafür spricht:
+// Zahlen 1 bis 100 (Stufe 1 und 2) und alle Preise der Stufe 3
+export function numberAudioFiles() {
+  const files = [];
+  for (let n = 1; n <= LEVELS[2].max; n++) files.push(makeTask(n));
+  const { min, max, step } = LEVELS[3];
+  for (let n = min; n <= max; n += step) files.push(makeTask(n, true));
+  return files.map(task => ({ file: numberAudio(task), thai: task.thai }));
+}
+
 // Stellt eine Runde mit 10 Aufgaben zusammen, möglichst ohne Wiederholung
 //   random: Zufallsfunktion, in Tests ersetzbar
 export function numberRound(level, random = Math.random) {

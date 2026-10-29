@@ -14,6 +14,9 @@ const cards = JSON.parse(readFileSync(file, "utf8"));
 // Diese Felder darf das Feld "frau" (eigene Texte für das Profil Frau) enthalten
 const frauFields = ["umschrift", "thai", "deutsch", "englisch", "merkhilfe", "merkhilfe_en", "beispiel", "beispiel_en", "beispiel_thai", "beispiel_thai_en"];
 
+// Erlaubte Werte im Feld "art"
+const KINDS = ["wort", "satz", "hoeren"];
+
 // Diese Felder muss jede Karte haben
 const requiredFields = ["id", "einheit", "thema", "umschrift", "thai", "deutsch", "merkhilfe", "englisch", "merkhilfe_en"];
 // Thai-Schrift liegt im Unicode-Bereich U+0E00 bis U+0E7F
@@ -56,6 +59,10 @@ cards.forEach((card, index) => {
       errors.push(`${name}: Feld "${field}" enthält keine Thai-Schrift`);
     }
   }
+
+  // Art der Karte: "wort" (Wort oder kurze Wendung), "satz" (Satz, den man selbst sagt)
+  // oder "hoeren" (Satz, den andere zu einem sagen)
+  if (!KINDS.includes(card.art)) errors.push(`${name}: Feld "art" muss ${KINDS.join(", ")} sein`);
 
   if ("aufpassen" in card && typeof card.aufpassen !== "boolean") {
     errors.push(`${name}: "aufpassen" muss true oder false sein`);

@@ -67,7 +67,7 @@ export function isFirstStart(profile, saved) {
 const KHRAP = /(^|[\s("„])khráp(?=[\s.?!,;:…)"“/]|$)/g;
 const PHOM = /(^|[\s("„])phǒm(?=[\s.?!,;:…)"“/]|$)/g;
 // Fragewörter: steht eins davon im selben Satzteil vor khráp, ist es eine Frage (khá)
-const QUESTION_WORDS = ["mǎi", "mái", "rʉ̌ʉ", "nǎi", "à-rai", "arai", "tâo-rài", "mʉ̂a-rài", "yang-ngai", "yang ngai", "tham-mai", "thammai", "kìi", "khrai", "lâ"];
+const QUESTION_WORDS = ["mǎi", "mái", "rʉ̌ʉ", "nǎi", "à-rai", "arai", "thâo-rài", "mʉ̂a-rài", "yang-ngai", "yang ngai", "tham-mai", "thammai", "kìi", "khrai", "lâ"];
 // Anreden: "nɔ́ɔng khráp!" ruft jemanden, das heißt bei Frauen nɔ́ɔng khá!
 const CALLS = ["nɔ́ɔng", "phîi", "khun"];
 // Ein Satzteil endet an . ! ? , ; – oder /

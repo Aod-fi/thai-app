@@ -25,7 +25,7 @@ test("Aussage: khráp → khâ, phǒm → chán", () => {
 });
 
 test("Frage (Fragezeichen oder Fragewort), ná und Anrede: khá", () => {
-  assert.equal(feminizeUmschrift("an níi tâo-rài khráp?"), "an níi tâo-rài khá?");
+  assert.equal(feminizeUmschrift("an níi thâo-rài khráp?"), "an níi thâo-rài khá?");
   assert.equal(feminizeUmschrift("khun chʉ̂ʉ à-rai khráp"), "khun chʉ̂ʉ à-rai khá");
   assert.equal(feminizeUmschrift("mii lûuk mǎi khráp"), "mii lûuk mǎi khá");
   assert.equal(feminizeUmschrift("pai kɔ̀ɔn ná khráp"), "pai kɔ̀ɔn ná khá");

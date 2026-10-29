@@ -11,14 +11,15 @@ import { canRecord, startRecording, stopRecording, playRecording, clearRecording
 import { curveFromAudio, kanyaCurve, curveSvg } from "./tone-curve.js";
 import { endMovement } from "./pitch.js";
 import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
-import { numberRound, checkNumberAnswer } from "./numbers.js";
+import { numberRound, checkNumberAnswer, numberAudio } from "./numbers.js";
 import { initDialogs, resetDialogs } from "./dialog-view.js";
 import { t, language, setLanguage, translatePage, localizeCards, localizeAreas, localizeToneGroups, themeName } from "./sprache.js";
 import { loadProfile, saveProfile, profileCards, isFirstStart, parseAge, MANN, MAX_NAME } from "./profil.js";
+import { loadKind, saveKind, cardsOfKind, BADGES } from "./kartenart.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.8.3";
+const VERSION = "1.8.4";
 
 // Adresse der App, die beim Teilen verschickt wird
 const APP_URL = "https://aod-fi.github.io/thai-app/";
@@ -53,6 +54,7 @@ let toneIndex = 0;
 let toneScore = 0;
 let profile = MANN;   // Mein Profil (Name, Mann/Frau, Alter), siehe profil.js
 let editGender = "mann"; // auf der Profilseite gewählt, gilt erst nach "Speichern"
+let kind = loadKind();   // Startseite "Karten:": "alle", "wort", "satz" oder "hoeren" (kartenart.js)
 
 const today = () => toDateString(new Date());
 
@@ -113,9 +115,12 @@ async function newLimitToday() {
   return MAX_NEW_PER_DAY + (record.date === today() ? record.count : 0);
 }
 
+// Karten der gewählten Art (Startseite "Karten:"); gilt für Lernrunde, neue Karten und Frei üben
+const kindCards = () => cardsOfKind(cards, kind);
+
 // Heutige Runde zusammenstellen
 async function todaysRound() {
-  return buildRound(cards, states, today(), await newSeenToday(), await newLimitToday(), focusThemes());
+  return buildRound(kindCards(), states, today(), await newSeenToday(), await newLimitToday(), focusThemes());
 }
 
 // ---------- Ansichten wechseln ----------
@@ -139,7 +144,7 @@ async function showHome() {
 
   // Ist heute alles erledigt und gibt es noch ungelernte Karten,
   // kann man freiwillig weitere neue Karten lernen.
-  const fresh = unseenCards(cards, states, focusThemes()).length;
+  const fresh = unseenCards(kindCards(), states, focusThemes()).length;
   $("more-button").hidden = round.length > 0 || fresh === 0;
 
   // Aktuelle Wahl "Neue Karten aus", Antippen öffnet die Themen-Seite
@@ -148,6 +153,12 @@ async function showHome() {
   $("focus-info").textContent = area ? t("alle {n} Themen · {fresh} neu", { n: area.themen.length, fresh }) : t("{fresh} neu", { fresh });
   $("practice-button").textContent = t("Frei üben: {what}", { what: area ? area.name : focus ? themeName(focus) : t("alle Themen") });
   $("listen-focus").textContent = t("Wörter aus: {what}", { what: area ? `${area.emoji} ${area.name}` : focus ? themeName(focus) : t("allen Themen") });
+
+  for (const button of document.querySelectorAll("[data-kind]")) {
+    const on = button.dataset.kind === kind;
+    button.classList.toggle("on", on);
+    button.setAttribute("aria-pressed", String(on));
+  }
 
   $("boxes").innerHTML = boxesHtml();
 
@@ -181,7 +192,7 @@ async function startRound() {
 function startPractice() {
   practice = true;
   introduced = new Set();
-  queue = practiceRound(cards, focusThemes());
+  queue = practiceRound(kindCards(), focusThemes());
   roundSize = queue.length;
   showView("round");
   showNextCard();
@@ -206,7 +217,8 @@ function showNextCard() {
   if (practice) badges.push(t("Freies Üben"));
   if (isNew) badges.push(t(introduced.has(current.id) ? "Neu · Abfrage" : "Neu"));
   if (current.aufpassen) badges.push(t("⚠ Aufpassen"));
-  $("card-badges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("");
+  $("card-badges").innerHTML = badges.map(b => `<span class="badge">${b}</span>`).join("") + kindBadge(current);
+  $("kind-hint").hidden = current.art !== "hoeren";
 
   // Neue Karte zum ersten Mal: nur vorstellen (Lernrunde) bzw. gleich die Lösung zeigen
   // (freies Üben). In der Lernrunde kommt sie am Ende der Runde zum Abfragen wieder.
@@ -237,6 +249,18 @@ function showNextCard() {
     $("front-text").textContent = current.deutsch;
     $("front-speak").hidden = true;
   }
+}
+
+// Abzeichen der Kartenart: Wort, Satz oder 👂 Verstehen
+function kindBadge(card) {
+  return BADGES[card.art] ? `<span class="badge kind-badge kind-${card.art}">${t(BADGES[card.art])}</span>` : "";
+}
+
+// Startseite "Karten:": Art wählen
+function chooseKind(value) {
+  kind = value;
+  saveKind(kind);
+  showHome();
 }
 
 // intro = true: neue Karte wird nur vorgestellt, statt Bewerten gibt es "Gemerkt, weiter"
@@ -461,7 +485,7 @@ async function chooseFocus(value) {
 
 function showTopics() {
   const stats = new Map(themeStats(cards, states).map(s => [s.theme, s]));
-  const fresh = list => unseenCards(cards, states, list).length;
+  const fresh = list => unseenCards(kindCards(), states, list).length;
   const list = $("topics-list");
   list.innerHTML = "";
 
@@ -606,10 +630,11 @@ function showNumberTask() {
 }
 
 // Zahl oder Preis vorlesen: Gibt es eine Karte mit genau diesem Thai (z. B. zahl-7,
-// preis-40), spielt Kanyas Tondatei, sonst spricht die Thai-Stimme des Geräts.
+// preis-40), spielt deren Tondatei, sonst Kanyas Datei aus audio/zahlen/.
+// Fehlt die Datei, spricht die Thai-Stimme des Geräts.
 function sayNumber(task, rate = RATE_NORMAL) {
   const card = rawCards.find(c => c.thai === task.thai);
-  play(card ? cardAudio(card) : "", task.thai, rate);
+  play(card ? cardAudio(card) : numberAudio(task), task.thai, rate);
 }
 
 function checkNumber(event) {
@@ -782,7 +807,7 @@ function showBackupMessage(text) {
 // Speichert den Lernstand als Datei. Auf dem iPhone öffnet sich das Teilen-Menü,
 // dort "In Dateien sichern" wählen. Sonst wird die Datei heruntergeladen.
 async function saveBackup() {
-  const backup = buildBackup({ ...(await exportAll()), profil: loadProfile() }, VERSION);
+  const backup = buildBackup({ ...(await exportAll()), profil: loadProfile(), kartenart: kind }, VERSION);
   const name = backupFileName(today());
   const file = new File([JSON.stringify(backup, null, 1)], name, { type: "application/json" });
 
@@ -829,6 +854,10 @@ async function loadBackup(event) {
   if (backup.profil) {
     saveProfile(backup.profil);
     profile = loadProfile() || MANN;
+  }
+  if (backup.kartenart) {
+    kind = backup.kartenart;
+    saveKind(kind);
   }
   states = await loadStates();
   applyLanguage();
@@ -957,6 +986,7 @@ function renderOverview() {
           '<div class="text"><div class="umschrift-small"></div><div class="muted"></div></div>' +
           '<button class="secondary">▶</button><button class="secondary">🐢</button>';
         row.querySelector(".umschrift-small").textContent = card.umschrift + (card.aufpassen ? " ⚠" : "");
+        row.querySelector(".umschrift-small").insertAdjacentHTML("beforeend", " " + kindBadge(card));
         row.querySelector(".muted").textContent = card.deutsch;
         const [normal, slow] = row.querySelectorAll("button");
         normal.addEventListener("click", () => sayCard(card, RATE_NORMAL));
@@ -972,6 +1002,9 @@ function renderOverview() {
 $("start-button").addEventListener("click", startRound);
 $("more-button").addEventListener("click", learnMore);
 $("focus-button").addEventListener("click", openTopics);
+for (const button of document.querySelectorAll("[data-kind]")) {
+  button.addEventListener("click", () => chooseKind(button.dataset.kind));
+}
 $("topics-close").addEventListener("click", showHome);
 $("practice-button").addEventListener("click", startPractice);
 $("overview-button").addEventListener("click", showOverview);

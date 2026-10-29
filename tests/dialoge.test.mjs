@@ -12,7 +12,7 @@ const taxi = dialogs.find(d => d.id === "taxi-einsteigen");
 test("khâ und khá werden zu khráp, andere Wörter bleiben", () => {
   assert.equal(khrapUmschrift("sà-wàt-dii khâ. pai nǎi khá?"), "sà-wàt-dii khráp. pai nǎi khráp?");
   assert.equal(khrapUmschrift("khâ."), "khráp.");
-  assert.equal(khrapUmschrift("khâa rót tâo-rài khráp?"), "khâa rót tâo-rài khráp?");
+  assert.equal(khrapUmschrift("khâa rót thâo-rài khráp?"), "khâa rót thâo-rài khráp?");
   assert.equal(khrapUmschrift("khâao phàt kài"), "khâao phàt kài");
 });
 
