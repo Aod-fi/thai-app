@@ -7,6 +7,7 @@ import { speakAndWait, stopSpeaking, RATE_NORMAL, RATE_SLOW, SLOW_PLAYBACK } fro
 import { canRecord, startRecording, stopRecording, playRecording, clearRecording } from "./recorder.js";
 import { loadMeta, saveMeta } from "./storage.js";
 import { t, localizeDialogs, themeName } from "./sprache.js";
+import { loadProfile, profileDialogs, MANN } from "./profil.js";
 
 const $ = id => document.getElementById(id);
 
@@ -43,7 +44,8 @@ function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Spielt Kanyas Tondatei des Satzes. Fehlt sie, liest die Thai-Stimme des Geräts vor.
+// Spielt Kanyas Tondatei des Satzes. Fehlt sie (oder hat der Satz keine, z. B. mit eigenem Namen),
+// liest die Thai-Stimme des Geräts vor.
 // Gibt zurück, wie lange gesprochen wurde (Millisekunden).
 function playLine(line) {
   const started = Date.now();
@@ -64,6 +66,7 @@ function playLine(line) {
       speakAndWait(line.thai, slow ? RATE_SLOW : RATE_NORMAL).then(finish);
     };
     endPrevious = finish;
+    if (!line.audio) return fallback();
     player.onended = finish;
     player.onerror = fallback;
     player.src = line.audio;
@@ -132,7 +135,7 @@ export function initDialogs(options) {
 async function loadDialogs() {
   if (dialogs.length === 0) {
     const response = await fetch("inhalte/dialoge.json", { cache: "no-cache" });
-    dialogs = localizeDialogs(await response.json());
+    dialogs = localizeDialogs(profileDialogs(await response.json(), loadProfile() || MANN));
   }
   return dialogs;
 }
@@ -188,7 +191,7 @@ function switchMode(newMode) {
   stopAll();
   holdReset();
   mode = newMode;
-  lines = dialogLines(dialog, swapped);
+  lines = dialogLines(dialog, swapped, loadProfile() || MANN);
   index = 0;
   revealed = false;
   for (const button of document.querySelectorAll("[data-dialog-mode]")) {

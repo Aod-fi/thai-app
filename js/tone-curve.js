@@ -4,6 +4,7 @@
 // Beide werden mit derselben Funktion aus pitch.js berechnet.
 
 import { pitchTrack, normalizeTrack } from "./pitch.js";
+import { cardAudio } from "./audio-files.js";
 
 const SAMPLE_RATE = 22050;
 const RANGE = 7;          // angezeigter Bereich: ±7 Halbtöne um den eigenen Mittelwert
@@ -24,17 +25,18 @@ export async function curveFromAudio(data) {
   return normalizeTrack(track);
 }
 
-// Kanyas Kurve zu einer Karte (wird pro Karte nur einmal berechnet).
+// Kanyas Kurve zu einer Karte (wird pro Tondatei nur einmal berechnet, Profil Frau: audio/frau/).
 // Gibt null zurück, wenn es keine Tondatei gibt.
 export async function kanyaCurve(card) {
-  if (!kanyaCache.has(card.id)) {
-    const promise = fetch(`audio/${card.id}.m4a`)
+  const file = cardAudio(card);
+  if (!kanyaCache.has(file)) {
+    const promise = fetch(file)
       .then(response => (response.ok ? response.arrayBuffer() : null))
       .then(buffer => (buffer ? curveFromAudio(buffer) : null))
       .catch(() => null);
-    kanyaCache.set(card.id, promise);
+    kanyaCache.set(file, promise);
   }
-  return kanyaCache.get(card.id);
+  return kanyaCache.get(file);
 }
 
 // Punkte → SVG-Pfad. Lücken (stimmlose Laute) unterbrechen die Linie.

@@ -26,6 +26,7 @@ const FILES = [
   "js/dialoge.js",
   "js/dialog-view.js",
   "js/audio-files.js",
+  "js/profil.js",
   "inhalte/vokabeln.json",
   "inhalte/dialoge.json",
   "inhalte/toene.json",
@@ -72,6 +73,14 @@ async function cacheDialogAudio(cache) {
   await Promise.all(files.map(file => cache.add(file).catch(() => {})));
 }
 
+// Tondateien für das Profil Frau (audio/frau/...): welche es gibt, schreibt scripts/make-audio.sh
+// in audio/frau/liste.json. Fehlt eine Datei, ist das kein Fehler.
+async function cacheWomanAudio(cache) {
+  const response = await fetch("audio/frau/liste.json", { cache: "reload" });
+  const files = await response.json();
+  await Promise.all(files.map(file => cache.add(file).catch(() => {})));
+}
+
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -79,6 +88,7 @@ self.addEventListener("install", event => {
         await cache.addAll(FILES.map(file => new Request(file, { cache: "reload" })));
         await cacheAudio(cache).catch(() => {});
         await cacheDialogAudio(cache).catch(() => {});
+        await cacheWomanAudio(cache).catch(() => {});
       })
       .then(() => self.skipWaiting())
   );

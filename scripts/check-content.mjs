@@ -4,11 +4,15 @@
 
 import { readFileSync, existsSync } from "node:fs";
 import { toneOf, withoutTone } from "../js/tones.js";
-import { audioFiles } from "../js/dialoge.js";
-import { exampleAudioFiles, toneAudioFiles } from "../js/audio-files.js";
+import { audioFiles, womanAudioFiles } from "../js/dialoge.js";
+import { exampleAudioFiles, toneAudioFiles, womanCardAudioFiles } from "../js/audio-files.js";
+import { matchingParticles, meansHair, profileCards, MANN } from "../js/profil.js";
 
 const file = new URL("../inhalte/vokabeln.json", import.meta.url);
 const cards = JSON.parse(readFileSync(file, "utf8"));
+
+// Diese Felder darf das Feld "frau" (eigene Texte für das Profil Frau) enthalten
+const frauFields = ["umschrift", "thai", "deutsch", "englisch", "merkhilfe", "merkhilfe_en", "beispiel", "beispiel_en", "beispiel_thai", "beispiel_thai_en"];
 
 // Diese Felder muss jede Karte haben
 const requiredFields = ["id", "einheit", "thema", "umschrift", "thai", "deutsch", "merkhilfe", "englisch", "merkhilfe_en"];
@@ -55,6 +59,31 @@ cards.forEach((card, index) => {
 
   if ("aufpassen" in card && typeof card.aufpassen !== "boolean") {
     errors.push(`${name}: "aufpassen" muss true oder false sein`);
+  }
+
+  // Profil Frau (js/profil.js): khráp/ครับ und phǒm/ผม müssen in Umschrift und Thai-Text gleich oft
+  // vorkommen, sonst lässt sich der Thai-Text nicht umstellen. Merkhilfen, die "ich (Mann)" erklären,
+  // brauchen eine eigene Fassung für Frauen im Feld "frau".
+  const frau = card.frau || {};
+  if ("frau" in card && (typeof card.frau !== "object" || Object.keys(card.frau).some(key => !frauFields.includes(key)))) {
+    errors.push(`${name}: Feld "frau" darf nur ${frauFields.join(", ")} enthalten`);
+  }
+  if (!meansHair(card)) {
+    if (card.umschrift && card.thai && !frau.thai && !matchingParticles(card.umschrift, card.thai)) {
+      errors.push(`${name}: khráp/phǒm in "umschrift" und ครับ/ผม in "thai" kommen nicht gleich oft vor`);
+    }
+    const example = (card.beispiel || card.beispiel_en || "").split(" = ")[0];
+    if (card.beispiel_thai && !matchingParticles(example, card.beispiel_thai)) {
+      errors.push(`${name}: khráp/phǒm im Beispiel und ครับ/ผม in "beispiel_thai" kommen nicht gleich oft vor`);
+    }
+    if (card.beispiel_thai_en && !matchingParticles((card.beispiel_en || "").split(" = ")[0], card.beispiel_thai_en)) {
+      errors.push(`${name}: khráp/phǒm in "beispiel_en" und ครับ/ผม in "beispiel_thai_en" kommen nicht gleich oft vor`);
+    }
+    for (const field of ["merkhilfe", "merkhilfe_en", "deutsch", "englisch"]) {
+      if (card[field] && /phǒm|\bMann\b|\ba man\b|\(man\)/.test(card[field].normalize("NFC")) && !frau[field]) {
+        errors.push(`${name}: "${field}" spricht vom Mann (phǒm/Mann), es fehlt "frau": { "${field}": … }`);
+      }
+    }
   }
 });
 
@@ -116,6 +145,9 @@ dialogs.forEach((dialog, index) => {
       if (typeof line[field] !== "string" || line[field].trim() === "") errors.push(`${where}: Feld "${field}" fehlt oder ist leer`);
     }
     if (line.thai && !thaiLetters.test(line.thai)) errors.push(`${where}: Feld "thai" enthält keine Thai-Schrift`);
+    if (line.umschrift && line.thai && !matchingParticles(line.umschrift, line.thai)) {
+      errors.push(`${where}: khráp/phǒm in "umschrift" und ครับ/ผม in "thai" kommen nicht gleich oft vor (Profil Frau)`);
+    }
     for (const field of ["umschrift", "deutsch", "englisch"]) {
       if (line[field] && thaiLetters.test(line[field])) errors.push(`${where}: Feld "${field}" enthält Thai-Schrift`);
     }
@@ -169,5 +201,13 @@ if (missingOtherAudio.length > 0) {
 const missingDialogAudio = audioFiles(dialogs).filter(({ file }) => !existsSync(new URL(`../${file}`, import.meta.url)));
 if (missingDialogAudio.length > 0) {
   console.log(`ℹ️  ${missingDialogAudio.length} Dialog-Sätze ohne Tondatei (die App liest sie dann mit der Thai-Stimme des Geräts vor).`);
+  console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
+}
+
+const womanCards = profileCards(cards, { ...MANN, geschlecht: "frau" });
+const missingWomanAudio = [...womanCardAudioFiles(womanCards), ...exampleAudioFiles(womanCards), ...womanAudioFiles(dialogs)]
+  .filter(({ file }) => !existsSync(new URL(`../${file}`, import.meta.url)));
+if (missingWomanAudio.length > 0) {
+  console.log(`ℹ️  ${missingWomanAudio.length} Sätze für das Profil Frau ohne Tondatei (die App liest sie dann mit der Thai-Stimme des Geräts vor).`);
   console.log("   Auf dem Mac nachholen mit:  zsh scripts/make-audio.sh");
 }

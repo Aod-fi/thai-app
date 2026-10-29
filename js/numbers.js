@@ -51,7 +51,9 @@ export function numberToThai(n) {
 
   if (thousands) parts.push({ thai: DIGITS[thousands].thai + "พัน", umschrift: `${DIGITS[thousands].umschrift} phan` });
   if (hundreds) parts.push({ thai: DIGITS[hundreds].thai + "ร้อย", umschrift: `${DIGITS[hundreds].umschrift} rɔ́ɔi` });
-  if (rest) parts.push(belowHundred(rest));
+  // Eine 1 nach Hunderten oder Tausenden heißt ebenfalls èt (101 = nʉ̀ng rɔ́ɔi èt)
+  if (rest === 1 && parts.length > 0) parts.push({ thai: "เอ็ด", umschrift: "èt" });
+  else if (rest) parts.push(belowHundred(rest));
 
   return {
     thai: parts.map(p => p.thai).join(""),

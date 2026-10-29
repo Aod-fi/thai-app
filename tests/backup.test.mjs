@@ -30,3 +30,19 @@ test("Eine beschädigte Karte wird gemeldet", () => {
   const broken = buildBackup({ progress: { x: { box: 9, due: "morgen" } }, meta: {} }, "1.7.5");
   assert.throws(() => parseBackup(JSON.stringify(broken)), /beschädigt \(Karte x\)/);
 });
+
+test("Mein Profil wird mitgesichert und wieder geladen", () => {
+  const profil = { name: "Mia", geschlecht: "frau", alter: 42 };
+  const backup = buildBackup({ ...data, profil }, "1.8.2");
+  assert.deepEqual(backup.profil, profil);
+  assert.deepEqual(parseBackup(JSON.stringify(backup)).profil, profil);
+  // Ohne Profil steht in der Sicherung auch keins
+  assert.equal("profil" in buildBackup({ ...data, profil: null }, "1.8.2"), false);
+});
+
+test("Ältere Sicherungen ohne Profil lassen sich weiter laden", () => {
+  const old = { art: "mythai-lernstand", version: 1, appVersion: "1.8.2", gesichertAm: "2026-10-27T10:00:00.000Z", ...data };
+  const loaded = parseBackup(JSON.stringify(old));
+  assert.deepEqual(loaded.progress, data.progress);
+  assert.equal(loaded.profil, null);
+});

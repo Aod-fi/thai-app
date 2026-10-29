@@ -7,6 +7,7 @@
 #   audio/toene/<gruppe>-<nummer>.m4a
 # und für jeden Satz der Dialoge (inhalte/dialoge.json):
 #   audio/dialoge/<dialog>-<satz>.m4a
+# und für das Profil Frau die geänderten Sätze (audio/frau/..., siehe js/profil.js).
 # Die App spielt diese Dateien beim Vorlesen ab und berechnet daraus Kanyas Ton-Kurve
 # (zum Vergleich mit der eigenen Aussprache).
 #
@@ -67,6 +68,28 @@ node --input-type=module -e '
 ' | while IFS=$'\t' read -r ziel thai; do
   if [[ -f "$ziel" && "$1" != "--alle" ]]; then continue; fi
   name="${ziel:t:r}"
+  say -v Kanya -o "$tmp/$name.aiff" "$thai"
+  afconvert -f m4af -d aac@22050 -c 1 -b 32000 "$tmp/$name.aiff" "$ziel"
+  echo "  $ziel"
+done
+
+# Profil Frau: nur Karten, Beispielsätze und eigene Dialog-Sätze, deren Text sich ändert
+# (phǒm → chán, khráp → khâ/khá; Regeln in js/profil.js), in audio/frau/.
+# Dazu die Liste audio/frau/liste.json für den Offline-Speicher (sw.js).
+mkdir -p audio/frau/beispiele audio/frau/dialoge
+node --input-type=module -e '
+  import { readFileSync, writeFileSync } from "node:fs";
+  import { profileCards, MANN } from "./js/profil.js";
+  import { womanCardAudioFiles, exampleAudioFiles } from "./js/audio-files.js";
+  import { womanAudioFiles } from "./js/dialoge.js";
+  const cards = profileCards(JSON.parse(readFileSync("inhalte/vokabeln.json", "utf8")), { ...MANN, geschlecht: "frau" });
+  const dialogs = JSON.parse(readFileSync("inhalte/dialoge.json", "utf8"));
+  const files = [...womanCardAudioFiles(cards), ...exampleAudioFiles(cards), ...womanAudioFiles(dialogs)];
+  writeFileSync("audio/frau/liste.json", JSON.stringify(files.map(f => f.file), null, 1) + "\n");
+  for (const f of files) console.log(f.file + "\t" + f.thai);
+' | while IFS=$'\t' read -r ziel thai; do
+  if [[ -f "$ziel" && "$1" != "--alle" ]]; then continue; fi
+  name="frau-${${ziel#audio/frau/}//\//-}"
   say -v Kanya -o "$tmp/$name.aiff" "$thai"
   afconvert -f m4af -d aac@22050 -c 1 -b 32000 "$tmp/$name.aiff" "$ziel"
   echo "  $ziel"
