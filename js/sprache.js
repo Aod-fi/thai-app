@@ -316,4 +316,13 @@ const EN = {
   "Überspringen": "Skip",
   "🔒 Alles bleibt nur auf deinem Gerät.": "🔒 Everything stays on your device only.",
   "Bitte ein Alter von 1 bis 120 eingeben oder das Feld leer lassen.": "Please enter an age from 1 to 120 or leave the field empty.",
+  "Karten:": "Cards:",
+  "Alle": "All",
+  "Wörter": "Words",
+  "Sätze": "Sentences",
+  "Verstehen": "Listening",
+  "Wort": "Word",
+  "Satz": "Sentence",
+  "👂 Verstehen": "👂 Listening",
+  "Diesen Satz sagen andere zu dir.": "Other people say this sentence to you.",
 };

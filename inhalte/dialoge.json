@@ -5,7 +5,7 @@
     "rollen": { "ich": "Kunde", "gegenueber": "Verkäuferin" },
     "rollen_en": { "ich": "Customer", "gegenueber": "Seller" },
     "saetze": [
-      { "wer": "ich", "umschrift": "an níi tâo-rài khráp?", "thai": "อันนี้เท่าไหร่ครับ", "deutsch": "Was kostet das hier?", "englisch": "How much is this?" },
+      { "wer": "ich", "umschrift": "an níi thâo-rài khráp?", "thai": "อันนี้เท่าไหร่ครับ", "deutsch": "Was kostet das hier?", "englisch": "How much is this?" },
       { "wer": "gegenueber", "umschrift": "pɛ̀ɛt-sìp bàat khâ.", "thai": "แปดสิบบาทค่ะ", "deutsch": "80 Baht.", "englisch": "80 baht." },
       { "wer": "ich", "umschrift": "phɛɛng pai khráp. lót dâi mǎi khráp?", "thai": "แพงไปครับ ลดได้ไหมครับ", "deutsch": "Zu teuer. Geht ein Rabatt?", "englisch": "Too expensive. Can you give a discount?" },
       { "wer": "gegenueber", "umschrift": "dâi khâ. hòk-sìp bàat khâ.", "thai": "ได้ค่ะ หกสิบบาทค่ะ", "deutsch": "Geht. 60 Baht.", "englisch": "Okay. 60 baht." },
@@ -49,7 +49,7 @@
     "saetze": [
       { "wer": "ich", "umschrift": "cháa cháa nɔ̀i khráp.", "thai": "ช้าๆหน่อยครับ", "deutsch": "Etwas langsamer, bitte.", "englisch": "A bit slower, please." },
       { "wer": "gegenueber", "umschrift": "thʉ̌ng lɛ́ɛo khâ.", "thai": "ถึงแล้วค่ะ", "deutsch": "Wir sind da.", "englisch": "We're here." },
-      { "wer": "ich", "umschrift": "khâa rót tâo-rài khráp?", "thai": "ค่ารถเท่าไหร่ครับ", "deutsch": "Was kostet die Fahrt?", "englisch": "How much is the fare?" },
+      { "wer": "ich", "umschrift": "khâa rót thâo-rài khráp?", "thai": "ค่ารถเท่าไหร่ครับ", "deutsch": "Was kostet die Fahrt?", "englisch": "How much is the fare?" },
       { "wer": "gegenueber", "umschrift": "sɔ̌ɔng rɔ́ɔi hâa-sìp bàat khâ.", "thai": "สองร้อยห้าสิบบาทค่ะ", "deutsch": "250 Baht.", "englisch": "250 baht." },
       { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. sà-wàt-dii khráp.", "thai": "ขอบคุณครับ สวัสดีครับ", "deutsch": "Danke. Tschüss.", "englisch": "Thank you. Bye." },
       { "wer": "gegenueber", "umschrift": "sà-wàt-dii khâ.", "thai": "สวัสดีค่ะ", "deutsch": "Tschüss.", "englisch": "Bye." }
@@ -132,7 +132,7 @@
     "saetze": [
       { "wer": "ich", "umschrift": "an níi mii sǐi ʉ̀ʉn mǎi khráp?", "thai": "อันนี้มีสีอื่นไหมครับ", "deutsch": "Gibt es das hier in einer anderen Farbe?", "englisch": "Do you have this in another colour?" },
       { "wer": "gegenueber", "umschrift": "mii khâ. nîi khâ.", "thai": "มีค่ะ นี่ค่ะ", "deutsch": "Ja. Hier, bitte.", "englisch": "Yes. Here you are." },
-      { "wer": "ich", "umschrift": "ao sɔ̌ɔng an khráp. tâo-rài khráp?", "thai": "เอาสองอันครับ เท่าไหร่ครับ", "deutsch": "Ich nehme zwei Stück. Was macht das?", "englisch": "I'll take two. How much is that?" },
+      { "wer": "ich", "umschrift": "ao sɔ̌ɔng an khráp. thâo-rài khráp?", "thai": "เอาสองอันครับ เท่าไหร่ครับ", "deutsch": "Ich nehme zwei Stück. Was macht das?", "englisch": "I'll take two. How much is that?" },
       { "wer": "gegenueber", "umschrift": "sǎam rɔ́ɔi bàat khâ.", "thai": "สามร้อยบาทค่ะ", "deutsch": "300 Baht.", "englisch": "300 baht." },
       { "wer": "ich", "umschrift": "jàai dûai bàt dâi mǎi khráp?", "thai": "จ่ายด้วยบัตรได้ไหมครับ", "deutsch": "Kann ich mit Karte zahlen?", "englisch": "Can I pay by card?" },
       { "wer": "gegenueber", "umschrift": "mâi dâi khâ. ngən sòt khâ.", "thai": "ไม่ได้ค่ะ เงินสดค่ะ", "deutsch": "Nein, nur bar (ngən sòt = Bargeld).", "englisch": "No, cash only (ngən sòt = cash)." },
@@ -148,7 +148,7 @@
     "saetze": [
       { "wer": "ich", "umschrift": "sà-wàt-dii khráp. mii hɔ̂ng wâang mǎi khráp?", "thai": "สวัสดีครับ มีห้องว่างไหมครับ", "deutsch": "Hallo. Haben Sie ein Zimmer frei?", "englisch": "Hello. Do you have a room free?" },
       { "wer": "gegenueber", "umschrift": "mii khâ. yùu kìi khʉʉn khá?", "thai": "มีค่ะ อยู่กี่คืนคะ", "deutsch": "Ja. Wie viele Nächte bleiben Sie?", "englisch": "Yes. How many nights are you staying?" },
-      { "wer": "ich", "umschrift": "sɔ̌ɔng khʉʉn khráp. khʉʉn lá tâo-rài khráp?", "thai": "สองคืนครับ คืนละเท่าไหร่ครับ", "deutsch": "Zwei Nächte. Was kostet eine Nacht?", "englisch": "Two nights. How much is it per night?" },
+      { "wer": "ich", "umschrift": "sɔ̌ɔng khʉʉn khráp. khʉʉn lá thâo-rài khráp?", "thai": "สองคืนครับ คืนละเท่าไหร่ครับ", "deutsch": "Zwei Nächte. Was kostet eine Nacht?", "englisch": "Two nights. How much is it per night?" },
       { "wer": "gegenueber", "umschrift": "khʉʉn lá kâo rɔ́ɔi bàat khâ.", "thai": "คืนละเก้าร้อยบาทค่ะ", "deutsch": "900 Baht pro Nacht.", "englisch": "900 baht per night." },
       { "wer": "ich", "umschrift": "oo-khee khráp.", "thai": "โอเคครับ", "deutsch": "Okay.", "englisch": "Okay." },
       { "wer": "gegenueber", "umschrift": "nîi kun-jɛɛ khâ.", "thai": "นี่กุญแจค่ะ", "deutsch": "Hier ist der Schlüssel.", "englisch": "Here's the key." },
@@ -183,7 +183,7 @@
       { "wer": "gegenueber", "umschrift": "phɛ́ɛ yaa à-rai mǎi khá?", "thai": "แพ้ยาอะไรไหมคะ", "deutsch": "Sind Sie gegen ein Medikament allergisch?", "englisch": "Are you allergic to any medicine?" },
       { "wer": "ich", "umschrift": "mâi phɛ́ɛ khráp.", "thai": "ไม่แพ้ครับ", "deutsch": "Nein.", "englisch": "No." },
       { "wer": "gegenueber", "umschrift": "kin yaa níi khâ. wan lá sǎam khráng khâ.", "thai": "กินยานี้ค่ะ วันละสามครั้งค่ะ", "deutsch": "Nehmen Sie diese Tabletten, dreimal am Tag (khráng = Mal).", "englisch": "Take these tablets, three times a day (khráng = time)." },
-      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. tâo-rài khráp?", "thai": "ขอบคุณครับ เท่าไหร่ครับ", "deutsch": "Danke. Was kostet das?", "englisch": "Thank you. How much is it?" },
+      { "wer": "ich", "umschrift": "khɔ̀ɔp-khun khráp. thâo-rài khráp?", "thai": "ขอบคุณครับ เท่าไหร่ครับ", "deutsch": "Danke. Was kostet das?", "englisch": "Thank you. How much is it?" },
       { "wer": "gegenueber", "umschrift": "hâa-sìp bàat khâ.", "thai": "ห้าสิบบาทค่ะ", "deutsch": "50 Baht.", "englisch": "50 baht." }
     ]
   }

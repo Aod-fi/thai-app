@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.8.3">
+  <link rel="stylesheet" href="css/style.css?v=1.8.4">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -38,6 +38,15 @@
       <span class="chevron" data-t>›</span>
     </button>
 
+    <!-- Welche Kartenarten in Lernrunde und Frei üben drankommen (kartenart.js) -->
+    <p class="muted focus-label" id="kind-label" data-t>Karten:</p>
+    <div class="kind-buttons" role="group" aria-labelledby="kind-label">
+      <button data-kind="alle" data-t>Alle</button>
+      <button data-kind="wort" data-t>Wörter</button>
+      <button data-kind="satz" data-t>Sätze</button>
+      <button data-kind="hoeren" data-t>Verstehen</button>
+    </div>
+
     <button id="start-button" class="primary big" data-t>Lernrunde starten</button>
     <button id="more-button" class="secondary big" hidden data-t>5 weitere neue Karten lernen</button>
     <button id="practice-button" class="secondary big" data-t>Frei üben</button>
@@ -69,6 +78,7 @@
 
     <section class="card">
       <div id="card-badges" class="badges"></div>
+      <p id="kind-hint" class="muted kind-hint" hidden data-t>Diesen Satz sagen andere zu dir.</p>
 
       <!-- Vorderseite -->
       <div id="card-front">
@@ -409,6 +419,15 @@
 <li><b>Ton-Kurve</b>: Deine Tonhöhe (farbig) neben der von Kanya (grau). Geht deine Linie an denselben Stellen hoch und runter, stimmt der Ton. Bei kurzen Wörtern gibt es zusätzlich einen Hinweis.</li>
 </ul>
       </details>
+      <details class="panel info"><summary>Karten: Wörter, Sätze, Verstehen</summary>
+<p>Jede Karte ist eine von drei Arten, oben auf der Karte steht ein kleines Abzeichen:</p>
+<ul>
+<li><b>Wort</b>: ein Wort oder eine kurze Wendung, z. B. thîi-nîi (hier).</li>
+<li><b>Satz</b>: ein ganzer Satz, den du selbst sagst, z. B. jɔ̀ɔt thîi-nîi khráp (Halten Sie hier).</li>
+<li><b>👂 Verstehen</b>: ein Satz, den andere zu dir sagen, z. B. die Taxifahrerin: pai nǎi khá? (Wohin?). Den sollst du vor allem verstehen.</li>
+</ul>
+<p>Auf der Startseite wählst du unter <b>Karten:</b>, was in der Lernrunde und beim freien Üben drankommt: Alle, nur Wörter, nur Sätze oder nur Verstehen. Das gilt für neue und fällige Karten. Bei „Alle“ kommen in jedem Thema zuerst die Wörter, dann die Sätze.</p>
+      </details>
       <details class="panel info"><summary>Frei üben</summary>
 <p>Übt bis zu 20 Karten aus dem gewählten Thema in zufälliger Reihenfolge, egal ob fällig oder nicht. Zählt nicht für die Fächer, gut zum Auffrischen vor einer Reise.</p>
       </details>
@@ -416,7 +435,7 @@
 <ul>
 <li><b>Wörter verstehen</b>: Die App spricht, du wählst die richtige Bedeutung aus vier. Die Wörter kommen aus deiner Auswahl unter „Neue Karten aus“, oben steht „Wörter aus: …“.</li>
 <li><b>Töne hören</b>: Gleiche Silbe, anderer Ton (z. B. mǎa = Hund, máa = Pferd). Welches Wort war es?</li>
-<li><b>Zahlen und Preise</b>: Die App sagt eine Zahl oder einen Preis, du tippst ihn ein. Drei Stufen bis 1.000 Baht.</li>
+<li><b>Zahlen und Preise</b>: Kanya sagt eine Zahl oder einen Preis, du tippst ihn ein. Drei Stufen bis 1.000 Baht.</li>
 </ul>
 <p>Die Hörübungen zählen nicht für die Fächer.</p>
       </details>
@@ -491,6 +510,15 @@
 <li><b>Tone curve</b>: your pitch (in colour) next to Kanya's (grey). If your line goes up and down in the same places, the tone is right. Short words also get a hint.</li>
 </ul>
       </details>
+      <details class="panel info"><summary>Cards: words, sentences, listening</summary>
+<p>Every card is one of three kinds, shown by a small badge at the top of the card:</p>
+<ul>
+<li><b>Word</b>: a word or short phrase, e.g. thîi-nîi (here).</li>
+<li><b>Sentence</b>: a whole sentence you say yourself, e.g. jɔ̀ɔt thîi-nîi khráp (Stop here, please).</li>
+<li><b>👂 Listening</b>: a sentence other people say to you, e.g. the taxi driver: pai nǎi khá? (Where to?). The main thing is to understand it.</li>
+</ul>
+<p>On the start page, <b>Cards:</b> lets you choose what comes up in the learning round and in free practice: all, only words, only sentences or only listening. This applies to new cards and reviews. With “All”, each topic starts with the words, then the sentences.</p>
+      </details>
       <details class="panel info"><summary>Free practice</summary>
 <p>Practises up to 20 cards from the chosen topic in random order, whether they're due or not. Doesn't count towards your boxes; good for a refresher before a trip.</p>
       </details>
@@ -498,7 +526,7 @@
 <ul>
 <li><b>Understand words</b>: the app speaks, you pick the right meaning out of four. The words come from your choice under “New cards from”, shown at the top as “Words from: …”.</li>
 <li><b>Hear the tones</b>: same syllable, different tone (e.g. mǎa = dog, máa = horse). Which word was it?</li>
-<li><b>Numbers and prices</b>: the app says a number or a price, you type it in. Three levels up to 1,000 baht.</li>
+<li><b>Numbers and prices</b>: Kanya says a number or a price, you type it in. Three levels up to 1,000 baht.</li>
 </ul>
 <p>Listening exercises don't count towards your boxes.</p>
       </details>
@@ -549,6 +577,6 @@
     <button id="info-share" class="primary big" data-t>📤 App mit Freunden teilen</button>
   </main>
 
-  <script type="module" src="js/app.js?v=1.8.3"></script>
+  <script type="module" src="js/app.js?v=1.8.4"></script>
 </body>
 </html>

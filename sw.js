@@ -27,6 +27,7 @@ const FILES = [
   "js/dialog-view.js",
   "js/audio-files.js",
   "js/profil.js",
+  "js/kartenart.js",
   "inhalte/vokabeln.json",
   "inhalte/dialoge.json",
   "inhalte/toene.json",
@@ -73,6 +74,16 @@ async function cacheDialogAudio(cache) {
   await Promise.all(files.map(file => cache.add(file).catch(() => {})));
 }
 
+// Tondateien der Zahlenübung: audio/zahlen/1.m4a bis 100.m4a und die Preise der Stufe 3
+// (20 bis 1000 Baht in Zehnerschritten) als audio/zahlen/<zahl>-baht.m4a.
+// (Gleiche Regel wie numberAudioFiles in js/numbers.js; ein Service Worker kann sie nicht importieren.)
+async function cacheNumberAudio(cache) {
+  const files = [];
+  for (let n = 1; n <= 100; n++) files.push(`audio/zahlen/${n}.m4a`);
+  for (let n = 20; n <= 1000; n += 10) files.push(`audio/zahlen/${n}-baht.m4a`);
+  await Promise.all(files.map(file => cache.add(file).catch(() => {})));
+}
+
 // Tondateien für das Profil Frau (audio/frau/...): welche es gibt, schreibt scripts/make-audio.sh
 // in audio/frau/liste.json. Fehlt eine Datei, ist das kein Fehler.
 async function cacheWomanAudio(cache) {
@@ -89,6 +100,7 @@ self.addEventListener("install", event => {
         await cacheAudio(cache).catch(() => {});
         await cacheDialogAudio(cache).catch(() => {});
         await cacheWomanAudio(cache).catch(() => {});
+        await cacheNumberAudio(cache).catch(() => {});
       })
       .then(() => self.skipWaiting())
   );

@@ -3,11 +3,12 @@
 //
 // Die Sicherung ist eine kleine Textdatei (JSON) mit dem Lernstand aller Karten
 // und den übrigen gespeicherten Werten (Lerntage, gewähltes Thema usw.),
-// dazu "Mein Profil" (Name, Mann/Frau, Alter), falls eins angelegt ist.
+// dazu "Mein Profil" (Name, Mann/Frau, Alter), falls eins angelegt ist, und die Wahl "Karten:".
 // Ältere Sicherungen ohne Profil lassen sich weiter laden.
 
 import { t } from "./sprache.js";
 import { cleanProfile } from "./profil.js";
+import { CHOICES } from "./kartenart.js";
 
 const KIND = "mythai-lernstand";
 
@@ -22,6 +23,7 @@ export function buildBackup(data, appVersion, now = new Date()) {
     meta: data.meta,
   };
   if (data.profil) backup.profil = cleanProfile(data.profil);
+  if (data.kartenart) backup.kartenart = data.kartenart;
   return backup;
 }
 
@@ -36,8 +38,8 @@ function validState(state) {
     typeof state.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(state.due);
 }
 
-// Prüft den Text einer Sicherungsdatei und gibt { progress, meta, gesichertAm, profil } zurück
-// (profil = null, wenn die Sicherung keins enthält).
+// Prüft den Text einer Sicherungsdatei und gibt { progress, meta, gesichertAm, profil, kartenart } zurück
+// (profil bzw. kartenart = null, wenn die Sicherung keins enthält).
 // Bei einer falschen Datei gibt es einen Fehler mit verständlicher Meldung.
 export function parseBackup(text) {
   let data;
@@ -55,5 +57,7 @@ export function parseBackup(text) {
     if (!validState(state)) throw new Error(t("Die Sicherung ist beschädigt (Karte {id}).", { id }));
   }
   const profil = data.profil && typeof data.profil === "object" ? cleanProfile(data.profil) : null;
-  return { progress: data.progress, meta: data.meta, gesichertAm: data.gesichertAm || "", profil };
+  // Wahl "Karten:" auf der Startseite; fehlt in älteren Sicherungen (dann null)
+  const kartenart = CHOICES.includes(data.kartenart) ? data.kartenart : null;
+  return { progress: data.progress, meta: data.meta, gesichertAm: data.gesichertAm || "", profil, kartenart };
 }

@@ -42,3 +42,15 @@ test("Eingabe prüfen: Punkte und Baht werden ignoriert", () => {
   assert.equal(checkNumberAnswer(task, "100"), false);
   assert.equal(checkNumberAnswer(task, ""), false);
 });
+
+test("Tondateien der Zahlenübung: 1 bis 100 und alle Preise der Stufe 3", async () => {
+  const { numberAudio, numberAudioFiles } = await import("../js/numbers.js");
+  const files = numberAudioFiles();
+  assert.equal(files.length, 100 + 99);
+  assert.equal(numberAudio(makeTask(17)), "audio/zahlen/17.m4a");
+  assert.equal(numberAudio(makeTask(250, true)), "audio/zahlen/250-baht.m4a");
+  assert.ok(files.some(f => f.file === "audio/zahlen/70.m4a" && f.thai === "เจ็ดสิบ"));
+  // Jede Aufgabe aller drei Stufen hat eine Datei
+  const names = new Set(files.map(f => f.file));
+  for (const level of [1, 2, 3]) for (const task of numberRound(level)) assert.ok(names.has(numberAudio(task)), task.number);
+});

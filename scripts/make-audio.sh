@@ -7,6 +7,7 @@
 #   audio/toene/<gruppe>-<nummer>.m4a
 # und für jeden Satz der Dialoge (inhalte/dialoge.json):
 #   audio/dialoge/<dialog>-<satz>.m4a
+# für die Zahlenübung audio/zahlen/<zahl>.m4a und <zahl>-baht.m4a,
 # und für das Profil Frau die geänderten Sätze (audio/frau/..., siehe js/profil.js).
 # Die App spielt diese Dateien beim Vorlesen ab und berechnet daraus Kanyas Ton-Kurve
 # (zum Vergleich mit der eigenen Aussprache).
@@ -68,6 +69,19 @@ node --input-type=module -e '
 ' | while IFS=$'\t' read -r ziel thai; do
   if [[ -f "$ziel" && "$1" != "--alle" ]]; then continue; fi
   name="${ziel:t:r}"
+  say -v Kanya -o "$tmp/$name.aiff" "$thai"
+  afconvert -f m4af -d aac@22050 -c 1 -b 32000 "$tmp/$name.aiff" "$ziel"
+  echo "  $ziel"
+done
+
+# Zahlenübung: Zahlen 1 bis 100 und die Preise der Stufe 3 in audio/zahlen/ (Namen aus js/numbers.js)
+mkdir -p audio/zahlen
+node --input-type=module -e '
+  import { numberAudioFiles } from "./js/numbers.js";
+  for (const f of numberAudioFiles()) console.log(f.file + "\t" + f.thai);
+' | while IFS=$'\t' read -r ziel thai; do
+  if [[ -f "$ziel" && "$1" != "--alle" ]]; then continue; fi
+  name="zahl-${ziel:t:r}"
   say -v Kanya -o "$tmp/$name.aiff" "$thai"
   afconvert -f m4af -d aac@22050 -c 1 -b 32000 "$tmp/$name.aiff" "$ziel"
   echo "  $ziel"

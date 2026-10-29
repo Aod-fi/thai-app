@@ -53,7 +53,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 3. Die Felder ausfüllen:
 
 ```json
-{ "id": "taxi-links", "einheit": "4a", "thema": "Taxi", "umschrift": "líao sáai", "thai": "เลี้ยวซ้าย", "deutsch": "links abbiegen", "merkhilfe": "sáai = links", "englisch": "turn left", "merkhilfe_en": "sáai = left" }
+{ "id": "taxi-links", "einheit": "4a", "thema": "Taxi", "art": "satz", "umschrift": "líao sáai", "thai": "เลี้ยวซ้าย", "deutsch": "links abbiegen", "merkhilfe": "sáai = links", "englisch": "turn left", "merkhilfe_en": "sáai = left" }
 ```
 
 | Feld | Pflicht | Bedeutung |
@@ -61,6 +61,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `id` | ja | Eindeutiger Name, **nie mehr ändern** (daran hängt der Lernstand) |
 | `einheit` | ja | Einheit aus dem Chat, z. B. `"4a"` |
 | `thema` | ja | z. B. `"Taxi"` |
+| `art` | ja | `"wort"` (Wort oder kurze Wendung ohne khráp), `"satz"` (Satz, den du selbst sagst) oder `"hoeren"` (Satz, den andere zu dir sagen) |
 | `umschrift` | ja | Mit Tonzeichen, lange Vokale doppelt |
 | `thai` | ja | Thai-Schrift, wird nur vorgelesen, nie angezeigt |
 | `deutsch` | ja | Bedeutung |
