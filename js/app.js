@@ -14,10 +14,11 @@ import { toneHint, toneRound, toneOf, TONES } from "./tones.js";
 import { numberRound, checkNumberAnswer } from "./numbers.js";
 import { initDialogs, resetDialogs } from "./dialog-view.js";
 import { t, language, setLanguage, translatePage, localizeCards, localizeAreas, localizeToneGroups, themeName } from "./sprache.js";
+import { loadProfile, saveProfile, profileCards, isFirstStart, parseAge, MANN, MAX_NAME } from "./profil.js";
 
 // Versionsnummer, wird unten auf der Startseite angezeigt.
 // Bei jeder Änderung erhöhen, dann sieht man auf dem iPhone, ob die neue Version da ist.
-const VERSION = "1.8.2";
+const VERSION = "1.8.3";
 
 // Adresse der App, die beim Teilen verschickt wird
 const APP_URL = "https://aod-fi.github.io/thai-app/";
@@ -50,6 +51,8 @@ let toneGroups = [];  // Inhalt von inhalte/toene.json
 let toneQuiz = [];    // Fragen der Übung "Töne hören"
 let toneIndex = 0;
 let toneScore = 0;
+let profile = MANN;   // Mein Profil (Name, Mann/Frau, Alter), siehe profil.js
+let editGender = "mann"; // auf der Profilseite gewählt, gilt erst nach "Speichern"
 
 const today = () => toDateString(new Date());
 
@@ -64,11 +67,15 @@ async function start() {
   rawCards = await response.json();
   states = await loadStates();
   rawAreas = await (await fetch("inhalte/bereiche.json", { cache: "no-cache" })).json();
+  const savedProfile = loadProfile();
+  profile = savedProfile || MANN;
   applyLanguage();
   focus = await loadMeta("focus", "");
   if (!validFocus(focus)) focus = "";
   $("version").textContent = VERSION;
-  showHome();
+  // Allererster Start (noch nichts gespeichert): einmal die Profilseite, mit "Überspringen"
+  if (isFirstStart(savedProfile, await exportAll())) showProfile(true);
+  else showHome();
   requestPersistence();
 
   const hasVoice = await initSpeech();
@@ -78,10 +85,11 @@ async function start() {
 // Texte der Seite und der Inhalte in der gewählten Sprache
 function applyLanguage() {
   areas = localizeAreas(rawAreas);
-  cards = localizeCards(rawCards);
+  cards = localizeCards(profileCards(rawCards, profile));
   toneGroups = [];   // werden bei Bedarf in der neuen Sprache geladen
   resetDialogs();
   translatePage();
+  $("profile-button").setAttribute("aria-label", t("Mein Profil"));
   $("lang-de").classList.toggle("on", language() === "de");
   $("lang-en").classList.toggle("on", language() === "en");
 }
@@ -113,7 +121,7 @@ async function todaysRound() {
 // ---------- Ansichten wechseln ----------
 
 function showView(name) {
-  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog", "topics", "info"]) {
+  for (const view of ["home", "round", "listen-menu", "listen", "numbers", "tones", "stats", "overview", "dialog-list", "dialog", "topics", "info", "profile"]) {
     $(`view-${view}`).hidden = view !== name;
   }
   window.scrollTo(0, 0);
@@ -774,7 +782,7 @@ function showBackupMessage(text) {
 // Speichert den Lernstand als Datei. Auf dem iPhone öffnet sich das Teilen-Menü,
 // dort "In Dateien sichern" wählen. Sonst wird die Datei heruntergeladen.
 async function saveBackup() {
-  const backup = buildBackup(await exportAll(), VERSION);
+  const backup = buildBackup({ ...(await exportAll()), profil: loadProfile() }, VERSION);
   const name = backupFileName(today());
   const file = new File([JSON.stringify(backup, null, 1)], name, { type: "application/json" });
 
@@ -817,11 +825,64 @@ async function loadBackup(event) {
     showBackupMessage(t("Laden hat nicht geklappt. Dein bisheriger Lernstand ist unverändert."));
     return;
   }
+  // Profil aus der Sicherung übernehmen; ältere Sicherungen ohne Profil lassen das jetzige stehen
+  if (backup.profil) {
+    saveProfile(backup.profil);
+    profile = loadProfile() || MANN;
+  }
   states = await loadStates();
+  applyLanguage();
   focus = await loadMeta("focus", "");
   if (!validFocus(focus)) focus = "";
   await showStats();
   showBackupMessage(t("✓ Lernstand geladen: {count} gelernte Karten.", { count }));
+}
+
+// ---------- Mein Profil ----------
+// Name, Mann/Frau und Alter. Bleibt nur auf dem Gerät (localStorage, siehe profil.js).
+// firstStart = true: beim allerersten Start, mit "Überspringen" statt "Zurück"
+
+function showProfile(firstStart = false) {
+  $("profile-name").value = profile.name;
+  $("profile-name").maxLength = MAX_NAME;
+  $("profile-age").value = profile.alter || "";
+  $("profile-message").hidden = true;
+  $("profile-welcome").hidden = !firstStart;
+  $("profile-skip").hidden = !firstStart;
+  $("profile-close").hidden = firstStart;
+  chooseGender(profile.geschlecht);
+  showView("profile");
+}
+
+function chooseGender(value) {
+  editGender = value;
+  for (const button of document.querySelectorAll("[data-gender]")) {
+    const on = button.dataset.gender === value;
+    button.className = on ? "primary" : "secondary";
+    button.setAttribute("aria-pressed", String(on));
+  }
+}
+
+function saveProfileForm(event) {
+  event.preventDefault();
+  const age = parseAge($("profile-age").value);
+  if (age.fehler) {
+    $("profile-message").textContent = t("Bitte ein Alter von 1 bis 120 eingeben oder das Feld leer lassen.");
+    $("profile-message").hidden = false;
+    $("profile-age").focus();
+    return;
+  }
+  saveProfile({ name: $("profile-name").value, geschlecht: editGender, alter: age.alter });
+  profile = loadProfile() || MANN;
+  applyLanguage();
+  showHome();
+}
+
+// "Überspringen": Profil wie bisher (Mann, ohne Name und Alter) speichern, damit die Seite nicht wiederkommt
+function skipProfile() {
+  saveProfile(MANN);
+  profile = loadProfile() || MANN;
+  showHome();
 }
 
 // ---------- Info und Teilen ----------
@@ -865,10 +926,11 @@ function showOverview() {
 
 // Karten nach Bereich und Thema gliedern, innerhalb eines Themas
 // in der Reihenfolge der Vokabeldatei. Mit Suche nur die passenden Karten
-// (gesucht wird in den Feldern der Datei, also Deutsch und Englisch zugleich).
+// (gesucht wird in den Feldern der Datei, also Deutsch und Englisch zugleich,
+// mit den Texten passend zum Profil, z. B. für Frauen chán und khâ).
 function renderOverview() {
   const query = $("overview-search").value;
-  const raw = new Map(rawCards.map(card => [card.id, card]));
+  const raw = new Map(profileCards(rawCards, profile).map(card => [card.id, card]));
   const found = cards.filter(card => matchesSearch(raw.get(card.id), query));
   const list = $("overview-list");
   list.innerHTML = "";
@@ -962,6 +1024,13 @@ $("backup-load").addEventListener("click", () => $("backup-file").click());
 $("backup-file").addEventListener("change", loadBackup);
 $("lang-de").addEventListener("click", () => switchLanguage("de"));
 $("info-button").addEventListener("click", showInfo);
+$("profile-button").addEventListener("click", () => showProfile());
+$("profile-close").addEventListener("click", showHome);
+$("profile-form").addEventListener("submit", saveProfileForm);
+$("profile-skip").addEventListener("click", skipProfile);
+for (const button of document.querySelectorAll("[data-gender]")) {
+  button.addEventListener("click", () => chooseGender(button.dataset.gender));
+}
 $("info-close").addEventListener("click", showHome);
 $("share-button").addEventListener("click", shareApp);
 $("info-share").addEventListener("click", shareApp);

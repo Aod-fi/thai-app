@@ -104,6 +104,16 @@
     "titel_en": "Asking her out for dinner",
     "rollen": { "ich": "Du", "gegenueber": "Sie" },
     "rollen_en": { "ich": "You", "gegenueber": "Her" },
+    "frau": {
+      "titel_en": "Asking him out for dinner",
+      "rollen": { "ich": "Du", "gegenueber": "Er" },
+      "rollen_en": { "ich": "You", "gegenueber": "Him" },
+      "gegenueber_mann": true,
+      "saetze": {
+        "1": { "umschrift": "khun lɔ̀ɔ mâak khâ.", "thai": "คุณหล่อมากค่ะ", "deutsch": "Du siehst sehr gut aus.", "englisch": "You're very handsome." },
+        "3": { "deutsch": "Hast du schon eine Freundin?", "englisch": "Do you have a girlfriend yet?" }
+      }
+    },
     "saetze": [
       { "wer": "ich", "umschrift": "khun sǔai mâak khráp.", "thai": "คุณสวยมากครับ", "deutsch": "Du bist sehr schön.", "englisch": "You're very beautiful." },
       { "wer": "gegenueber", "umschrift": "pàak wǎan ná khá!", "thai": "ปากหวานนะคะ", "deutsch": "Du Schmeichler!", "englisch": "Smooth talker!" },

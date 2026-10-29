@@ -93,7 +93,8 @@ export function localizeCards(cards) {
     beispiel: pick(card.beispiel_en, card.beispiel),
     // Thai-Text des Beispiels (nur zum Vorlesen); meist in beiden Sprachen gleich
     beispiel_thai: pick(card.beispiel_thai_en, card.beispiel_thai),
-    beispiel_audio: card.beispiel_thai ? exampleAudio(card, lang === "en") : "",
+    // Beispiel mit eigenem Namen oder Alter (profil.js): keine Tondatei, die Stimme des Geräts liest
+    beispiel_audio: card.beispiel_thai && !card.beispiel_geraet ? exampleAudio(card, lang === "en") : "",
   }));
 }
 
@@ -301,4 +302,18 @@ const EN = {
   "🔄 Rolle tauschen": "🔄 Swap roles",
   "🎭 Jetzt deine Rolle": "🎭 Now your part",
   "Aufgenommen. Tippe auf „Auflösen“ und vergleiche mit ▶ Ich.": "Recorded. Tap “Show answer” and compare with ▶ Me.",
+  "Mein Profil": "My profile",
+  "Willkommen bei MyThai! Sag der App kurz, wer du bist. Dann passen die Sätze zu dir.": "Welcome to MyThai! Tell the app who you are, so the sentences fit you.",
+  "Name": "Name",
+  "In lateinischen Buchstaben, so wie man ihn ausspricht. Er kommt in „Ich heiße …“.": "In Latin letters, the way it's pronounced. It goes into “My name is …”.",
+  "Ich bin": "I am a",
+  "Mann": "Man",
+  "Frau": "Woman",
+  "Männer sagen phǒm (ich) und khráp, Frauen chán und khâ, bei Fragen khá.": "Men say phǒm (I) and khráp, women say chán and khâ, khá in questions.",
+  "Alter (freiwillig)": "Age (optional)",
+  "Kommt in „Ich bin … Jahre alt“.": "Goes into “I am … years old”.",
+  "Speichern": "Save",
+  "Überspringen": "Skip",
+  "🔒 Alles bleibt nur auf deinem Gerät.": "🔒 Everything stays on your device only.",
+  "Bitte ein Alter von 1 bis 120 eingeben oder das Feld leer lassen.": "Please enter an age from 1 to 120 or leave the field empty.",
 };

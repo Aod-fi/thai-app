@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MyThai</title>
-  <link rel="stylesheet" href="css/style.css?v=1.8.2">
+  <link rel="stylesheet" href="css/style.css?v=1.8.3">
   <!-- Für den Home-Bildschirm: Name, Symbol und Farben der App -->
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -23,6 +23,7 @@
       <span class="head-buttons">
         <button id="share-button" class="secondary small" data-t>📤 Teilen</button>
         <button id="info-button" class="secondary small" data-t>ⓘ Info</button>
+        <button id="profile-button" class="secondary small profile-button" aria-label="Mein Profil">👤</button>
       </span>
     </div>
     <p id="voice-warning" class="warning" hidden data-t>Keine Thai-Stimme gefunden. Lade sie unter Einstellungen → Bedienungshilfen → Gesprochene Inhalte → Stimmen → Thai → „Kanya (Erweitert)“.</p>
@@ -345,6 +346,36 @@
   </main>
 
 
+  <!-- 8. Mein Profil: Name, Mann/Frau, Alter. Beim allerersten Start einmal von selbst, mit "Überspringen". -->
+  <main id="view-profile" hidden>
+    <div class="topbar">
+      <button id="profile-close" class="link" data-t>← Zurück</button>
+    </div>
+    <h1 data-t>Mein Profil</h1>
+    <p id="profile-welcome" class="muted" hidden data-t>Willkommen bei MyThai! Sag der App kurz, wer du bist. Dann passen die Sätze zu dir.</p>
+    <form id="profile-form" class="panel profile-form" novalidate>
+      <label for="profile-name" data-t>Name</label>
+      <input id="profile-name" type="text" autocomplete="given-name" autocorrect="off" spellcheck="false" enterkeyhint="next">
+      <p class="muted field-hint" data-t>In lateinischen Buchstaben, so wie man ihn ausspricht. Er kommt in „Ich heiße …“.</p>
+
+      <p class="field-label" id="profile-gender-label" data-t>Ich bin</p>
+      <div class="gender-buttons" role="group" aria-labelledby="profile-gender-label">
+        <button type="button" data-gender="mann" data-t>Mann</button>
+        <button type="button" data-gender="frau" data-t>Frau</button>
+      </div>
+      <p class="muted field-hint" data-t>Männer sagen phǒm (ich) und khráp, Frauen chán und khâ, bei Fragen khá.</p>
+
+      <label for="profile-age" data-t>Alter (freiwillig)</label>
+      <input id="profile-age" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" autocomplete="off" enterkeyhint="done">
+      <p class="muted field-hint" data-t>Kommt in „Ich bin … Jahre alt“.</p>
+      <p id="profile-message" class="profile-message" role="alert" hidden></p>
+
+      <button type="submit" id="profile-save" class="primary big" data-t>Speichern</button>
+      <button type="button" id="profile-skip" class="secondary big" hidden data-t>Überspringen</button>
+    </form>
+    <p class="muted hint profile-private" data-t>🔒 Alles bleibt nur auf deinem Gerät.</p>
+  </main>
+
   <!-- 7. Info: Beschreibung aller Funktionen. Zwei Fassungen, sichtbar ist die der gewählten Sprache. -->
   <main id="view-info" hidden>
     <div class="topbar">
@@ -404,6 +435,13 @@
       <details class="panel info"><summary>📊 Statistik und Lernstand sichern</summary>
 <p>Die Statistik zeigt Lerntage in Folge, Karten pro Fach, deinen Stand pro Thema und die Wiederholungen der nächsten 7 Tage.</p>
 <p>Dein Lernstand ist nur auf diesem Gerät gespeichert. Sichere ihn ab und zu mit <b>💾 Lernstand sichern</b> (auf dem iPhone: „In Dateien sichern“, z. B. in iCloud Drive). Mit <b>📂 Lernstand laden</b> holst du ihn zurück, auch auf ein neues Gerät.</p>
+      </details>
+      <details class="panel info"><summary>👤 Mein Profil</summary>
+<p>Oben auf der Startseite öffnet <b>👤</b> dein Profil: Name, Mann oder Frau und, wenn du magst, dein Alter. Es bleibt nur auf deinem Gerät.</p>
+<ul>
+<li><b>Frau</b>: Die Sätze stehen dann in der Frauenform, chán (ich) statt phǒm und khâ statt khráp, bei Fragen khá. In den Dialogen gilt das für deine Rolle.</li>
+<li><b>Name und Alter</b> kommen in die Beispiele „Ich heiße …“ und „Ich bin … Jahre alt“ und in den Dialog „Sich vorstellen“. Diese Sätze liest die Thai-Stimme deines Geräts vor.</li>
+</ul>
       </details>
       <details class="panel info"><summary>Umschrift und Töne</summary>
 <p>Thai hat fünf Töne. Das Zeichen über dem Vokal zeigt den Ton:</p>
@@ -480,6 +518,13 @@
 <p>Statistics show your days in a row, cards per box, your progress per topic and the reviews for the next 7 days.</p>
 <p>Your progress is only stored on this device. Back it up now and then with <b>💾 Save progress</b> (on iPhone: “Save to Files”, e.g. iCloud Drive). <b>📂 Load progress</b> brings it back, also on a new device.</p>
       </details>
+      <details class="panel info"><summary>👤 My profile</summary>
+<p><b>👤</b> at the top of the start page opens your profile: name, man or woman and, if you like, your age. It stays on your device only.</p>
+<ul>
+<li><b>Woman</b>: sentences then use the female form, chán (I) instead of phǒm and khâ instead of khráp, khá in questions. In the dialogues this applies to your part.</li>
+<li><b>Name and age</b> go into the examples “My name is …” and “I am … years old” and into the dialogue “Introducing yourself”. These sentences are read by your device's Thai voice.</li>
+</ul>
+      </details>
       <details class="panel info"><summary>Transliteration and tones</summary>
 <p>Thai has five tones. The mark above the vowel shows the tone:</p>
 <ul>
@@ -504,6 +549,6 @@
     <button id="info-share" class="primary big" data-t>📤 App mit Freunden teilen</button>
   </main>
 
-  <script type="module" src="js/app.js?v=1.8.2"></script>
+  <script type="module" src="js/app.js?v=1.8.3"></script>
 </body>
 </html>

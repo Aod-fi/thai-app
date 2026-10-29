@@ -2,15 +2,18 @@
 // Getestet in tests/backup.test.mjs.
 //
 // Die Sicherung ist eine kleine Textdatei (JSON) mit dem Lernstand aller Karten
-// und den übrigen gespeicherten Werten (Lerntage, gewähltes Thema usw.).
+// und den übrigen gespeicherten Werten (Lerntage, gewähltes Thema usw.),
+// dazu "Mein Profil" (Name, Mann/Frau, Alter), falls eins angelegt ist.
+// Ältere Sicherungen ohne Profil lassen sich weiter laden.
 
 import { t } from "./sprache.js";
+import { cleanProfile } from "./profil.js";
 
 const KIND = "mythai-lernstand";
 
-// Baut den Inhalt der Sicherungsdatei
+// Baut den Inhalt der Sicherungsdatei. data.profil: gespeichertes Profil oder null
 export function buildBackup(data, appVersion, now = new Date()) {
-  return {
+  const backup = {
     art: KIND,
     version: 1,
     appVersion,
@@ -18,6 +21,8 @@ export function buildBackup(data, appVersion, now = new Date()) {
     progress: data.progress,
     meta: data.meta,
   };
+  if (data.profil) backup.profil = cleanProfile(data.profil);
+  return backup;
 }
 
 // Dateiname, z. B. "mythai-lernstand-2026-10-27.json"
@@ -31,7 +36,8 @@ function validState(state) {
     typeof state.due === "string" && /^\d{4}-\d{2}-\d{2}$/.test(state.due);
 }
 
-// Prüft den Text einer Sicherungsdatei und gibt { progress, meta, gesichertAm } zurück.
+// Prüft den Text einer Sicherungsdatei und gibt { progress, meta, gesichertAm, profil } zurück
+// (profil = null, wenn die Sicherung keins enthält).
 // Bei einer falschen Datei gibt es einen Fehler mit verständlicher Meldung.
 export function parseBackup(text) {
   let data;
@@ -48,5 +54,6 @@ export function parseBackup(text) {
   for (const [id, state] of Object.entries(data.progress)) {
     if (!validState(state)) throw new Error(t("Die Sicherung ist beschädigt (Karte {id}).", { id }));
   }
-  return { progress: data.progress, meta: data.meta, gesichertAm: data.gesichertAm || "" };
+  const profil = data.profil && typeof data.profil === "object" ? cleanProfile(data.profil) : null;
+  return { progress: data.progress, meta: data.meta, gesichertAm: data.gesichertAm || "", profil };
 }

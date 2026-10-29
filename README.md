@@ -26,10 +26,12 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `inhalte/dialoge.json` | **Alle Dialoge** (kurze Gespräche aus den Einheiten) |
 | `js/dialoge.js` | Dialoge: Rollenwechsel (khâ/khá → khráp), Namen der Tondateien |
 | `js/dialog-view.js` | Dialoge: Anhören, Mitsprechen, Deine Rolle |
+| `js/profil.js` | Mein Profil (Name, Mann/Frau, Alter) und die Frauenform der Sätze (phǒm → chán, khráp → khâ/khá) |
 | `audio/` | Kanyas Aussprache jeder Karte als Tondatei (zum Vorlesen und für die Ton-Kurve) |
 | `audio/beispiele/` | Kanyas Aussprache jedes Beispielsatzes |
 | `audio/toene/` | Kanyas Aussprache der Wörter für „Töne hören“ |
 | `audio/dialoge/` | Kanyas Aussprache jedes Dialog-Satzes |
+| `audio/frau/` | Kanyas Aussprache der Sätze, die sich für das Profil Frau ändern (mit `liste.json` für den Offline-Speicher) |
 | `scripts/make-audio.sh` | Erzeugt die Tondateien in `audio/` |
 | `sw.js` | Service Worker: Offline-Betrieb und frische Dateien |
 | `manifest.json`, `icons/` | Name und Symbol für den Home-Bildschirm |
@@ -70,6 +72,7 @@ Läuft auf iPhone, iPad und Mac, auch offline.
 | `beispiel_thai` | bei Beispiel ja | Nur der Thai-Teil des Beispiels (vor dem „=“) in Thai-Schrift, wird nur vorgelesen, nie angezeigt |
 | `beispiel_thai_en` | nein | Nur falls der Thai-Teil auf Englisch anders ist (z. B. anderer Name) |
 | `aufpassen` | nein | `true` bei Schwachstellen |
+| `frau` | nein | Eigene Texte für das Profil Frau, z. B. `"frau": { "merkhilfe": "chán = ich (Frau) …" }`. Meist nicht nötig: khráp → khâ/khá und phǒm → chán stellt die App selbst um. `npm run check` meldet, wo eine Merkhilfe vom Mann spricht und eine Frau-Fassung fehlt. |
 
 4. Im Terminal prüfen: `npm run check`
 5. Tondatei für die Ton-Kurve erzeugen (nur auf dem Mac): `zsh scripts/make-audio.sh`
@@ -85,6 +88,18 @@ Läuft auf iPhone, iPad und Mac, auch offline.
    Die andere Person ist eine Frau und sagt khâ/khá. Beim Rollenwechsel macht die App daraus automatisch khráp.
 4. Prüfen: `npm run check`, dann Tondateien erzeugen: `zsh scripts/make-audio.sh`
    (fehlt eine Tondatei, liest die Thai-Stimme des Geräts den Satz vor).
+
+## Mein Profil
+
+Die Taste **👤** oben auf der Startseite öffnet „Mein Profil“: Name, Mann oder Frau, Alter (freiwillig).
+Gespeichert wird es nur auf dem Gerät (`localStorage`, Schlüssel `mythai-profil`). „Lernstand sichern“ nimmt es mit, „Lernstand laden“ holt es zurück (ältere Sicherungen ohne Profil lassen das jetzige Profil stehen).
+Beim allerersten Start (noch gar nichts gespeichert) zeigt die App die Seite einmal von selbst, mit „Überspringen“.
+
+- **Frau:** Karten, Beispielsätze und deine Rolle in den Dialogen stehen in der Frauenform (Regeln in `js/profil.js`).
+  Kanya spricht diese Sätze aus `audio/frau/`, `zsh scripts/make-audio.sh` erzeugt sie mit.
+  Damit das klappt, müssen khráp/phǒm in der Umschrift und ครับ/ผม im Thai-Text gleich oft vorkommen (`npm run check` prüft das).
+- **Name und Alter** kommen in die Beispiele von „Ich heiße …“ und „Ich bin … Jahre alt“ und in den Dialog „Sich vorstellen“.
+  Diese Sätze liest die Thai-Stimme des Geräts (eine Tondatei gibt es dafür nicht).
 
 ## Englische Fassung
 
