@@ -1,0 +1,12 @@
+[
+  { "id": "grundlagen", "name": "Grundlagen", "emoji": "👋", "themen": ["Begrüßung", "Grammatik", "Überlebenssätze"],
+    "name_en": "Basics", "themen_en": {"Begrüßung": "Greetings", "Grammatik": "Grammar", "Überlebenssätze": "Survival phrases"} },
+  { "id": "zahlen", "name": "Zahlen & Zeit", "emoji": "🔢", "themen": ["Zahlen", "Preise", "Zeit", "Wochentage"],
+    "name_en": "Numbers & time", "themen_en": {"Zahlen": "Numbers", "Preise": "Prices", "Zeit": "Time", "Wochentage": "Days of the week"} },
+  { "id": "essen", "name": "Essen & Einkaufen", "emoji": "🍜", "themen": ["Markt", "Einkaufen", "Essen"],
+    "name_en": "Food & shopping", "themen_en": {"Markt": "Market", "Einkaufen": "Shopping", "Essen": "Food"} },
+  { "id": "reise", "name": "Unterwegs & Reise", "emoji": "🚕", "themen": ["Taxi", "Hotel", "Gesundheit & Notfall"],
+    "name_en": "Out & about", "themen_en": {"Taxi": "Taxi", "Hotel": "Hotel", "Gesundheit & Notfall": "Health & emergencies"} },
+  { "id": "menschen", "name": "Menschen & Gefühle", "emoji": "💬", "themen": ["Small Talk", "Nachbarn", "Dating", "Gefühle"],
+    "name_en": "People & feelings", "themen_en": {"Small Talk": "Small talk", "Nachbarn": "Neighbours", "Dating": "Dating", "Gefühle": "Feelings"} }
+]
